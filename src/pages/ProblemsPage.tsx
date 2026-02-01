@@ -1,8 +1,11 @@
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { getProblems } from '@/lib/api';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { 
   Brain, 
   Shield, 
@@ -13,9 +16,13 @@ import {
   Flame,
   GitBranch,
   LucideIcon,
-  ChevronRight
+  ChevronRight,
+  BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ProblemMatcher } from '@/components/problems/ProblemMatcher';
+import { EmotionCloud } from '@/components/problems/EmotionCloud';
+import { SEOHead, generateBreadcrumbSchema } from '@/components/SEOHead';
 
 const iconMap: Record<string, LucideIcon> = {
   Brain,
@@ -39,23 +46,79 @@ const colorMap: Record<string, string> = {
   green: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
 };
 
+async function getProblemsWithCounts() {
+  const { data: problems, error } = await supabase
+    .from('problems')
+    .select('*, shlok_problems(count)')
+    .order('display_order');
+  
+  if (error) throw error;
+  
+  return problems.map(p => ({
+    ...p,
+    verseCount: (p.shlok_problems as any)?.[0]?.count || 0,
+  }));
+}
+
 export default function ProblemsPage() {
+  const navigate = useNavigate();
+  const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
+  
   const { data: problems, isLoading } = useQuery({
-    queryKey: ['problems'],
-    queryFn: getProblems,
+    queryKey: ['problems-with-counts'],
+    queryFn: getProblemsWithCounts,
   });
+
+  const filteredProblems = useMemo(() => {
+    if (!problems) return [];
+    if (selectedEmotions.length === 0) return problems;
+    
+    return problems.filter(problem => 
+      selectedEmotions.includes(problem.slug)
+    );
+  }, [problems, selectedEmotions]);
+
+  const handleEmotionToggle = (emotion: string) => {
+    setSelectedEmotions(prev => 
+      prev.includes(emotion)
+        ? prev.filter(e => e !== emotion)
+        : [...prev, emotion]
+    );
+  };
+
+  const handleMatchFound = (slug: string) => {
+    navigate(`/problems/${slug}`);
+  };
+
+  const breadcrumbs = [
+    { name: 'Home', url: 'https://gitawisdom.com/' },
+    { name: 'Life Problems', url: 'https://gitawisdom.com/problems' },
+  ];
 
   return (
     <Layout>
+      <SEOHead
+        title="Life Problems Addressed by Bhagavad Gita"
+        description="Find Gita wisdom for anxiety, fear, anger, self-doubt, relationships, and major life decisions. Ancient solutions for modern challenges."
+        canonicalUrl="https://gitawisdom.com/problems"
+        keywords={['life problems', 'anxiety help', 'fear', 'anger management', 'self-doubt', 'Gita solutions']}
+        structuredData={generateBreadcrumbSchema(breadcrumbs)}
+      />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4">Life Problems</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             The Bhagavad Gita addresses universal human struggles. 
             Find wisdom that speaks directly to what you're going through.
           </p>
         </div>
+
+        {/* Emotion Cloud */}
+        <EmotionCloud
+          selectedEmotions={selectedEmotions}
+          onEmotionToggle={handleEmotionToggle}
+        />
 
         {/* Problems Grid */}
         {isLoading ? (
@@ -66,7 +129,13 @@ export default function ProblemsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {problems?.map((problem) => {
+            {/* Problem Matcher */}
+            <ProblemMatcher
+              problems={problems || []}
+              onMatchFound={handleMatchFound}
+            />
+            
+            {filteredProblems?.map((problem) => {
               const Icon = iconMap[problem.icon || 'HelpCircle'] || HelpCircle;
               const colorClass = colorMap[problem.color || 'blue'] || colorMap.blue;
 
@@ -82,9 +151,11 @@ export default function ProblemsPage() {
                           <Icon className="h-7 w-7" />
                         </div>
                         <div className="flex-1">
-                          <CardTitle className="text-xl mb-2 group-hover:text-primary transition-colors">
-                            {problem.name}
-                          </CardTitle>
+                          <div className="flex items-center gap-2 mb-2">
+                            <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                              {problem.name}
+                            </CardTitle>
+                          </div>
                           <p className="text-muted-foreground">
                             {problem.description_english}
                           </p>
@@ -92,9 +163,15 @@ export default function ProblemsPage() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex items-center text-primary text-sm font-medium group-hover:gap-2 transition-all">
-                        <span>Explore Solutions</span>
-                        <ChevronRight className="h-4 w-4" />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <BookOpen className="h-4 w-4" />
+                          <span>{problem.verseCount} verses</span>
+                        </div>
+                        <div className="flex items-center text-primary text-sm font-medium group-hover:gap-2 transition-all">
+                          <span>Explore Solutions</span>
+                          <ChevronRight className="h-4 w-4" />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
