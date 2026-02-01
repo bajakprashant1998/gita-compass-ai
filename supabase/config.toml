@@ -1,0 +1,4 @@
+project_id = "glxupcdgtzqkaxcgezeu"
+
+[functions.gita-coach]
+verify_jwt = false
