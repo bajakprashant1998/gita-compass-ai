@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Save, ArrowLeft } from 'lucide-react';
+import { Loader2, Save, ArrowLeft, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { updateChapter, logActivity } from '@/lib/adminApi';
+import { updateChapter, logActivity, generateAIContentWithMeta } from '@/lib/adminApi';
 import { useToast } from '@/hooks/use-toast';
+import { AIGenerateButton } from '@/components/admin/AIGenerateButton';
 
 interface ChapterData {
   id: string;
@@ -73,6 +74,32 @@ export default function AdminChapterForm() {
 
   const handleChange = (field: keyof ChapterData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleGenerateDescriptions = async () => {
+    if (!formData.title_english || !formData.theme) {
+      toast({
+        title: 'Need Title & Theme',
+        description: 'Please enter title and theme first',
+        variant: 'destructive',
+      });
+      return '';
+    }
+
+    const result = await generateAIContentWithMeta('chapter_description', {
+      chapter_title: formData.title_english,
+      chapter_theme: formData.theme,
+    });
+
+    if (result.description_english) {
+      handleChange('description_english', result.description_english as string);
+    }
+    if (result.description_hindi) {
+      handleChange('description_hindi', result.description_hindi as string);
+    }
+
+    toast({ title: 'Generated', description: 'Descriptions generated successfully' });
+    return result.content as string || '';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -180,7 +207,15 @@ export default function AdminChapterForm() {
 
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Theme & Descriptions</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Theme & Descriptions</CardTitle>
+                <AIGenerateButton
+                  label="Generate Both"
+                  disabled={!formData.title_english || !formData.theme}
+                  onGenerate={handleGenerateDescriptions}
+                  onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                />
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -199,6 +234,7 @@ export default function AdminChapterForm() {
                   <Textarea
                     id="desc_en"
                     className="min-h-[150px]"
+                    placeholder="English description of the chapter..."
                     value={formData.description_english || ''}
                     onChange={(e) => handleChange('description_english', e.target.value)}
                   />
@@ -209,6 +245,7 @@ export default function AdminChapterForm() {
                   <Textarea
                     id="desc_hi"
                     className="min-h-[150px]"
+                    placeholder="अध्याय का हिंदी विवरण..."
                     value={formData.description_hindi || ''}
                     onChange={(e) => handleChange('description_hindi', e.target.value)}
                   />

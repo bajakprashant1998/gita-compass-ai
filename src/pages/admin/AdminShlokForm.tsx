@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Save, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Loader2, Save, ArrowLeft, CheckCircle, Plus, Sparkles, Settings } from 'lucide-react';
 import {
   getShlokById,
   createShlok,
@@ -26,9 +26,15 @@ import {
   getAdminProblems,
   updateShlokProblems,
   logActivity,
+  generateAIContent,
+  generateAIContentWithMeta,
 } from '@/lib/adminApi';
-import type { AdminShlok, AdminProblem, ShlokStatus, StoryType } from '@/types/admin';
+import type { AdminShlok, AdminProblem, ShlokStatus, StoryType, StoryTypeConfig } from '@/types/admin';
 import { useToast } from '@/hooks/use-toast';
+import { AIGenerateButton } from '@/components/admin/AIGenerateButton';
+import { AddProblemModal } from '@/components/admin/AddProblemModal';
+import { StoryTypeManager } from '@/components/admin/StoryTypeManager';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProblemMapping {
   id: string;
@@ -47,6 +53,9 @@ export default function AdminShlokForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [chapters, setChapters] = useState<{ id: string; chapter_number: number; title_english: string }[]>([]);
   const [problemMappings, setProblemMappings] = useState<ProblemMapping[]>([]);
+  const [storyTypes, setStoryTypes] = useState<StoryTypeConfig[]>([]);
+  const [showAddProblem, setShowAddProblem] = useState(false);
+  const [showStoryTypeManager, setShowStoryTypeManager] = useState(false);
 
   const [formData, setFormData] = useState<Partial<AdminShlok>>({
     chapter_id: '',
@@ -65,6 +74,14 @@ export default function AdminShlokForm() {
     sanskrit_audio_url: '',
   });
 
+  const loadStoryTypes = async () => {
+    const { data } = await supabase
+      .from('story_types')
+      .select('*')
+      .order('display_order', { ascending: true });
+    setStoryTypes((data || []) as StoryTypeConfig[]);
+  };
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -74,6 +91,7 @@ export default function AdminShlokForm() {
         ]);
 
         setChapters(chaptersData);
+        loadStoryTypes();
 
         // Initialize problem mappings
         const mappings = problemsData.map(p => ({
@@ -143,6 +161,13 @@ export default function AdminShlokForm() {
     );
   };
 
+  const handleProblemCreated = (newProblem: { id: string; name: string }) => {
+    setProblemMappings(prev => [
+      ...prev,
+      { id: newProblem.id, name: newProblem.name, selected: true, relevance_score: 7 },
+    ]);
+  };
+
   const handleSubmit = async (status: ShlokStatus) => {
     if (!formData.chapter_id || !formData.sanskrit_text || !formData.english_meaning) {
       toast({
@@ -190,6 +215,73 @@ export default function AdminShlokForm() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  // AI Generation handlers
+  const handleAIGenerate = async (
+    type: 'transliteration' | 'hindi_meaning' | 'english_meaning' | 'problem_context' | 'solution_gita' | 'life_application' | 'practical_action' | 'modern_story',
+    field: keyof AdminShlok
+  ) => {
+    const content = await generateAIContent(type, {
+      sanskrit_text: formData.sanskrit_text,
+      english_meaning: formData.english_meaning,
+      verse_content: formData.english_meaning || formData.sanskrit_text,
+      story_type: formData.story_type || 'corporate',
+    });
+    handleChange(field, content);
+    toast({ title: 'Generated', description: `${field.replace('_', ' ')} generated successfully` });
+    return content;
+  };
+
+  const handleGenerateAllSolutions = async () => {
+    const fields = ['problem_context', 'solution_gita', 'life_application', 'practical_action'] as const;
+    for (const field of fields) {
+      await handleAIGenerate(field, field);
+    }
+    toast({ title: 'Done', description: 'All solution fields generated' });
+  };
+
+  const handleSuggestProblems = async () => {
+    const result = await generateAIContentWithMeta('suggest_problems', {
+      verse_content: formData.english_meaning || formData.sanskrit_text,
+      existing_problems: problemMappings.map(p => ({ name: p.name, category: 'general' })),
+    });
+
+    if (result.problems && Array.isArray(result.problems)) {
+      const suggestions = result.problems as Array<{ name: string; relevance_score?: number }>;
+      
+      // Match suggestions to existing problems
+      const updatedMappings = problemMappings.map(pm => {
+        const suggestion = suggestions.find(s => 
+          s.name.toLowerCase().includes(pm.name.toLowerCase()) ||
+          pm.name.toLowerCase().includes(s.name.toLowerCase())
+        );
+        if (suggestion) {
+          return { ...pm, selected: true, relevance_score: suggestion.relevance_score || 7 };
+        }
+        return pm;
+      });
+      
+      setProblemMappings(updatedMappings);
+      toast({ title: 'Suggestions Applied', description: `Found ${suggestions.length} relevant problems` });
+    }
+    return '';
+  };
+
+  const handleSuggestStoryType = async () => {
+    if (!formData.modern_story && !formData.english_meaning) {
+      toast({ title: 'Need Content', description: 'Add story or meaning first', variant: 'destructive' });
+      return '';
+    }
+    const suggestion = await generateAIContent('suggest_story_type', {
+      story_content: formData.modern_story || formData.english_meaning,
+    });
+    const storyType = suggestion.toLowerCase().trim() as StoryType;
+    if (['corporate', 'family', 'youth', 'global'].includes(storyType)) {
+      handleChange('story_type', storyType);
+      toast({ title: 'Type Suggested', description: `Suggested: ${storyType}` });
+    }
+    return suggestion;
   };
 
   const selectedChapter = chapters.find(c => c.id === formData.chapter_id);
@@ -276,7 +368,15 @@ export default function AdminShlokForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="transliteration">Transliteration</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="transliteration">Transliteration</Label>
+                    <AIGenerateButton
+                      label="Generate"
+                      disabled={!formData.sanskrit_text}
+                      onGenerate={() => handleAIGenerate('transliteration', 'transliteration')}
+                      onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                    />
+                  </div>
                   <Textarea
                     id="transliteration"
                     placeholder="Enter transliteration..."
@@ -308,7 +408,15 @@ export default function AdminShlokForm() {
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="hindi">Hindi Meaning</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="hindi">Hindi Meaning</Label>
+                      <AIGenerateButton
+                        label="Generate Hindi"
+                        disabled={!formData.sanskrit_text}
+                        onGenerate={() => handleAIGenerate('hindi_meaning', 'hindi_meaning')}
+                        onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                      />
+                    </div>
                     <Textarea
                       id="hindi"
                       className="min-h-[200px]"
@@ -319,7 +427,15 @@ export default function AdminShlokForm() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="english">English Meaning *</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="english">English Meaning *</Label>
+                      <AIGenerateButton
+                        label="Generate English"
+                        disabled={!formData.sanskrit_text}
+                        onGenerate={() => handleAIGenerate('english_meaning', 'english_meaning')}
+                        onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                      />
+                    </div>
                     <Textarea
                       id="english"
                       className="min-h-[200px]"
@@ -337,7 +453,21 @@ export default function AdminShlokForm() {
           <TabsContent value="problems">
             <Card>
               <CardHeader>
-                <CardTitle>Problem Mapping</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Problem Mapping</CardTitle>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setShowAddProblem(true)}>
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add Problem
+                    </Button>
+                    <AIGenerateButton
+                      label="Suggest Problems"
+                      disabled={!formData.english_meaning && !formData.sanskrit_text}
+                      onGenerate={handleSuggestProblems}
+                      onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                    />
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -370,6 +500,11 @@ export default function AdminShlokForm() {
                       )}
                     </div>
                   ))}
+                  {problemMappings.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">
+                      No problems found. Create one to start mapping.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -379,11 +514,25 @@ export default function AdminShlokForm() {
           <TabsContent value="solution">
             <Card>
               <CardHeader>
-                <CardTitle>Solution & Application</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Solution & Application</CardTitle>
+                  <Button variant="outline" size="sm" onClick={handleGenerateAllSolutions} disabled={!formData.english_meaning}>
+                    <Sparkles className="h-4 w-4 mr-1" />
+                    Generate All
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="problem_context">Problem Context</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="problem_context">Problem Context</Label>
+                    <AIGenerateButton
+                      label="Generate"
+                      disabled={!formData.english_meaning}
+                      onGenerate={() => handleAIGenerate('problem_context', 'problem_context')}
+                      onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                    />
+                  </div>
                   <Textarea
                     id="problem_context"
                     className="min-h-[100px]"
@@ -394,7 +543,15 @@ export default function AdminShlokForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="solution_gita">Gita-Based Solution</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="solution_gita">Gita-Based Solution</Label>
+                    <AIGenerateButton
+                      label="Generate"
+                      disabled={!formData.english_meaning}
+                      onGenerate={() => handleAIGenerate('solution_gita', 'solution_gita')}
+                      onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                    />
+                  </div>
                   <Textarea
                     id="solution_gita"
                     className="min-h-[100px]"
@@ -405,7 +562,15 @@ export default function AdminShlokForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="life_application">Life Application</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="life_application">Life Application</Label>
+                    <AIGenerateButton
+                      label="Generate"
+                      disabled={!formData.english_meaning}
+                      onGenerate={() => handleAIGenerate('life_application', 'life_application')}
+                      onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                    />
+                  </div>
                   <Textarea
                     id="life_application"
                     className="min-h-[100px]"
@@ -416,7 +581,15 @@ export default function AdminShlokForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="practical_action">Practical Action</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="practical_action">Practical Action</Label>
+                    <AIGenerateButton
+                      label="Generate"
+                      disabled={!formData.english_meaning}
+                      onGenerate={() => handleAIGenerate('practical_action', 'practical_action')}
+                      onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                    />
+                  </div>
                   <Textarea
                     id="practical_action"
                     className="min-h-[100px]"
@@ -436,26 +609,57 @@ export default function AdminShlokForm() {
                 <CardTitle>Modern Story</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="story_type">Story Type</Label>
-                  <Select
-                    value={formData.story_type || 'corporate'}
-                    onValueChange={(value) => handleChange('story_type', value as StoryType)}
-                  >
-                    <SelectTrigger className="w-[200px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="corporate">Corporate</SelectItem>
-                      <SelectItem value="family">Family</SelectItem>
-                      <SelectItem value="youth">Youth</SelectItem>
-                      <SelectItem value="global">Global</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor="story_type">Story Type</Label>
+                    <div className="flex gap-2">
+                      <Select
+                        value={formData.story_type || 'corporate'}
+                        onValueChange={(value) => handleChange('story_type', value as StoryType)}
+                      >
+                        <SelectTrigger className="w-[200px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {storyTypes.length > 0 ? (
+                            storyTypes.map(st => (
+                              <SelectItem key={st.id} value={st.name}>
+                                {st.display_name}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <>
+                              <SelectItem value="corporate">Corporate</SelectItem>
+                              <SelectItem value="family">Family</SelectItem>
+                              <SelectItem value="youth">Youth</SelectItem>
+                              <SelectItem value="global">Global</SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <Button variant="outline" size="icon" onClick={() => setShowStoryTypeManager(true)}>
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <AIGenerateButton
+                    label="Auto-Suggest Type"
+                    disabled={!formData.modern_story && !formData.english_meaning}
+                    onGenerate={handleSuggestStoryType}
+                    onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="modern_story">Story Content</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="modern_story">Story Content</Label>
+                    <AIGenerateButton
+                      label="Generate Story"
+                      disabled={!formData.english_meaning}
+                      onGenerate={() => handleAIGenerate('modern_story', 'modern_story')}
+                      onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                    />
+                  </div>
                   <Textarea
                     id="modern_story"
                     className="min-h-[300px]"
@@ -540,6 +744,18 @@ export default function AdminShlokForm() {
           </Button>
         </div>
       </div>
+
+      {/* Modals */}
+      <AddProblemModal
+        open={showAddProblem}
+        onOpenChange={setShowAddProblem}
+        onProblemCreated={handleProblemCreated}
+      />
+      <StoryTypeManager
+        open={showStoryTypeManager}
+        onOpenChange={setShowStoryTypeManager}
+        onTypesUpdated={loadStoryTypes}
+      />
     </AdminLayout>
   );
 }

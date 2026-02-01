@@ -33,6 +33,7 @@ const categoryColors: Record<ProblemCategory, string> = {
   ethics: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
   career: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
   relationships: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
+  spiritual: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
 };
 
 export default function AdminProblemList() {

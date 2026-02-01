@@ -9,7 +9,44 @@ import type {
   ShlokFilters,
   ActivityFilters,
   ShlokStatus,
+  AIGenerationType,
+  AIGenerationRequest,
 } from '@/types/admin';
+
+// Re-export types for convenience
+export type { AIGenerationType, AIGenerationRequest };
+
+// ============================================
+// AI GENERATION
+// ============================================
+
+export async function generateAIContent(
+  type: AIGenerationType,
+  params: Omit<AIGenerationRequest, 'type'>
+): Promise<string> {
+  const { data, error } = await supabase.functions.invoke('admin-ai-generate', {
+    body: { type, ...params },
+  });
+
+  if (error) throw error;
+  if (data?.error) throw new Error(data.error);
+
+  return data?.content || '';
+}
+
+export async function generateAIContentWithMeta(
+  type: AIGenerationType,
+  params: Omit<AIGenerationRequest, 'type'>
+): Promise<Record<string, unknown>> {
+  const { data, error } = await supabase.functions.invoke('admin-ai-generate', {
+    body: { type, ...params },
+  });
+
+  if (error) throw error;
+  if (data?.error) throw new Error(data.error);
+
+  return data || {};
+}
 
 // ============================================
 // DASHBOARD STATS

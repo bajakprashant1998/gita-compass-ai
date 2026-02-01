@@ -52,7 +52,42 @@ export interface AdminActivityLog {
 
 export type ShlokStatus = 'draft' | 'published' | 'scheduled';
 export type StoryType = 'corporate' | 'family' | 'youth' | 'global';
-export type ProblemCategory = 'mental' | 'leadership' | 'ethics' | 'career' | 'relationships';
+export type ProblemCategory = 'mental' | 'leadership' | 'ethics' | 'career' | 'relationships' | 'spiritual';
+
+export type AIGenerationType = 
+  | 'transliteration'
+  | 'hindi_meaning'
+  | 'english_meaning'
+  | 'problem_context'
+  | 'solution_gita'
+  | 'life_application'
+  | 'practical_action'
+  | 'modern_story'
+  | 'suggest_story_type'
+  | 'chapter_description'
+  | 'suggest_problems';
+
+export interface AIGenerationRequest {
+  type: AIGenerationType;
+  sanskrit_text?: string;
+  english_meaning?: string;
+  verse_content?: string;
+  story_type?: string;
+  story_content?: string;
+  chapter_title?: string;
+  chapter_theme?: string;
+  existing_problems?: Array<{ name: string; category: string }>;
+}
+
+export interface StoryTypeConfig {
+  id: string;
+  name: string;
+  display_name: string;
+  description: string | null;
+  keywords: string[];
+  display_order: number;
+  created_at: string;
+}
 
 export interface AdminShlok {
   id: string;
