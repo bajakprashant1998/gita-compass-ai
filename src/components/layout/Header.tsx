@@ -41,7 +41,7 @@ export function Header() {
               <Sparkles className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-semibold tracking-tight">
-              Gita<span className="text-primary">Wisdom</span>
+              Bhagavad Gita<span className="text-primary">Gyan</span>
             </span>
           </Link>
 
