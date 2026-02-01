@@ -17,6 +17,20 @@ import AuthPage from "./pages/AuthPage";
 import DashboardPage from "./pages/DashboardPage";
 import NotFound from "./pages/NotFound";
 
+// Admin Pages
+import AdminLoginPage from "./pages/admin/AdminLoginPage";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminShlokList from "./pages/admin/AdminShlokList";
+import AdminShlokForm from "./pages/admin/AdminShlokForm";
+import AdminProblemList from "./pages/admin/AdminProblemList";
+import AdminProblemForm from "./pages/admin/AdminProblemForm";
+import AdminChapterList from "./pages/admin/AdminChapterList";
+import AdminChapterForm from "./pages/admin/AdminChapterForm";
+import AdminLanguages from "./pages/admin/AdminLanguages";
+import AdminAIRules from "./pages/admin/AdminAIRules";
+import AdminActivityLog from "./pages/admin/AdminActivityLog";
+import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -28,6 +42,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              {/* Public Routes */}
               <Route path="/" element={<Index />} />
               <Route path="/chapters" element={<ChaptersPage />} />
               <Route path="/chapters/:chapterNumber" element={<ChapterDetailPage />} />
@@ -38,6 +53,22 @@ const App = () => (
               <Route path="/chat" element={<ChatPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<AdminLoginPage />} />
+              <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+              <Route path="/admin/shloks" element={<AdminProtectedRoute><AdminShlokList /></AdminProtectedRoute>} />
+              <Route path="/admin/shloks/create" element={<AdminProtectedRoute><AdminShlokForm /></AdminProtectedRoute>} />
+              <Route path="/admin/shloks/edit/:id" element={<AdminProtectedRoute><AdminShlokForm /></AdminProtectedRoute>} />
+              <Route path="/admin/problems" element={<AdminProtectedRoute><AdminProblemList /></AdminProtectedRoute>} />
+              <Route path="/admin/problems/create" element={<AdminProtectedRoute><AdminProblemForm /></AdminProtectedRoute>} />
+              <Route path="/admin/problems/edit/:id" element={<AdminProtectedRoute><AdminProblemForm /></AdminProtectedRoute>} />
+              <Route path="/admin/chapters" element={<AdminProtectedRoute><AdminChapterList /></AdminProtectedRoute>} />
+              <Route path="/admin/chapters/edit/:id" element={<AdminProtectedRoute><AdminChapterForm /></AdminProtectedRoute>} />
+              <Route path="/admin/languages" element={<AdminProtectedRoute><AdminLanguages /></AdminProtectedRoute>} />
+              <Route path="/admin/ai-rules" element={<AdminProtectedRoute><AdminAIRules /></AdminProtectedRoute>} />
+              <Route path="/admin/activity" element={<AdminProtectedRoute><AdminActivityLog /></AdminProtectedRoute>} />
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
