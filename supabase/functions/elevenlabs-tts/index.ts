@@ -46,10 +46,10 @@ serve(async (req) => {
 
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
-    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
     
-    // Fetch admin settings
-    const settings = await getAdminSettings(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Fetch admin settings using service role to bypass RLS
+    const settings = await getAdminSettings(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     
     const ELEVENLABS_API_KEY = settings['elevenlabs_api_key'];
     
