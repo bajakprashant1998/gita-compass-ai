@@ -427,6 +427,36 @@ export type Database = {
           },
         ]
       }
+      story_types: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_name: string
+          display_order: number | null
+          id: string
+          keywords: string[] | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_name: string
+          display_order?: number | null
+          id?: string
+          keywords?: string[] | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_name?: string
+          display_order?: number | null
+          id?: string
+          keywords?: string[] | null
+          name?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           created_at: string | null
