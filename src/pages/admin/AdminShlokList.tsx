@@ -31,6 +31,7 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
 } from 'lucide-react';
 import { getAdminShloks, getChapters, bulkUpdateShlokStatus, deleteShlok } from '@/lib/adminApi';
 import type { AdminShlok, ShlokFilters, ShlokStatus } from '@/types/admin';
@@ -46,6 +47,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { AIBulkGenerateModal } from '@/components/admin/AIBulkGenerateModal';
 
 const statusConfig: Record<ShlokStatus, { label: string; icon: React.ReactNode; className: string }> = {
   published: {
@@ -72,6 +74,7 @@ export default function AdminShlokList() {
   const [totalCount, setTotalCount] = useState(0);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [showBulkAI, setShowBulkAI] = useState(false);
   const [filters, setFilters] = useState<ShlokFilters>({
     page: 1,
     perPage: 25,
@@ -227,6 +230,10 @@ export default function AdminShlokList() {
           <Button size="sm" variant="outline" onClick={() => handleBulkPublish('draft')}>
             Mark as Draft
           </Button>
+          <Button size="sm" variant="outline" onClick={() => setShowBulkAI(true)}>
+            <Sparkles className="h-4 w-4 mr-1" />
+            AI Fill Missing
+          </Button>
           <Button size="sm" variant="ghost" onClick={() => setSelectedIds([])}>
             Clear
           </Button>
@@ -375,6 +382,17 @@ export default function AdminShlokList() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bulk AI Modal */}
+      <AIBulkGenerateModal
+        open={showBulkAI}
+        onOpenChange={setShowBulkAI}
+        selectedShlokIds={selectedIds}
+        onComplete={() => {
+          setSelectedIds([]);
+          loadData();
+        }}
+      />
     </AdminLayout>
   );
 }
