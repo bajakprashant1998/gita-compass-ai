@@ -5,9 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Sparkles, User, Loader2 } from 'lucide-react';
+import { Send, Sparkles, User, Loader2, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
+import { QuickActionsBar } from '@/components/chat/QuickActionsBar';
+import { MessageActions } from '@/components/chat/MessageActions';
+import { ConversationStarters } from '@/components/chat/ConversationStarters';
+import { SEOHead } from '@/components/SEOHead';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -16,11 +20,18 @@ interface Message {
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gita-coach`;
 
+const typingMessages = [
+  "Consulting ancient wisdom...",
+  "Finding relevant verses...",
+  "Preparing guidance...",
+];
+
 export default function ChatPage() {
   const [searchParams] = useSearchParams();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [typingMessage, setTypingMessage] = useState(typingMessages[0]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -42,6 +53,19 @@ export default function ChatPage() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Rotate typing message
+  useEffect(() => {
+    if (!isLoading) return;
+    
+    let index = 0;
+    const interval = setInterval(() => {
+      index = (index + 1) % typingMessages.length;
+      setTypingMessage(typingMessages[index]);
+    }, 2000);
+    
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const handleSubmit = async (e?: React.FormEvent, overrideInput?: string) => {
     e?.preventDefault();
@@ -149,8 +173,18 @@ export default function ChatPage() {
     }
   };
 
+  const handleQuickAction = (text: string) => {
+    handleSubmit(undefined, text);
+  };
+
   return (
     <Layout>
+      <SEOHead
+        title="AI Gita Coach - Personal Wisdom Guide"
+        description="Chat with an AI-powered guide that offers personalized wisdom from the Bhagavad Gita. Get guidance for anxiety, decision-making, and life challenges."
+        canonicalUrl="https://gitawisdom.com/chat"
+        keywords={['AI coach', 'Gita guidance', 'wisdom chat', 'personal guide', 'life advice AI']}
+      />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 h-[calc(100vh-8rem)]">
         <div className="max-w-3xl mx-auto h-full flex flex-col">
           {/* Header */}
@@ -169,57 +203,37 @@ export default function ChatPage() {
           <Card className="flex-1 flex flex-col overflow-hidden">
             <ScrollArea className="flex-1 p-4" ref={scrollRef}>
               {messages.length === 0 ? (
-                <div className="h-full flex items-center justify-center text-center p-8">
-                  <div>
-                    <Sparkles className="h-12 w-12 text-primary/30 mx-auto mb-4" />
-                    <h3 className="font-semibold mb-2">How can I help you today?</h3>
-                    <p className="text-sm text-muted-foreground mb-6 max-w-md">
-                      I'm here to listen and share wisdom from the Bhagavad Gita. 
-                      Tell me about a challenge you're facing.
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-2">
-                      {[
-                        "I'm feeling anxious about my future",
-                        "How do I deal with anger?",
-                        "I can't make a difficult decision",
-                        "I feel lost and confused",
-                      ].map((prompt) => (
-                        <button
-                          key={prompt}
-                          onClick={() => setInput(prompt)}
-                          className="text-sm px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          {prompt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <ConversationStarters onSelect={handleQuickAction} />
               ) : (
                 <div className="space-y-6">
                   {messages.map((message, index) => (
                     <div
                       key={index}
-                      className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}
+                      className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : ''} group`}
                     >
                       {message.role === 'assistant' && (
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                           <Sparkles className="h-4 w-4 text-primary" />
                         </div>
                       )}
-                      <div
-                        className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                          message.role === 'user'
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted'
-                        }`}
-                      >
-                        {message.role === 'assistant' ? (
-                          <div className="prose prose-sm dark:prose-invert max-w-none">
-                            <ReactMarkdown>{message.content || '...'}</ReactMarkdown>
-                          </div>
-                        ) : (
-                          <p>{message.content}</p>
+                      <div className="flex flex-col max-w-[85%]">
+                        <div
+                          className={`rounded-2xl px-4 py-3 ${
+                            message.role === 'user'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted'
+                          }`}
+                        >
+                          {message.role === 'assistant' ? (
+                            <div className="prose prose-sm dark:prose-invert max-w-none">
+                              <ReactMarkdown>{message.content || '...'}</ReactMarkdown>
+                            </div>
+                          ) : (
+                            <p>{message.content}</p>
+                          )}
+                        </div>
+                        {message.role === 'assistant' && message.content && (
+                          <MessageActions content={message.content} className="mt-1" />
                         )}
                       </div>
                       {message.role === 'user' && (
@@ -234,8 +248,13 @@ export default function ChatPage() {
                       <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                         <Sparkles className="h-4 w-4 text-primary" />
                       </div>
-                      <div className="bg-muted rounded-2xl px-4 py-3">
-                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                      <div className="bg-muted rounded-2xl px-4 py-3 flex items-center gap-2">
+                        <div className="flex gap-1">
+                          <span className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                        <span className="text-sm text-muted-foreground ml-2">{typingMessage}</span>
                       </div>
                     </div>
                   )}
@@ -244,7 +263,8 @@ export default function ChatPage() {
             </ScrollArea>
 
             {/* Input Area */}
-            <CardContent className="p-4 border-t">
+            <CardContent className="p-4 border-t space-y-3">
+              <QuickActionsBar onQuickAction={handleQuickAction} disabled={isLoading} />
               <form onSubmit={handleSubmit} className="flex gap-2">
                 <Textarea
                   ref={textareaRef}
