@@ -2,3 +2,6 @@ project_id = "glxupcdgtzqkaxcgezeu"
 
 [functions.gita-coach]
 verify_jwt = false
+
+[functions.search-shloks]
+verify_jwt = false
