@@ -19,7 +19,7 @@ export function SEOHead({
   structuredData,
   type = 'website',
 }: SEOHeadProps) {
-  const fullTitle = title.includes('GitaWisdom') ? title : `${title} | GitaWisdom`;
+  const fullTitle = title.includes('Bhagavad Gita Gyan') ? title : `${title} | Bhagavad Gita Gyan`;
   
   return (
     <Helmet>
@@ -62,7 +62,7 @@ export function generateWebsiteSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'GitaWisdom',
+    name: 'Bhagavad Gita Gyan',
     description: 'AI-powered ancient wisdom from Bhagavad Gita for modern life problems',
     url: 'https://gitawisdom.com',
     potentialAction: {
@@ -86,11 +86,11 @@ export function generateArticleSchema(shlok: {
     description: shlok.english_meaning,
     author: {
       '@type': 'Organization',
-      name: 'GitaWisdom',
+      name: 'Bhagavad Gita Gyan',
     },
     publisher: {
       '@type': 'Organization',
-      name: 'GitaWisdom',
+      name: 'Bhagavad Gita Gyan',
       logo: {
         '@type': 'ImageObject',
         url: 'https://gitawisdom.com/logo.png',

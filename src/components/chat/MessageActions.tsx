@@ -26,7 +26,7 @@ export function MessageActions({ content, className }: MessageActionsProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'GitaWisdom',
+          title: 'Bhagavad Gita Gyan',
           text: content.slice(0, 280),
           url: window.location.href,
         });

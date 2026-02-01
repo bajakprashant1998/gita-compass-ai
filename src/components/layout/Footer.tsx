@@ -12,9 +12,9 @@ export function Footer() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
                 <Sparkles className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-semibold tracking-tight">
-                Gita<span className="text-primary">Wisdom</span>
-              </span>
+            <span className="text-xl font-semibold tracking-tight">
+              Bhagavad Gita<span className="text-primary">Gyan</span>
+            </span>
             </Link>
             <p className="text-muted-foreground max-w-sm mb-6">
               Ancient wisdom for modern problems. A calm mentor that understands 
@@ -94,10 +94,13 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} GitaWisdom. All rights reserved.
+            © {new Date().getFullYear()} Bhagavad Gita Gyan. All rights reserved.
           </p>
           <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-            Made with <Heart className="h-4 w-4 text-red-500 fill-red-500" /> for seekers of wisdom
+            Made with <Heart className="h-4 w-4 text-red-500 fill-red-500" /> by{' '}
+            <a href="https://www.dibull.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              dibull
+            </a>
           </p>
         </div>
       </div>

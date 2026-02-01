@@ -38,7 +38,7 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <AdminLayout title="Dashboard" subtitle="Overview of your GitaWisdom content">
+    <AdminLayout title="Dashboard" subtitle="Overview of your Bhagavad Gita Gyan content">
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-8">
         {isLoading ? (
