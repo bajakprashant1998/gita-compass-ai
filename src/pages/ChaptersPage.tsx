@@ -70,8 +70,8 @@ export default function ChaptersPage() {
   };
 
   const breadcrumbs = [
-    { name: 'Home', url: 'https://gitawisdom.com/' },
-    { name: 'Chapters', url: 'https://gitawisdom.com/chapters' },
+    { name: 'Home', url: 'https://www.bhagavadgitagyan.com/' },
+    { name: 'Chapters', url: 'https://www.bhagavadgitagyan.com/chapters' },
   ];
 
   return (
@@ -79,7 +79,7 @@ export default function ChaptersPage() {
       <SEOHead
         title="18 Chapters of Bhagavad Gita - Complete Guide"
         description="Explore all 18 chapters of the Bhagavad Gita. From Arjuna's despair to ultimate liberation, discover the spiritual journey and key teachings of each chapter."
-        canonicalUrl="https://gitawisdom.com/chapters"
+        canonicalUrl="https://www.bhagavadgitagyan.com/chapters"
         keywords={['Bhagavad Gita chapters', '18 chapters', 'Gita summary', 'chapter guide', 'spiritual journey']}
         structuredData={generateBreadcrumbSchema(breadcrumbs)}
       />

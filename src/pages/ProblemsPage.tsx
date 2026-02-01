@@ -88,8 +88,8 @@ export default function ProblemsPage() {
   };
 
   const breadcrumbs = [
-    { name: 'Home', url: 'https://gitawisdom.com/' },
-    { name: 'Life Problems', url: 'https://gitawisdom.com/problems' },
+    { name: 'Home', url: 'https://www.bhagavadgitagyan.com/' },
+    { name: 'Life Problems', url: 'https://www.bhagavadgitagyan.com/problems' },
   ];
 
   return (
@@ -97,7 +97,7 @@ export default function ProblemsPage() {
       <SEOHead
         title="Life Problems Addressed by Bhagavad Gita"
         description="Find Gita wisdom for anxiety, fear, anger, self-doubt, relationships, and major life decisions. Ancient solutions for modern challenges."
-        canonicalUrl="https://gitawisdom.com/problems"
+        canonicalUrl="https://www.bhagavadgitagyan.com/problems"
         keywords={['life problems', 'anxiety help', 'fear', 'anger management', 'self-doubt', 'Gita solutions']}
         structuredData={generateBreadcrumbSchema(breadcrumbs)}
       />
