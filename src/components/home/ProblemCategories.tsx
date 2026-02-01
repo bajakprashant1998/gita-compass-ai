@@ -11,9 +11,10 @@ import {
   Flame,
   GitBranch,
   LucideIcon,
-  ChevronRight
+  ArrowRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 const iconMap: Record<string, LucideIcon> = {
   Brain,
@@ -26,15 +27,15 @@ const iconMap: Record<string, LucideIcon> = {
   GitBranch,
 };
 
-const colorMap: Record<string, { bg: string; icon: string }> = {
-  amber: { bg: 'bg-amber-100 dark:bg-amber-900/30', icon: 'text-amber-600 dark:text-amber-400' },
-  red: { bg: 'bg-red-100 dark:bg-red-900/30', icon: 'text-red-600 dark:text-red-400' },
-  blue: { bg: 'bg-blue-100 dark:bg-blue-900/30', icon: 'text-blue-600 dark:text-blue-400' },
-  purple: { bg: 'bg-purple-100 dark:bg-purple-900/30', icon: 'text-purple-600 dark:text-purple-400' },
-  pink: { bg: 'bg-pink-100 dark:bg-pink-900/30', icon: 'text-pink-600 dark:text-pink-400' },
-  teal: { bg: 'bg-teal-100 dark:bg-teal-900/30', icon: 'text-teal-600 dark:text-teal-400' },
-  orange: { bg: 'bg-orange-100 dark:bg-orange-900/30', icon: 'text-orange-600 dark:text-orange-400' },
-  green: { bg: 'bg-green-100 dark:bg-green-900/30', icon: 'text-green-600 dark:text-green-400' },
+const gradientMap: Record<string, string> = {
+  amber: 'from-amber-500 to-orange-500',
+  red: 'from-red-500 to-rose-500',
+  blue: 'from-blue-500 to-indigo-500',
+  purple: 'from-purple-500 to-violet-500',
+  pink: 'from-pink-500 to-rose-500',
+  teal: 'from-teal-500 to-cyan-500',
+  orange: 'from-orange-500 to-amber-500',
+  green: 'from-green-500 to-emerald-500',
 };
 
 export function ProblemCategories() {
@@ -45,20 +46,17 @@ export function ProblemCategories() {
 
   if (isLoading) {
     return (
-      <section className="py-20">
+      <section className="py-20 bg-gradient-to-b from-muted/30 to-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold uppercase tracking-wider mb-4">
               Life Challenges
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Browse by Life Problem</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Find wisdom that directly addresses what you're going through.
-            </p>
+            <h2 className="text-3xl md:text-5xl font-extrabold mb-4">Browse by Life Problem</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-48 animate-pulse rounded-2xl bg-muted" />
+              <div key={i} className="h-56 animate-pulse rounded-2xl bg-muted" />
             ))}
           </div>
         </div>
@@ -67,22 +65,24 @@ export function ProblemCategories() {
   }
 
   return (
-    <section className="py-20">
+    <section className="py-20 bg-gradient-to-b from-muted/30 to-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+        <div className="text-center mb-16">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold uppercase tracking-wider mb-4 animate-fade-in">
             Life Challenges
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Browse by Life Problem</h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-5xl font-extrabold mb-4 animate-fade-in animation-delay-100">
+            Browse by <span className="text-gradient">Life Problem</span>
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in animation-delay-200">
             Find wisdom that directly addresses what you're going through.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {problems?.map((problem, index) => {
             const Icon = iconMap[problem.icon || 'HelpCircle'] || HelpCircle;
-            const colors = colorMap[problem.color || 'blue'] || colorMap.blue;
+            const gradient = gradientMap[problem.color || 'blue'] || gradientMap.blue;
 
             return (
               <Link 
@@ -91,31 +91,39 @@ export function ProblemCategories() {
                 className="animate-fade-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="group relative rounded-2xl border border-border/50 bg-card p-6 h-full transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1">
-                  {/* Popular badge for first item */}
+                <div className="group relative rounded-2xl border-2 border-border/50 bg-card p-6 h-full transition-all duration-300 hover:border-primary/30 hover:shadow-2xl hover:-translate-y-2 overflow-hidden">
+                  {/* Gradient overlay on hover */}
+                  <div className={cn(
+                    "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300",
+                    gradient
+                  )} />
+                  
+                  {/* Popular badge */}
                   {index === 0 && (
-                    <span className="absolute top-4 right-4 px-2.5 py-0.5 text-xs font-semibold rounded-full uppercase tracking-wide bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                    <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-xs font-bold uppercase tracking-wide">
                       Popular
-                    </span>
+                    </Badge>
                   )}
                   
+                  {/* Icon */}
                   <div className={cn(
-                    "w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110",
-                    colors.bg
+                    "w-16 h-16 rounded-xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110 bg-gradient-to-br text-white shadow-lg",
+                    gradient
                   )}>
-                    <Icon className={cn("h-7 w-7", colors.icon)} />
+                    <Icon className="h-7 w-7" />
                   </div>
                   
-                  <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="font-bold text-xl mb-2 group-hover:text-primary transition-colors">
                     {problem.name}
                   </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                  <p className="text-muted-foreground line-clamp-2 mb-5 leading-relaxed">
                     {problem.description_english}
                   </p>
                   
-                  <div className="flex items-center text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  {/* CTA */}
+                  <div className="flex items-center text-sm font-bold text-primary">
                     <span>Find solutions</span>
-                    <ChevronRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-2" />
                   </div>
                 </div>
               </Link>
