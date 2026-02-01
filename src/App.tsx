@@ -47,10 +47,11 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/chapters" element={<ChaptersPage />} />
               <Route path="/chapters/:chapterNumber" element={<ChapterDetailPage />} />
+              <Route path="/chapters/:chapterNumber/verse/:verseNumber" element={<ShlokDetailPage />} />
               <Route path="/chapter/:chapterNumber/verse/:verseNumber" element={<ShlokByVerseRedirect />} />
+              <Route path="/shlok/:shlokId" element={<ShlokByVerseRedirect />} />
               <Route path="/problems" element={<ProblemsPage />} />
               <Route path="/problems/:slug" element={<ProblemDetailPage />} />
-              <Route path="/shlok/:shlokId" element={<ShlokDetailPage />} />
               <Route path="/chat" element={<ChatPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />

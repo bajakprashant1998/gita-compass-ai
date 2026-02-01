@@ -1,26 +1,46 @@
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { getShlokByChapterAndVerse } from '@/lib/api';
+import { getShlokByChapterAndVerse, getShlok } from '@/lib/api';
 import { Layout } from '@/components/layout/Layout';
 
 export default function ShlokByVerseRedirect() {
-  const { chapterNumber, verseNumber } = useParams<{ chapterNumber: string; verseNumber: string }>();
+  const { chapterNumber, verseNumber, shlokId } = useParams<{ 
+    chapterNumber?: string; 
+    verseNumber?: string;
+    shlokId?: string;
+  }>();
   const navigate = useNavigate();
 
-  const { data: shlok, isLoading, error } = useQuery({
+  // Handle old /shlok/:shlokId URLs - redirect to new format
+  const { data: shlokById } = useQuery({
+    queryKey: ['shlok', shlokId],
+    queryFn: () => getShlok(shlokId!),
+    enabled: !!shlokId,
+  });
+
+  // Handle old /chapter/:chapterNumber/verse/:verseNumber URLs
+  const { data: shlokByVerse, isLoading, error } = useQuery({
     queryKey: ['shlok-by-verse', chapterNumber, verseNumber],
     queryFn: () => getShlokByChapterAndVerse(Number(chapterNumber), Number(verseNumber)),
-    enabled: !!chapterNumber && !!verseNumber,
+    enabled: !!chapterNumber && !!verseNumber && !shlokId,
   });
 
   useEffect(() => {
-    if (shlok?.id) {
-      navigate(`/shlok/${shlok.id}`, { replace: true });
+    // Redirect from /shlok/:id to /chapters/:chapter/verse/:verse
+    if (shlokById?.chapter?.chapter_number) {
+      navigate(`/chapters/${shlokById.chapter.chapter_number}/verse/${shlokById.verse_number}`, { replace: true });
     }
-  }, [shlok, navigate]);
+  }, [shlokById, navigate]);
 
-  if (isLoading) {
+  useEffect(() => {
+    // Redirect from /chapter/:chapterNumber/verse/:verseNumber to /chapters/:chapterNumber/verse/:verseNumber
+    if (shlokByVerse && chapterNumber && verseNumber) {
+      navigate(`/chapters/${chapterNumber}/verse/${verseNumber}`, { replace: true });
+    }
+  }, [shlokByVerse, chapterNumber, verseNumber, navigate]);
+
+  if (isLoading || shlokById) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-12">
@@ -33,13 +53,16 @@ export default function ShlokByVerseRedirect() {
     );
   }
 
-  if (error || !shlok) {
+  if (error || (!shlokByVerse && !shlokById)) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-12 text-center">
           <h1 className="text-2xl font-bold mb-4">Verse Not Found</h1>
           <p className="text-muted-foreground mb-4">
-            Chapter {chapterNumber}, Verse {verseNumber} could not be found.
+            {shlokId 
+              ? 'This verse could not be found.' 
+              : `Chapter ${chapterNumber}, Verse ${verseNumber} could not be found.`
+            }
           </p>
           <a href="/chapters" className="text-primary hover:underline">
             Browse all chapters

@@ -98,14 +98,14 @@ export default function ProblemDetailPage() {
           ) : shloks && shloks.length > 0 ? (
             <div className="space-y-4">
               {shloks.map((shlok) => (
-                <Link key={shlok.id} to={`/shlok/${shlok.id}`}>
+                <Link key={shlok.id} to={`/chapters/${shlok.chapter?.chapter_number}/verse/${shlok.verse_number}`}>
                   <Card className="hover-lift cursor-pointer group">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <Badge variant="outline">
-                              Verse {shlok.verse_number}
+                              Chapter {shlok.chapter?.chapter_number}, Verse {shlok.verse_number}
                             </Badge>
                           </div>
                           <p className="text-muted-foreground line-clamp-2 mb-2">
