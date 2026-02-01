@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { ChevronRight, ChevronLeft, Sparkles, RotateCcw } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Sparkles, RotateCcw, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 import type { Problem } from '@/types';
 
 interface ProblemMatcherProps {
@@ -92,21 +92,24 @@ export function ProblemMatcher({ problems, onMatchFound }: ProblemMatcherProps) 
 
   if (!isOpen) {
     return (
-      <Card className="border-dashed border-2 hover:border-primary/50 transition-colors cursor-pointer">
+      <Card className="group relative overflow-hidden border-dashed border-2 border-primary/30 hover:border-primary/50 transition-all cursor-pointer hover:shadow-xl hover:shadow-primary/10">
+        {/* Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+        
         <CardContent 
-          className="p-6 text-center"
+          className="relative p-8 text-center"
           onClick={() => setIsOpen(true)}
         >
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-4">
-            <Sparkles className="h-6 w-6" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-amber-500/20 text-primary mb-6 transition-transform group-hover:scale-110">
+            <Sparkles className="h-8 w-8" />
           </div>
-          <h3 className="font-semibold mb-2">Not sure where to start?</h3>
-          <p className="text-sm text-muted-foreground mb-4">
+          <h3 className="text-xl font-semibold mb-3">Not sure where to start?</h3>
+          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
             Answer 3 quick questions to find the most relevant wisdom for your situation.
           </p>
-          <Button>
+          <Button className="bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 group/btn">
             Find My Problem
-            <ChevronRight className="ml-2 h-4 w-4" />
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
           </Button>
         </CardContent>
       </Card>
@@ -116,34 +119,51 @@ export function ProblemMatcher({ problems, onMatchFound }: ProblemMatcherProps) 
   const question = questions[currentQuestion];
 
   return (
-    <Card className="border-primary/20">
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between mb-2">
-          <CardTitle className="text-lg">Personal Problem Matcher</CardTitle>
-          <Button variant="ghost" size="icon" onClick={reset}>
+    <Card className="relative overflow-hidden border-primary/30 shadow-xl shadow-primary/10">
+      {/* Gradient Top Border */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-amber-500 to-orange-500" />
+      
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between mb-4">
+          <CardTitle className="text-lg font-semibold">Personal Problem Matcher</CardTitle>
+          <Button variant="ghost" size="icon" onClick={reset} className="hover:bg-primary/10">
             <RotateCcw className="h-4 w-4" />
           </Button>
         </div>
-        <Progress value={progress} className="h-1" />
-        <p className="text-xs text-muted-foreground mt-2">
+        
+        {/* Progress Bar */}
+        <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+          <div 
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-amber-500 transition-all duration-500 ease-out rounded-full"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <p className="text-sm text-muted-foreground mt-3">
           Question {currentQuestion + 1} of {questions.length}
         </p>
       </CardHeader>
-      <CardContent className="pt-4">
-        <h3 className="font-medium mb-4">{question.question}</h3>
-        <div className="grid gap-2">
-          {question.options.map((option) => (
+      
+      <CardContent className="pt-2">
+        <h3 className="font-semibold text-lg mb-5">{question.question}</h3>
+        <div className="grid gap-3">
+          {question.options.map((option, index) => (
             <button
               key={option.label}
               onClick={() => handleAnswer(option.maps)}
-              className="w-full text-left p-3 rounded-lg border hover:border-primary hover:bg-primary/5 transition-colors"
+              className={cn(
+                "w-full text-left p-4 rounded-xl border-2 transition-all duration-200",
+                "hover:border-primary hover:bg-primary/5 hover:shadow-md",
+                "focus:outline-none focus:ring-2 focus:ring-primary/20",
+                "animate-fade-in"
+              )}
+              style={{ animationDelay: `${index * 50}ms` }}
             >
-              {option.label}
+              <span className="font-medium">{option.label}</span>
             </button>
           ))}
         </div>
         {currentQuestion > 0 && (
-          <Button variant="ghost" size="sm" onClick={goBack} className="mt-4">
+          <Button variant="ghost" size="sm" onClick={goBack} className="mt-6 hover:bg-primary/10">
             <ChevronLeft className="h-4 w-4 mr-1" />
             Back
           </Button>
