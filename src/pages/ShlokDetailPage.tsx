@@ -4,6 +4,7 @@ import { Layout } from '@/components/layout/Layout';
 import { getShlok } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
+import { SEOHead, generateArticleSchema, generateBreadcrumbSchema } from '@/components/SEOHead';
 
 // Modular components
 import { ShlokHeader } from '@/components/shlok/ShlokHeader';
@@ -15,6 +16,7 @@ import { ModernStory } from '@/components/shlok/ModernStory';
 import { LifeApplicationBox } from '@/components/shlok/LifeApplicationBox';
 import { ShareWisdomCard } from '@/components/shlok/ShareWisdomCard';
 import { ShlokActions } from '@/components/shlok/ShlokActions';
+import { WisdomCardGenerator } from '@/components/shlok/WisdomCardGenerator';
 
 export default function ShlokDetailPage() {
   const { shlokId } = useParams<{ shlokId: string }>();
@@ -52,15 +54,45 @@ export default function ShlokDetailPage() {
     );
   }
 
+  const chapterNumber = shlok.chapter?.chapter_number || 1;
+  const verseNumber = shlok.verse_number;
+
+  // Generate structured data
+  const articleSchema = generateArticleSchema({
+    chapter_number: chapterNumber,
+    verse_number: verseNumber,
+    english_meaning: shlok.english_meaning,
+    life_application: shlok.life_application || undefined,
+  });
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://gitawisdom.com' },
+    { name: `Chapter ${chapterNumber}`, url: `https://gitawisdom.com/chapters/${chapterNumber}` },
+    { name: `Verse ${verseNumber}`, url: `https://gitawisdom.com/shlok/${shlok.id}` },
+  ]);
+
+  const combinedSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [articleSchema, breadcrumbSchema],
+  };
+
   return (
     <Layout>
+      <SEOHead
+        title={`Chapter ${chapterNumber}, Verse ${verseNumber} - ${shlok.life_application || 'Bhagavad Gita'}`}
+        description={shlok.english_meaning.substring(0, 155) + '...'}
+        canonicalUrl={`https://gitawisdom.com/chapter/${chapterNumber}/verse/${verseNumber}`}
+        keywords={['Bhagavad Gita', `Chapter ${chapterNumber}`, `Verse ${verseNumber}`, 'wisdom', 'guidance']}
+        structuredData={combinedSchema}
+        type="article"
+      />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="max-w-4xl mx-auto">
           {/* Back Navigation */}
-          <Link to={`/chapters/${shlok.chapter?.chapter_number}`} className="inline-block mb-4">
+          <Link to={`/chapters/${chapterNumber}`} className="inline-block mb-4">
             <Button variant="ghost" className="gap-2">
               <ChevronLeft className="h-4 w-4" />
-              Back to Chapter {shlok.chapter?.chapter_number}
+              Back to Chapter {chapterNumber}
             </Button>
           </Link>
 
@@ -87,6 +119,9 @@ export default function ShlokDetailPage() {
 
           {/* Share as Wisdom Card */}
           <ShareWisdomCard shlok={shlok} />
+
+          {/* Downloadable Wisdom Card Generator */}
+          <WisdomCardGenerator shlok={shlok} />
 
           {/* Actions (Save, Ask AI) */}
           <ShlokActions shlokId={shlok.id} />
