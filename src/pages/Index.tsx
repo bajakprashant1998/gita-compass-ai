@@ -17,7 +17,7 @@ const Index = () => {
       <SEOHead
         title="Bhagavad Gita Gyan - Ancient Wisdom for Modern Problems"
         description="Transform your struggles into strength with AI-powered guidance from the Bhagavad Gita. Find timeless solutions for anxiety, fear, confusion, and life decisions."
-        canonicalUrl="https://gitawisdom.com/"
+        canonicalUrl="https://www.bhagavadgitagyan.com/"
         keywords={['Bhagavad Gita', 'wisdom', 'anxiety help', 'fear', 'confusion', 'life advice', 'AI guidance', 'ancient wisdom']}
         structuredData={generateWebsiteSchema()}
       />
