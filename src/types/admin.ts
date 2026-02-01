@@ -58,6 +58,7 @@ export type AIGenerationType =
   | 'transliteration'
   | 'hindi_meaning'
   | 'english_meaning'
+  | 'translate_hindi_to_english'
   | 'problem_context'
   | 'solution_gita'
   | 'life_application'
@@ -71,11 +72,14 @@ export interface AIGenerationRequest {
   type: AIGenerationType;
   sanskrit_text?: string;
   english_meaning?: string;
+  hindi_meaning?: string;
   verse_content?: string;
   story_type?: string;
   story_content?: string;
   chapter_title?: string;
   chapter_theme?: string;
+  chapter_number?: number;
+  verse_number?: number;
   existing_problems?: Array<{ name: string; category: string }>;
 }
 

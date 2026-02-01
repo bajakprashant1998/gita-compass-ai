@@ -10,6 +10,7 @@ import {
   History,
   ChevronLeft,
   Menu,
+  Settings,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -170,6 +171,12 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                   label="Activity Log"
                   collapsed={collapsed}
                 />
+                <NavItem
+                  to="/admin/settings"
+                  icon={<Settings className="w-5 h-5" />}
+                  label="Settings"
+                  collapsed={collapsed}
+                />
               </CollapsibleContent>
             </Collapsible>
           ) : (
@@ -191,6 +198,12 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                 to="/admin/activity"
                 icon={<History className="w-5 h-5" />}
                 label="Activity Log"
+                collapsed={collapsed}
+              />
+              <NavItem
+                to="/admin/settings"
+                icon={<Settings className="w-5 h-5" />}
+                label="Settings"
                 collapsed={collapsed}
               />
             </>
