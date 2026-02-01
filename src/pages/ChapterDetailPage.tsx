@@ -127,7 +127,12 @@ export default function ChapterDetailPage() {
                           <p className="text-muted-foreground line-clamp-2 mb-2">
                             {shlok.english_meaning}
                           </p>
-                          {shlok.life_application && (
+                          {shlok.modern_story && (
+                            <p className="text-sm text-amber-600 dark:text-amber-400 mb-1">
+                              📖 {shlok.modern_story.slice(0, 120)}...
+                            </p>
+                          )}
+                          {shlok.life_application && !shlok.modern_story && (
                             <p className="text-sm text-primary">
                               💡 {shlok.life_application.slice(0, 100)}...
                             </p>
