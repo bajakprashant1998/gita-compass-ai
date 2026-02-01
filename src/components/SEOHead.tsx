@@ -14,7 +14,7 @@ export function SEOHead({
   title,
   description,
   canonicalUrl,
-  ogImage = 'https://gitawisdom.com/og-image.png',
+  ogImage = 'https://www.bhagavadgitagyan.com/og-image.png',
   keywords = [],
   structuredData,
   type = 'website',
@@ -64,10 +64,10 @@ export function generateWebsiteSchema() {
     '@type': 'WebSite',
     name: 'Bhagavad Gita Gyan',
     description: 'AI-powered ancient wisdom from Bhagavad Gita for modern life problems',
-    url: 'https://gitawisdom.com',
+    url: 'https://www.bhagavadgitagyan.com',
     potentialAction: {
       '@type': 'SearchAction',
-      target: 'https://gitawisdom.com/search?q={search_term_string}',
+      target: 'https://www.bhagavadgitagyan.com/search?q={search_term_string}',
       'query-input': 'required name=search_term_string',
     },
   };
@@ -93,12 +93,12 @@ export function generateArticleSchema(shlok: {
       name: 'Bhagavad Gita Gyan',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://gitawisdom.com/logo.png',
+        url: 'https://www.bhagavadgitagyan.com/logo.png',
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://gitawisdom.com/chapter/${shlok.chapter_number}/verse/${shlok.verse_number}`,
+      '@id': `https://www.bhagavadgitagyan.com/chapter/${shlok.chapter_number}/verse/${shlok.verse_number}`,
     },
   };
 }

@@ -3,7 +3,7 @@ import { toPng } from 'html-to-image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Copy, Share2, Check, Sparkles } from 'lucide-react';
+import { Download, Copy, Share2, Check, Sparkles, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Shlok } from '@/types';
 
@@ -68,7 +68,7 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
       }
 
       const link = document.createElement('a');
-      link.download = `gitawisdom-${chapterNumber}-${shlok.verse_number}.png`;
+      link.download = `bhagavadgitagyan-${chapterNumber}-${shlok.verse_number}.png`;
       link.href = dataUrl;
       link.click();
       toast.success('Wisdom card downloaded!');
@@ -115,7 +115,7 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
 
       const response = await fetch(dataUrl);
       const blob = await response.blob();
-      const file = new File([blob], `gitawisdom-${chapterNumber}-${shlok.verse_number}.png`, { type: 'image/png' });
+      const file = new File([blob], `bhagavadgitagyan-${chapterNumber}-${shlok.verse_number}.png`, { type: 'image/png' });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
@@ -130,6 +130,43 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
     } catch (error) {
       if ((error as Error).name !== 'AbortError') {
         toast.error('Failed to share');
+      }
+    } finally {
+    setIsGenerating(false);
+  }
+};
+
+  const handleWhatsAppShare = async () => {
+    setIsGenerating(true);
+    try {
+      const dataUrl = await generateImage();
+      if (!dataUrl) {
+        toast.error('Failed to generate image');
+        return;
+      }
+
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      const file = new File([blob], `bhagavadgitagyan-${chapterNumber}-${shlok.verse_number}.png`, { type: 'image/png' });
+
+      // Try Web Share API with file first (works on mobile)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: `Bhagavad Gita Chapter ${chapterNumber}, Verse ${shlok.verse_number}`,
+          text: shlok.life_application || shlok.english_meaning,
+          files: [file],
+        });
+        toast.success('Shared successfully!');
+      } else {
+        // Fallback: Open WhatsApp with text and download image
+        const text = encodeURIComponent(`${shlok.life_application || shlok.english_meaning}\n\n— Bhagavad Gita, Chapter ${chapterNumber}, Verse ${shlok.verse_number}\n\nwww.bhagavadgitagyan.com`);
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+        await handleDownload();
+        toast.info('Image downloaded! Attach it in WhatsApp');
+      }
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        toast.error('Failed to share to WhatsApp');
       }
     } finally {
       setIsGenerating(false);
@@ -220,7 +257,7 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
                   letterSpacing: '2px',
                 }}
               >
-                ॐ GITAWISDOM
+                ॐ BHAGAVAD GITA GYAN
               </div>
 
               {/* Main Quote */}
@@ -265,7 +302,7 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
                   opacity: 0.7,
                 }}
               >
-                gitawisdom.com
+                www.bhagavadgitagyan.com
               </div>
             </div>
           </div>
@@ -273,13 +310,17 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3 justify-center">
-          <Button onClick={handleDownload} disabled={isGenerating} className="gap-2">
+          <Button onClick={handleWhatsAppShare} disabled={isGenerating} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+            <MessageCircle className="h-4 w-4" />
+            Share to WhatsApp
+          </Button>
+          <Button variant="outline" onClick={handleDownload} disabled={isGenerating} className="gap-2">
             <Download className="h-4 w-4" />
             Download PNG
           </Button>
           <Button variant="outline" onClick={handleCopyToClipboard} disabled={isGenerating} className="gap-2">
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            {copied ? 'Copied!' : 'Copy to Clipboard'}
+            {copied ? 'Copied!' : 'Copy'}
           </Button>
           <Button variant="outline" onClick={handleShare} disabled={isGenerating} className="gap-2">
             <Share2 className="h-4 w-4" />

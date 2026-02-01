@@ -1,4 +1,4 @@
-# GitaWisdom Robots.txt
+# Bhagavad Gita Gyan Robots.txt
 
 User-agent: Googlebot
 Allow: /
@@ -16,7 +16,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://gitawisdom.com/sitemap.xml
+Sitemap: https://www.bhagavadgitagyan.com/sitemap.xml
 
 # Crawl-delay for polite crawling
 Crawl-delay: 1

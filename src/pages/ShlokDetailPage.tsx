@@ -66,9 +66,9 @@ export default function ShlokDetailPage() {
   });
 
   const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: 'https://gitawisdom.com' },
-    { name: `Chapter ${chapterNumber}`, url: `https://gitawisdom.com/chapters/${chapterNumber}` },
-    { name: `Verse ${verseNumber}`, url: `https://gitawisdom.com/shlok/${shlok.id}` },
+    { name: 'Home', url: 'https://www.bhagavadgitagyan.com' },
+    { name: `Chapter ${chapterNumber}`, url: `https://www.bhagavadgitagyan.com/chapters/${chapterNumber}` },
+    { name: `Verse ${verseNumber}`, url: `https://www.bhagavadgitagyan.com/shlok/${shlok.id}` },
   ]);
 
   const combinedSchema = {
@@ -81,7 +81,7 @@ export default function ShlokDetailPage() {
       <SEOHead
         title={`Chapter ${chapterNumber}, Verse ${verseNumber} - ${shlok.life_application || 'Bhagavad Gita'}`}
         description={shlok.english_meaning.substring(0, 155) + '...'}
-        canonicalUrl={`https://gitawisdom.com/chapter/${chapterNumber}/verse/${verseNumber}`}
+        canonicalUrl={`https://www.bhagavadgitagyan.com/chapter/${chapterNumber}/verse/${verseNumber}`}
         keywords={['Bhagavad Gita', `Chapter ${chapterNumber}`, `Verse ${verseNumber}`, 'wisdom', 'guidance']}
         structuredData={combinedSchema}
         type="article"
