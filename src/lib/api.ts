@@ -95,11 +95,21 @@ export async function getShloksByProblem(problemId: string): Promise<Shlok[]> {
 }
 
 export async function getShlokByChapterAndVerse(chapterNumber: number, verseNumber: number): Promise<Shlok | null> {
+  // First get the chapter by chapter_number
+  const { data: chapter, error: chapterError } = await supabase
+    .from('chapters')
+    .select('id')
+    .eq('chapter_number', chapterNumber)
+    .single();
+  
+  if (chapterError || !chapter) return null;
+  
+  // Then get the shlok by chapter_id and verse_number
   const { data, error } = await supabase
     .from('shloks')
     .select('*, chapters(*)')
+    .eq('chapter_id', chapter.id)
     .eq('verse_number', verseNumber)
-    .eq('chapters.chapter_number', chapterNumber)
     .maybeSingle();
   
   if (error) throw error;
