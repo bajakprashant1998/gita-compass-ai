@@ -169,7 +169,7 @@ export function AISearchBox() {
                     Found {results.results.length} relevant verse{results.results.length > 1 ? 's' : ''}:
                   </p>
                   {results.results.map((shlok) => (
-                    <Link key={shlok.id} to={`/shlok/${shlok.id}`}>
+                    <Link key={shlok.id} to={`/chapters/${shlok.chapter_number}/verse/${shlok.verse_number}`}>
                       <Card className="hover:shadow-md hover:border-primary/30 transition-all cursor-pointer group">
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between gap-4">

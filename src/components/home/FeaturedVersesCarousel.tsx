@@ -61,7 +61,7 @@ export function FeaturedVersesCarousel() {
           <CarouselContent className="-ml-4">
             {verses.map((verse) => (
               <CarouselItem key={verse.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                <Link to={`/shlok/${verse.id}`}>
+                <Link to={`/chapters/${verse.chapter?.chapter_number}/verse/${verse.verse_number}`}>
                   <Card className="h-full hover-lift cursor-pointer group">
                     <CardContent className="p-6">
                       {/* Chapter badge */}

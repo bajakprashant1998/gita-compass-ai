@@ -115,7 +115,7 @@ export default function DashboardPage() {
               {favorites && favorites.length > 0 ? (
                 <div className="space-y-3">
                   {favorites.slice(0, 5).map((fav) => (
-                    <Link key={fav.id} to={`/shlok/${fav.shlok_id}`}>
+                    <Link key={fav.id} to={`/chapters/${fav.shlok?.chapter?.chapter_number}/verse/${fav.shlok?.verse_number}`}>
                       <div className="p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer group">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">

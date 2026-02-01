@@ -84,7 +84,7 @@ export function DailyWisdom() {
 
               {/* Actions */}
               <div className="flex flex-wrap items-center justify-center gap-4">
-                <Link to={`/shlok/${shlok.id}`}>
+                <Link to={`/chapters/${shlok.chapter?.chapter_number}/verse/${shlok.verse_number}`}>
                   <Button variant="default" className="gap-2">
                     Explore This Verse
                   </Button>

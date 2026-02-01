@@ -114,7 +114,7 @@ export default function ChapterDetailPage() {
           ) : shloks && shloks.length > 0 ? (
             <div className="space-y-4">
               {shloks.map((shlok) => (
-                <Link key={shlok.id} to={`/shlok/${shlok.id}`}>
+                <Link key={shlok.id} to={`/chapters/${chapterNum}/verse/${shlok.verse_number}`}>
                   <Card className="hover-lift cursor-pointer group">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between gap-4">

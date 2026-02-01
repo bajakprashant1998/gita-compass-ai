@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { getShlok } from '@/lib/api';
+import { getShlokByChapterAndVerse } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { SEOHead, generateArticleSchema, generateBreadcrumbSchema } from '@/components/SEOHead';
@@ -19,12 +19,14 @@ import { ShlokActions } from '@/components/shlok/ShlokActions';
 import { WisdomCardGenerator } from '@/components/shlok/WisdomCardGenerator';
 
 export default function ShlokDetailPage() {
-  const { shlokId } = useParams<{ shlokId: string }>();
+  const { chapterNumber, verseNumber } = useParams<{ chapterNumber: string; verseNumber: string }>();
+  const chapterNum = parseInt(chapterNumber || '1');
+  const verseNum = parseInt(verseNumber || '1');
 
   const { data: shlok, isLoading } = useQuery({
-    queryKey: ['shlok', shlokId],
-    queryFn: () => getShlok(shlokId!),
-    enabled: !!shlokId,
+    queryKey: ['shlok-by-verse', chapterNum, verseNum],
+    queryFn: () => getShlokByChapterAndVerse(chapterNum, verseNum),
+    enabled: !!chapterNum && !!verseNum,
   });
 
   if (isLoading) {
@@ -46,6 +48,9 @@ export default function ShlokDetailPage() {
       <Layout>
         <div className="container mx-auto px-4 py-12 text-center">
           <h1 className="text-2xl font-bold mb-4">Verse not found</h1>
+          <p className="text-muted-foreground mb-4">
+            Chapter {chapterNum}, Verse {verseNum} could not be found.
+          </p>
           <Link to="/chapters">
             <Button>Browse Chapters</Button>
           </Link>
@@ -54,21 +59,18 @@ export default function ShlokDetailPage() {
     );
   }
 
-  const chapterNumber = shlok.chapter?.chapter_number || 1;
-  const verseNumber = shlok.verse_number;
-
   // Generate structured data
   const articleSchema = generateArticleSchema({
-    chapter_number: chapterNumber,
-    verse_number: verseNumber,
+    chapter_number: chapterNum,
+    verse_number: verseNum,
     english_meaning: shlok.english_meaning,
     life_application: shlok.life_application || undefined,
   });
 
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Home', url: 'https://www.bhagavadgitagyan.com' },
-    { name: `Chapter ${chapterNumber}`, url: `https://www.bhagavadgitagyan.com/chapters/${chapterNumber}` },
-    { name: `Verse ${verseNumber}`, url: `https://www.bhagavadgitagyan.com/shlok/${shlok.id}` },
+    { name: `Chapter ${chapterNum}`, url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}` },
+    { name: `Verse ${verseNum}`, url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}/verse/${verseNum}` },
   ]);
 
   const combinedSchema = {
@@ -79,20 +81,20 @@ export default function ShlokDetailPage() {
   return (
     <Layout>
       <SEOHead
-        title={`Chapter ${chapterNumber}, Verse ${verseNumber} - ${shlok.life_application || 'Bhagavad Gita'}`}
+        title={`Chapter ${chapterNum}, Verse ${verseNum} - ${shlok.life_application || 'Bhagavad Gita'}`}
         description={shlok.english_meaning.substring(0, 155) + '...'}
-        canonicalUrl={`https://www.bhagavadgitagyan.com/chapter/${chapterNumber}/verse/${verseNumber}`}
-        keywords={['Bhagavad Gita', `Chapter ${chapterNumber}`, `Verse ${verseNumber}`, 'wisdom', 'guidance']}
+        canonicalUrl={`https://www.bhagavadgitagyan.com/chapters/${chapterNum}/verse/${verseNum}`}
+        keywords={['Bhagavad Gita', `Chapter ${chapterNum}`, `Verse ${verseNum}`, 'wisdom', 'guidance']}
         structuredData={combinedSchema}
         type="article"
       />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="max-w-4xl mx-auto">
           {/* Back Navigation */}
-          <Link to={`/chapters/${chapterNumber}`} className="inline-block mb-4">
+          <Link to={`/chapters/${chapterNum}`} className="inline-block mb-4">
             <Button variant="ghost" className="gap-2">
               <ChevronLeft className="h-4 w-4" />
-              Back to Chapter {chapterNumber}
+              Back to Chapter {chapterNum}
             </Button>
           </Link>
 
