@@ -1,11 +1,11 @@
 import { Layout } from '@/components/layout/Layout';
 import { HeroSection } from '@/components/home/HeroSection';
-import { AISearchBox } from '@/components/home/AISearchBox';
+import { StatsSection } from '@/components/home/StatsSection';
+import { HowItWorks } from '@/components/home/HowItWorks';
+import { FeaturesGrid } from '@/components/home/FeaturesGrid';
 import { ProblemCategories } from '@/components/home/ProblemCategories';
 import { DailyWisdom } from '@/components/home/DailyWisdom';
-import { StatsSection } from '@/components/home/StatsSection';
 import { CTASection } from '@/components/home/CTASection';
-import { HowItWorks } from '@/components/home/HowItWorks';
 import { Testimonials } from '@/components/home/Testimonials';
 import { FeaturedVersesCarousel } from '@/components/home/FeaturedVersesCarousel';
 import { FloatingActionButton } from '@/components/home/FloatingActionButton';
@@ -22,9 +22,9 @@ const Index = () => {
         structuredData={generateWebsiteSchema()}
       />
       <HeroSection />
-      <AISearchBox />
       <StatsSection />
       <HowItWorks />
+      <FeaturesGrid />
       <ProblemCategories />
       <FeaturedVersesCarousel />
       <Testimonials />

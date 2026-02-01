@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { getChapters } from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, ChevronRight } from 'lucide-react';
 import { ChapterFilters } from '@/components/chapters/ChapterFilters';
@@ -87,6 +86,9 @@ export default function ChaptersPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            Complete Guide
+          </span>
           <h1 className="text-4xl font-bold mb-4">The 18 Chapters</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Each chapter of the Bhagavad Gita addresses different aspects of life, 
@@ -107,7 +109,7 @@ export default function ChaptersPage() {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(18)].map((_, i) => (
-              <div key={i} className="h-64 animate-pulse rounded-xl bg-muted" />
+              <div key={i} className="h-64 animate-pulse rounded-2xl bg-muted" />
             ))}
           </div>
         ) : filteredChapters.length === 0 ? (
@@ -116,56 +118,59 @@ export default function ChaptersPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredChapters.map((chapter) => {
+            {filteredChapters.map((chapter, index) => {
               const teachings = chapterTeachings[chapter.chapter_number] || [];
               
               return (
-                <Link key={chapter.id} to={`/chapters/${chapter.chapter_number}`}>
-                  <Card className="h-full hover-lift cursor-pointer group">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge variant="secondary" className="text-xs">
-                          Chapter {chapter.chapter_number}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground flex items-center gap-1">
-                          <BookOpen className="h-3.5 w-3.5" />
-                          {chapter.verse_count} verses
-                        </span>
-                      </div>
-                      <CardTitle className="text-xl group-hover:text-primary transition-colors">
-                        {chapter.title_english}
-                      </CardTitle>
-                      {chapter.title_sanskrit && (
-                        <p className="text-sm text-muted-foreground sanskrit">
-                          {chapter.title_sanskrit}
-                        </p>
-                      )}
-                    </CardHeader>
-                    <CardContent>
-                      <div className="mb-4">
-                        <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                          {chapter.theme}
-                        </span>
-                      </div>
-                      
-                      {/* Key teachings */}
-                      {teachings.length > 0 && (
-                        <ul className="text-sm text-muted-foreground space-y-1 mb-4">
-                          {teachings.slice(0, 2).map((teaching) => (
-                            <li key={teaching} className="flex items-start gap-2">
-                              <span className="text-primary mt-1.5">•</span>
-                              <span>{teaching}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                      
-                      <div className="flex items-center text-primary text-sm font-medium group-hover:gap-2 transition-all">
-                        <span>Explore Chapter</span>
-                        <ChevronRight className="h-4 w-4" />
-                      </div>
-                    </CardContent>
-                  </Card>
+                <Link 
+                  key={chapter.id} 
+                  to={`/chapters/${chapter.chapter_number}`}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className="group h-full rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1">
+                    <div className="flex items-center justify-between mb-4">
+                      <Badge variant="secondary" className="text-xs font-medium">
+                        Chapter {chapter.chapter_number}
+                      </Badge>
+                      <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+                        <BookOpen className="h-3.5 w-3.5" />
+                        {chapter.verse_count} verses
+                      </span>
+                    </div>
+                    
+                    <h2 className="text-xl font-semibold mb-1 group-hover:text-primary transition-colors">
+                      {chapter.title_english}
+                    </h2>
+                    {chapter.title_sanskrit && (
+                      <p className="text-sm text-muted-foreground sanskrit mb-4">
+                        {chapter.title_sanskrit}
+                      </p>
+                    )}
+                    
+                    <div className="mb-4">
+                      <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                        {chapter.theme}
+                      </span>
+                    </div>
+                    
+                    {/* Key teachings */}
+                    {teachings.length > 0 && (
+                      <ul className="text-sm text-muted-foreground space-y-1.5 mb-4">
+                        {teachings.slice(0, 2).map((teaching) => (
+                          <li key={teaching} className="flex items-start gap-2">
+                            <span className="text-primary mt-1">•</span>
+                            <span>{teaching}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    
+                    <div className="flex items-center text-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-all">
+                      <span>Explore Chapter</span>
+                      <ChevronRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </div>
                 </Link>
               );
             })}
