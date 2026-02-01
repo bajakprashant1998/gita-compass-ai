@@ -1,277 +1,419 @@
 
 
-# Enhancement Plan for GitaWisdom Pages
+# Admin Panel Implementation Plan
 
 ## Overview
-This plan enhances 4 key pages with improved UI/UX, new features, and better visual design while maintaining the calm, modern aesthetic.
+Build a comprehensive admin panel for GitaWisdom to manage all 701 shloks, problem tags, AI rules, and multi-language content with a secure, role-based authentication system.
 
 ---
 
-## Page 1: Homepage (Index.tsx)
+## Database Schema Changes
 
-### Current State
-- HeroSection with textarea input
-- AISearchBox with animated placeholders
-- StatsSection with 4 metrics
-- ProblemCategories grid
-- DailyWisdom random verse
-- CTASection for chat
+### New Tables Required
 
-### Enhancements
+#### 1. `languages` - Multi-language Support
+```text
++------------------+-------------------+----------------------+
+| Column           | Type              | Description          |
++------------------+-------------------+----------------------+
+| id               | UUID (PK)         | Primary key          |
+| code             | TEXT (unique)     | en, hi, es, fr, de   |
+| name             | TEXT              | English, Hindi, etc  |
+| native_name      | TEXT              | अंग्रेज़ी, हिंदी      |
+| enabled          | BOOLEAN           | Active/inactive      |
+| display_order    | INTEGER           | Sort order           |
+| created_at       | TIMESTAMPTZ       | Created timestamp    |
++------------------+-------------------+----------------------+
+```
 
-**1.1 Featured Verses Carousel**
-Add a horizontal carousel showing 3-5 "Most Impactful Verses" that users frequently engage with:
-- Cards with Sanskrit snippet, English meaning, and life application
-- Auto-scroll with pause on hover
-- Quick action buttons: Read, Save, Share
+#### 2. `ai_search_rules` - AI Keyword Mapping
+```text
++------------------+-------------------+----------------------------------+
+| Column           | Type              | Description                      |
++------------------+-------------------+----------------------------------+
+| id               | UUID (PK)         | Primary key                      |
+| keywords         | TEXT[]            | Array of trigger keywords        |
+| problem_id       | UUID (FK)         | Links to problems table          |
+| fallback_shloks  | UUID[]            | Default shloks for this rule     |
+| priority         | INTEGER           | Rule priority (1-10)             |
+| enabled          | BOOLEAN           | Active/inactive                  |
+| created_at       | TIMESTAMPTZ       | Created timestamp                |
+| updated_at       | TIMESTAMPTZ       | Updated timestamp                |
++------------------+-------------------+----------------------------------+
+```
 
-**1.2 Testimonials/Impact Stories Section**
-New section between StatsSection and ProblemCategories:
-- User testimonials showing how Gita wisdom helped them
-- Rotating quotes with attribution
-- Simple, trust-building design
+#### 3. `admin_activity_log` - Audit Trail
+```text
++------------------+-------------------+----------------------------------+
+| Column           | Type              | Description                      |
++------------------+-------------------+----------------------------------+
+| id               | UUID (PK)         | Primary key                      |
+| user_id          | UUID (FK)         | Admin who performed action       |
+| action           | TEXT              | create/update/delete/publish     |
+| entity_type      | TEXT              | shlok/problem/chapter/ai_rule    |
+| entity_id        | UUID              | ID of affected record            |
+| old_value        | JSONB             | Previous state                   |
+| new_value        | JSONB             | New state                        |
+| created_at       | TIMESTAMPTZ       | Timestamp of action              |
++------------------+-------------------+----------------------------------+
+```
 
-**1.3 "How It Works" Section**
-A 3-step visual guide for new visitors:
-- Step 1: Describe your problem
-- Step 2: Get matched verses and AI guidance  
-- Step 3: Apply wisdom to your life
+### Modify Existing Tables
 
-**1.4 Enhanced Stats Section**
-Add subtle animations:
-- Count-up animation when section enters viewport
-- Hover effects on each stat card
-- Add "Active Today" real-time indicator
+#### `shloks` - Add New Fields
+```text
+New columns:
+- status: TEXT ('draft' | 'published' | 'scheduled')
+- story_type: TEXT ('corporate' | 'family' | 'youth' | 'global')
+- sanskrit_audio_url: TEXT (optional audio file URL)
+- scheduled_publish_at: TIMESTAMPTZ (for scheduled publishing)
+- published_at: TIMESTAMPTZ (when content went live)
+```
 
-**1.5 Quick Access Floating Action Button (Mobile)**
-On mobile, add a floating button that opens quick actions:
-- Chat with AI
-- Random Wisdom
-- Explore Chapters
-
----
-
-## Page 2: Chapters Page (/chapters)
-
-### Current State
-- Simple header with title
-- 3-column grid of chapter cards
-- Basic card design with badge, title, theme, description
-
-### Enhancements
-
-**2.1 Visual Chapter Journey Timeline**
-Add an optional "Journey View" toggle:
-- Horizontal timeline showing the 18 chapters as a spiritual journey
-- Visual progression from Arjuna's despair (Ch 1) to liberation (Ch 18)
-- Connect chapters with thematic lines
-
-**2.2 Enhanced Chapter Cards**
-- Add chapter icon/illustration for each
-- Show verse count with progress ring (verses with content vs total)
-- Add "Key Teachings" preview (2-3 bullet points)
-- Quick verse preview on hover
-
-**2.3 Chapter Themes Filter**
-Add filter chips at the top:
-- Karma (Action)
-- Bhakti (Devotion)
-- Jnana (Knowledge)
-- Yoga (Practice)
-
-**2.4 Search Within Chapters**
-Add search bar to find chapters by theme or content:
-- Real-time filtering
-- Highlight matching text
-
-**2.5 Reading Progress (for logged-in users)**
-- Show which chapters user has explored
-- Visual progress indicator
-- "Continue Reading" quick action
-
-**2.6 SEO Enhancement**
-Add SEOHead component with proper meta tags and breadcrumbs.
+#### `problems` - Add Category Field
+```text
+New column:
+- category: TEXT ('mental' | 'leadership' | 'ethics' | 'career' | 'relationships')
+```
 
 ---
 
-## Page 3: Problems Page (/problems)
+## Admin Routes Structure
 
-### Current State
-- Simple header
-- 2-column grid of problem cards
-- Basic icon and description
-
-### Enhancements
-
-**3.1 Problem Severity/Urgency Tags**
-Add visual indicators:
-- "Most Searched" badge for popular problems
-- Verse count badge showing how many verses address this
-
-**3.2 "What I'm Feeling" Quick Selector**
-Interactive emotion wheel or tag cloud:
-- Click emotions to filter problems
-- Visual representation of problem relationships
-
-**3.3 Personal Problem Matcher**
-Add a small quiz/questionnaire:
-- 3-5 quick questions
-- Match to most relevant problem category
-- Personalized recommendations
-
-**3.4 Related Problems Connections**
-Show how problems interconnect:
-- Anxiety often relates to Fear
-- Self-Doubt connects to Decision Making
-- Visual lines or "Also explore" suggestions
-
-**3.5 Verse Count & Preview**
-Each problem card shows:
-- Number of verses addressing this problem
-- Preview of top-rated verse
-- "Most Helpful" indicator based on engagement
-
-**3.6 SEO Enhancement**
-Add SEOHead component with proper meta tags.
+```text
+/admin                    → Dashboard (stats overview)
+/admin/login              → Admin login page
+/admin/shloks             → Shlok list with filters
+/admin/shloks/create      → Create new shlok
+/admin/shloks/edit/:id    → Edit existing shlok
+/admin/problems           → Problem tag management
+/admin/problems/create    → Create new problem
+/admin/problems/edit/:id  → Edit existing problem
+/admin/chapters           → Chapter overview
+/admin/chapters/edit/:id  → Edit chapter details
+/admin/languages          → Language management
+/admin/ai-rules           → AI search rule management
+/admin/activity           → Activity log viewer
+```
 
 ---
 
-## Page 4: Chat Page (/chat)
+## Frontend Components
 
-### Current State
-- Simple header with badge
-- Empty state with prompts
-- Basic message bubbles
-- Textarea input
+### Layout Components
 
-### Enhancements
+#### 1. `AdminLayout.tsx`
+- Sidebar navigation with collapsible menu
+- Top bar with admin profile, notifications
+- Breadcrumb navigation
+- Mobile-responsive with slide-out menu
 
-**4.1 Conversation Starters Redesign**
-Improve empty state with:
-- Category-based starters (Work, Relationships, Inner Peace, Life Decisions)
-- Visual cards instead of plain buttons
-- Icons for each category
+#### 2. `AdminSidebar.tsx`
+- Dashboard link
+- Content Management (Shloks, Chapters, Problems)
+- AI & Search (AI Rules)
+- Settings (Languages, Activity Log)
+- Sign out button
 
-**4.2 Message Actions**
-Add actions to AI responses:
-- Copy to clipboard
-- Save to favorites
-- Share as wisdom card
-- View referenced verses
+### Page Components
 
-**4.3 Inline Verse References**
-When AI mentions "Chapter X, Verse Y":
-- Make it clickable
-- Show popover with verse preview
-- Quick link to full verse page
+#### Dashboard (`AdminDashboard.tsx`)
+Statistics cards showing:
+- Total Chapters: 18
+- Total Shloks: Count from DB
+- Published Shloks: Where status = 'published'
+- Draft Shloks: Where status = 'draft'
+- Total Problem Tags: Count
+- Active Languages: Count where enabled = true
+- Quick actions: Add Shlok, Add Problem
 
-**4.4 Conversation History (for logged-in users)**
-Sidebar or dropdown showing:
-- Past conversations
-- Quick resume previous chat
-- Clear history option
+#### Shlok Management
 
-**4.5 Voice Input Option**
-Add microphone button:
-- Speech-to-text for hands-free input
-- Visual feedback during recording
+**`AdminShlokList.tsx`**
+- Data table with columns: Chapter, Verse, Sanskrit (truncated), Status, Actions
+- Filters: Chapter dropdown, Status dropdown, Problem multi-select
+- Search: By verse content, chapter number
+- Bulk actions: Publish/Unpublish selected
+- Pagination with 25/50/100 per page
 
-**4.6 Typing Indicator Enhancement**
-Replace basic spinner with:
-- "Consulting ancient wisdom..." message
-- Animated dots with calming color
+**`AdminShlokForm.tsx`** (Create/Edit)
+Tabbed form with sections:
 
-**4.7 Quick Actions Bar**
-Add a row of quick actions above input:
-- "I need peace" 
-- "Help me decide"
-- "I'm anxious"
-- "Random wisdom"
+**Tab 1: Core Information**
+- Chapter selector (dropdown)
+- Verse number (input)
+- Sanskrit text (textarea with Sanskrit font)
+- Transliteration (input)
+- Sanskrit audio URL (file upload placeholder)
 
-**4.8 Session Summary**
-At end of conversation:
-- Key takeaways summary
-- Recommended verses to explore
-- Option to save session notes
+**Tab 2: Meanings**
+- Hindi meaning (rich text)
+- English meaning (rich text)
+- Toggle to show side-by-side editor
 
-**4.9 SEO Enhancement**
-Add SEOHead component with proper meta tags.
+**Tab 3: Problem Mapping**
+- Multi-select problem tags with checkboxes
+- Relevance score slider (1-10) per problem
+- Priority indicator (High/Medium/Low based on score)
+
+**Tab 4: Solution Section**
+- Problem context (textarea)
+- Gita-based solution (textarea)
+- Life application (textarea)
+- Practical action (textarea)
+
+**Tab 5: Story**
+- Story title (input)
+- Story content (rich textarea, 200-300 words)
+- Story type selector (Corporate/Family/Youth/Global)
+
+**Tab 6: Status**
+- Status: Draft / Published / Scheduled
+- Scheduled publish date (if scheduled)
+- Save as Draft / Publish buttons
+
+#### Problem Management
+
+**`AdminProblemList.tsx`**
+- Table: Name, Category, Slug, Linked Shloks count, Actions
+- Quick edit inline
+- Reorder via drag-and-drop
+
+**`AdminProblemForm.tsx`**
+- Name (English)
+- Category dropdown (Mental/Leadership/Ethics/Career/Relationships)
+- Description (English)
+- Description (Hindi)
+- SEO Slug (auto-generated, editable)
+- Icon selector (Lucide icons)
+- Color picker
+- Display order
+
+#### AI Rules Management
+
+**`AdminAIRules.tsx`**
+- Table of rules: Keywords, Problem Tag, Fallback Shloks, Enabled
+- Add/Edit modal:
+  - Keywords input (comma-separated, stored as array)
+  - Problem tag selector
+  - Fallback shloks multi-select
+  - Priority slider
+  - Enable/Disable toggle
+- Test panel: Input text → shows which rule matches
+
+#### Language Management
+
+**`AdminLanguages.tsx`**
+- Table: Language, Code, Status, Translation Progress
+- Enable/Disable toggle
+- Translation status per language (percentage complete)
+- Add new language modal
+
+#### Activity Log
+
+**`AdminActivityLog.tsx`**
+- Timeline view of recent admin actions
+- Filters: By admin, by entity type, by date range
+- Shows: Who, What, When, Before/After diff
+
+### Shared Admin Components
+
+```text
+src/components/admin/
+├── AdminLayout.tsx           # Main layout wrapper
+├── AdminSidebar.tsx          # Navigation sidebar
+├── AdminHeader.tsx           # Top header bar
+├── AdminBreadcrumb.tsx       # Breadcrumb navigation
+├── AdminStatsCard.tsx        # Dashboard stat card
+├── AdminDataTable.tsx        # Reusable data table
+├── AdminFormSection.tsx      # Form section wrapper
+├── AdminStatusBadge.tsx      # Status indicators
+├── AdminPagination.tsx       # Pagination controls
+├── AdminSearchFilters.tsx    # Search and filter bar
+├── AdminConfirmDialog.tsx    # Confirmation dialogs
+└── AdminRichTextEditor.tsx   # Rich text input
+```
 
 ---
 
-## Technical Implementation
+## Authentication & Security
 
-### New Components to Create
+### Admin Login Flow
 
-| Component | Location | Purpose |
-|-----------|----------|---------|
-| `FeaturedVersesCarousel.tsx` | `src/components/home/` | Carousel for homepage |
-| `HowItWorks.tsx` | `src/components/home/` | 3-step guide |
-| `Testimonials.tsx` | `src/components/home/` | User impact stories |
-| `FloatingActionButton.tsx` | `src/components/ui/` | Mobile quick actions |
-| `ChapterTimeline.tsx` | `src/components/chapters/` | Journey view |
-| `ChapterFilters.tsx` | `src/components/chapters/` | Theme filters |
-| `ProblemMatcher.tsx` | `src/components/problems/` | Quiz component |
-| `EmotionCloud.tsx` | `src/components/problems/` | Interactive emotions |
-| `MessageActions.tsx` | `src/components/chat/` | Response actions |
-| `ConversationHistory.tsx` | `src/components/chat/` | Past chats sidebar |
-| `QuickActionsBar.tsx` | `src/components/chat/` | Quick prompts bar |
-| `VersePopover.tsx` | `src/components/chat/` | Inline verse preview |
+1. **Route Protection**
+   - Create `useAdminAuth` hook that checks for 'admin' role
+   - Redirect non-admins to home page
+   - Redirect unauthenticated users to `/admin/login`
 
-### Files to Modify
+2. **Admin Login Page**
+   - Standard email/password form
+   - Uses existing Supabase auth
+   - After login, verify user has admin role
+   - Show error if not admin
 
-| File | Changes |
-|------|---------|
-| `src/pages/Index.tsx` | Add new sections, reorder components |
-| `src/pages/ChaptersPage.tsx` | Add filters, timeline toggle, SEO |
-| `src/pages/ProblemsPage.tsx` | Add matcher, emotions, SEO |
-| `src/pages/ChatPage.tsx` | Add all chat enhancements, SEO |
-| `src/components/home/StatsSection.tsx` | Add animations |
-| `src/lib/api.ts` | Add new queries for featured verses, history |
-| `src/index.css` | Add new animation classes |
+3. **Session Management**
+   - Supabase handles session automatically
+   - Auto-refresh tokens
+   - Logout clears session
 
-### Database Changes
-Optional tables for enhanced features:
-- `conversation_history` - Store user chat sessions
-- `user_progress` - Track reading progress per chapter
-- `verse_engagement` - Track popular verses
+### Role Verification
+
+The existing `has_role()` function already provides server-side role checking. Admin operations are protected by RLS policies.
 
 ---
 
-## Implementation Priority
+## API Functions
 
-### Phase 1: Core Enhancements (Essential)
-1. Add SEOHead to all pages (ChaptersPage, ProblemsPage, ChatPage)
-2. Enhance chat conversation starters
-3. Add quick actions bar to chat
-4. Improve message actions (copy, share, save)
-5. Add verse counts to problems page
-6. Add chapter theme filters
+### New API Functions in `src/lib/adminApi.ts`
 
-### Phase 2: Visual Improvements
-7. Animated stats section
-8. Enhanced chapter cards with key teachings
-9. "How It Works" section on homepage
-10. Typing indicator enhancement
+```typescript
+// Shlok CRUD
+getAdminShloks(filters): Promise<Shlok[]>
+createShlok(data): Promise<Shlok>
+updateShlok(id, data): Promise<Shlok>
+deleteShlok(id): Promise<void>
+bulkPublishShloks(ids): Promise<void>
 
-### Phase 3: Advanced Features
-11. Inline verse references with popovers
-12. Featured verses carousel
-13. Problem matcher quiz
-14. Conversation history (requires auth)
-15. Chapter timeline view
-16. Voice input (browser API)
+// Problem CRUD
+getAdminProblems(): Promise<Problem[]>
+createProblem(data): Promise<Problem>
+updateProblem(id, data): Promise<Problem>
+deleteProblem(id): Promise<void>
+reorderProblems(orders): Promise<void>
+
+// Chapter management
+updateChapter(id, data): Promise<Chapter>
+
+// AI Rules
+getAIRules(): Promise<AIRule[]>
+createAIRule(data): Promise<AIRule>
+updateAIRule(id, data): Promise<AIRule>
+deleteAIRule(id): Promise<void>
+testAIRule(text): Promise<MatchResult>
+
+// Languages
+getLanguages(): Promise<Language[]>
+toggleLanguage(id, enabled): Promise<void>
+
+// Activity Log
+getActivityLog(filters): Promise<Activity[]>
+logActivity(action, entityType, entityId, oldValue, newValue): Promise<void>
+
+// Dashboard Stats
+getAdminStats(): Promise<AdminStats>
+```
 
 ---
 
-## Design Consistency
+## Implementation Phases
 
-All enhancements will maintain:
-- Calm, modern aesthetic with warm earth tones
-- Card-based layouts with subtle shadows
-- Consistent spacing (py-12/py-16/py-20 sections)
-- Mobile-first responsive design
-- Subtle hover animations (hover-lift class)
-- Primary color (#C07F36) for accents
-- Sanskrit text styling for verses
+### Phase 1: Foundation (Core Setup)
+1. Database migration for new tables and columns
+2. Admin authentication hook (`useAdminAuth`)
+3. Admin layout components (Layout, Sidebar, Header)
+4. Admin login page
+5. Protected route wrapper
+6. Dashboard with stats
+
+### Phase 2: Shlok Management (Critical)
+7. Shlok list page with filters
+8. Shlok create/edit form (all tabs)
+9. Problem mapping interface
+10. Status management (draft/publish)
+11. Bulk actions
+
+### Phase 3: Problem & Chapter Management
+12. Problem list and CRUD
+13. Chapter edit functionality
+14. Problem category system
+
+### Phase 4: AI & Advanced Features
+15. AI rules management
+16. Language management
+17. Activity logging
+18. Search rule testing
+
+---
+
+## File Structure
+
+```text
+src/
+├── pages/admin/
+│   ├── AdminLoginPage.tsx
+│   ├── AdminDashboard.tsx
+│   ├── AdminShlokList.tsx
+│   ├── AdminShlokForm.tsx
+│   ├── AdminProblemList.tsx
+│   ├── AdminProblemForm.tsx
+│   ├── AdminChapterList.tsx
+│   ├── AdminChapterForm.tsx
+│   ├── AdminAIRules.tsx
+│   ├── AdminLanguages.tsx
+│   └── AdminActivityLog.tsx
+├── components/admin/
+│   ├── AdminLayout.tsx
+│   ├── AdminSidebar.tsx
+│   ├── AdminHeader.tsx
+│   ├── AdminBreadcrumb.tsx
+│   ├── AdminStatsCard.tsx
+│   ├── AdminDataTable.tsx
+│   ├── AdminFormSection.tsx
+│   ├── AdminStatusBadge.tsx
+│   ├── AdminPagination.tsx
+│   ├── AdminSearchFilters.tsx
+│   ├── AdminConfirmDialog.tsx
+│   └── AdminProtectedRoute.tsx
+├── hooks/
+│   └── useAdminAuth.tsx
+├── lib/
+│   └── adminApi.ts
+└── types/
+    └── admin.ts
+```
+
+---
+
+## Routes Addition to App.tsx
+
+```typescript
+// Admin routes (protected)
+<Route path="/admin/login" element={<AdminLoginPage />} />
+<Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+<Route path="/admin/shloks" element={<AdminProtectedRoute><AdminShlokList /></AdminProtectedRoute>} />
+<Route path="/admin/shloks/create" element={<AdminProtectedRoute><AdminShlokForm /></AdminProtectedRoute>} />
+<Route path="/admin/shloks/edit/:id" element={<AdminProtectedRoute><AdminShlokForm /></AdminProtectedRoute>} />
+<Route path="/admin/problems" element={<AdminProtectedRoute><AdminProblemList /></AdminProtectedRoute>} />
+<Route path="/admin/problems/create" element={<AdminProtectedRoute><AdminProblemForm /></AdminProtectedRoute>} />
+<Route path="/admin/problems/edit/:id" element={<AdminProtectedRoute><AdminProblemForm /></AdminProtectedRoute>} />
+<Route path="/admin/chapters" element={<AdminProtectedRoute><AdminChapterList /></AdminProtectedRoute>} />
+<Route path="/admin/chapters/edit/:id" element={<AdminProtectedRoute><AdminChapterForm /></AdminProtectedRoute>} />
+<Route path="/admin/ai-rules" element={<AdminProtectedRoute><AdminAIRules /></AdminProtectedRoute>} />
+<Route path="/admin/languages" element={<AdminProtectedRoute><AdminLanguages /></AdminProtectedRoute>} />
+<Route path="/admin/activity" element={<AdminProtectedRoute><AdminActivityLog /></AdminProtectedRoute>} />
+```
+
+---
+
+## Making an Admin User
+
+After implementation, to make a user an admin:
+1. User signs up normally via `/auth`
+2. Run SQL to add admin role:
+   ```sql
+   INSERT INTO user_roles (user_id, role)
+   SELECT id, 'admin' FROM auth.users WHERE email = 'admin@example.com';
+   ```
+3. User can now access `/admin` routes
+
+---
+
+## Key Design Decisions
+
+1. **Reuse existing auth**: No separate admin auth system - admins are regular users with 'admin' role
+2. **RLS-based security**: All admin operations go through existing RLS policies that check `has_role()`
+3. **Side-by-side editing**: Hindi/English content shown together for easy comparison
+4. **Draft workflow**: Shloks can be drafted, reviewed, then published
+5. **Activity audit**: All changes logged for accountability
+6. **Modular components**: Reusable admin UI components for consistency
 
