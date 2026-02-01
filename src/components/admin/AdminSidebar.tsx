@@ -8,12 +8,10 @@ import {
   Languages,
   Bot,
   History,
-  LogOut,
   ChevronLeft,
   Menu,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
 import {
   Collapsible,
   CollapsibleContent,
@@ -53,8 +51,8 @@ interface AdminSidebarProps {
   onToggle: () => void;
 }
 
+// Auth temporarily disabled - signOut removed
 export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
-  const { signOut } = useAdminAuth();
   const [contentOpen, setContentOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(true);
 
@@ -199,20 +197,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
           )}
         </nav>
 
-        {/* Footer */}
-        <div className="p-3 border-t border-border">
-          <Button
-            variant="ghost"
-            className={cn(
-              'w-full text-muted-foreground hover:text-destructive',
-              collapsed ? 'justify-center' : 'justify-start'
-            )}
-            onClick={signOut}
-          >
-            <LogOut className="w-5 h-5" />
-            {!collapsed && <span className="ml-3">Sign Out</span>}
-          </Button>
-        </div>
+        {/* Footer - Sign out hidden while auth disabled */}
       </div>
     </aside>
   );
