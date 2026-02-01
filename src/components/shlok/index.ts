@@ -1,0 +1,9 @@
+export { ShlokHeader } from './ShlokHeader';
+export { SanskritVerse } from './SanskritVerse';
+export { MeaningSection } from './MeaningSection';
+export { ProblemTags } from './ProblemTags';
+export { ProblemSolutionFlow } from './ProblemSolutionFlow';
+export { ModernStory } from './ModernStory';
+export { LifeApplicationBox } from './LifeApplicationBox';
+export { ShareWisdomCard } from './ShareWisdomCard';
+export { ShlokActions } from './ShlokActions';

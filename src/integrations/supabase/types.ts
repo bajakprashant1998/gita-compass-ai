@@ -254,8 +254,11 @@ export type Database = {
           hindi_meaning: string | null
           id: string
           life_application: string | null
+          modern_story: string | null
           practical_action: string | null
+          problem_context: string | null
           sanskrit_text: string
+          solution_gita: string | null
           transliteration: string | null
           updated_at: string | null
           verse_number: number
@@ -267,8 +270,11 @@ export type Database = {
           hindi_meaning?: string | null
           id?: string
           life_application?: string | null
+          modern_story?: string | null
           practical_action?: string | null
+          problem_context?: string | null
           sanskrit_text: string
+          solution_gita?: string | null
           transliteration?: string | null
           updated_at?: string | null
           verse_number: number
@@ -280,8 +286,11 @@ export type Database = {
           hindi_meaning?: string | null
           id?: string
           life_application?: string | null
+          modern_story?: string | null
           practical_action?: string | null
+          problem_context?: string | null
           sanskrit_text?: string
+          solution_gita?: string | null
           transliteration?: string | null
           updated_at?: string | null
           verse_number?: number

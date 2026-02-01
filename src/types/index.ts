@@ -34,6 +34,9 @@ export interface Shlok {
   english_meaning: string;
   life_application?: string;
   practical_action?: string;
+  modern_story?: string;
+  problem_context?: string;
+  solution_gita?: string;
   created_at?: string;
   updated_at?: string;
   chapter?: Chapter;
