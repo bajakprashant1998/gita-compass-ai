@@ -59,28 +59,65 @@ export async function getShlok(shlokId: string): Promise<Shlok | null> {
     .from('shloks')
     .select('*, chapters(*)')
     .eq('id', shlokId)
-    .single();
+    .maybeSingle();
   
   if (error) throw error;
+  if (!data) return null;
   
-  // Transform the response
+  // Fetch problems for this shlok
+  const { data: problemData } = await supabase
+    .from('shlok_problems')
+    .select('problems(*)')
+    .eq('shlok_id', shlokId)
+    .order('relevance_score', { ascending: false });
+  
   const shlok = data as any;
   return {
     ...shlok,
     chapter: shlok.chapters,
+    problems: problemData?.map((p: any) => p.problems).filter(Boolean) || [],
   } as Shlok;
 }
 
 export async function getShloksByProblem(problemId: string): Promise<Shlok[]> {
   const { data, error } = await supabase
     .from('shlok_problems')
-    .select('shlok_id, shloks(*)')
+    .select('shlok_id, shloks(*, chapters(*))')
     .eq('problem_id', problemId)
     .order('relevance_score', { ascending: false });
   
   if (error) throw error;
   
-  return (data as any[]).map(item => item.shloks) as Shlok[];
+  return (data as any[]).map(item => ({
+    ...item.shloks,
+    chapter: item.shloks?.chapters,
+  })) as Shlok[];
+}
+
+export async function getShlokByChapterAndVerse(chapterNumber: number, verseNumber: number): Promise<Shlok | null> {
+  const { data, error } = await supabase
+    .from('shloks')
+    .select('*, chapters(*)')
+    .eq('verse_number', verseNumber)
+    .eq('chapters.chapter_number', chapterNumber)
+    .maybeSingle();
+  
+  if (error) throw error;
+  if (!data) return null;
+  
+  // Fetch problems for this shlok
+  const { data: problemData } = await supabase
+    .from('shlok_problems')
+    .select('problems(*)')
+    .eq('shlok_id', data.id)
+    .order('relevance_score', { ascending: false });
+  
+  const shlok = data as any;
+  return {
+    ...shlok,
+    chapter: shlok.chapters,
+    problems: problemData?.map((p: any) => p.problems).filter(Boolean) || [],
+  } as Shlok;
 }
 
 export async function getRandomShlok(): Promise<Shlok | null> {
