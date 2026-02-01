@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookText, Volume2, Pause, Square, Loader2 } from 'lucide-react';
+import { BookText, Volume2, Pause, Square, Loader2, Sparkles } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import type { Shlok } from '@/types';
@@ -14,6 +14,7 @@ export function ModernStory({ shlok }: ModernStoryProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
@@ -115,17 +116,26 @@ export function ModernStory({ shlok }: ModernStoryProps) {
 
   if (!shlok.modern_story) return null;
 
+  const paragraphs = shlok.modern_story.split('\n\n');
+
   return (
-    <Card className="mb-6 bg-gradient-to-br from-secondary/50 to-secondary/30 border-0 shadow-md">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between gap-4 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <BookText className="h-5 w-5 text-primary" />
+    <Card className="mb-8 border-0 shadow-xl overflow-hidden animate-fade-in animation-delay-300">
+      {/* Decorative gradient header */}
+      <div className="h-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
+      
+      <CardContent className="p-0">
+        {/* Header section */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-gradient-to-r from-secondary/50 to-transparent">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
+              <BookText className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg">Modern Story</h3>
-              <p className="text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-lg">Modern Story</h3>
+                <Sparkles className="h-4 w-4 text-amber-500" />
+              </div>
+              <p className="text-sm text-muted-foreground">
                 A contemporary example of this wisdom
               </p>
             </div>
@@ -134,26 +144,26 @@ export function ModernStory({ shlok }: ModernStoryProps) {
           {/* Audio Controls */}
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
+              variant={isPlaying ? "default" : "outline"}
               size="sm"
               onClick={handlePlayPause}
               disabled={isLoading}
-              className="gap-2"
+              className="gap-2 min-w-[100px]"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="hidden sm:inline">Loading...</span>
+                  <span>Loading...</span>
                 </>
               ) : isPlaying ? (
                 <>
                   <Pause className="h-4 w-4" />
-                  <span className="hidden sm:inline">Pause</span>
+                  <span>Pause</span>
                 </>
               ) : (
                 <>
                   <Volume2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Listen</span>
+                  <span>Listen</span>
                 </>
               )}
             </Button>
@@ -161,9 +171,9 @@ export function ModernStory({ shlok }: ModernStoryProps) {
             {(isPlaying || progress > 0) && (
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={handleStop}
-                className="px-2"
+                className="h-9 w-9"
               >
                 <Square className="h-4 w-4" />
               </Button>
@@ -173,17 +183,42 @@ export function ModernStory({ shlok }: ModernStoryProps) {
 
         {/* Progress Bar */}
         {(isPlaying || progress > 0) && (
-          <div className="mb-4">
-            <Progress value={progress} className="h-1" />
+          <div className="px-6">
+            <Progress value={progress} className="h-1.5 rounded-full" />
           </div>
         )}
 
-        <div className="prose prose-sm max-w-none">
-          {shlok.modern_story.split('\n\n').map((paragraph, index) => (
-            <p key={index} className="text-foreground leading-relaxed mb-4 last:mb-0">
-              {paragraph}
-            </p>
-          ))}
+        {/* Story content */}
+        <div className="p-6 pt-4">
+          <div className={`prose prose-lg max-w-none transition-all duration-500 ${
+            isExpanded ? '' : 'max-h-48 overflow-hidden relative'
+          }`}>
+            {paragraphs.map((paragraph, index) => (
+              <p 
+                key={index} 
+                className={`text-foreground leading-relaxed mb-4 last:mb-0 ${
+                  index === 0 ? 'first-letter:text-3xl first-letter:font-bold first-letter:text-primary first-letter:mr-1 first-letter:float-left first-letter:leading-none' : ''
+                }`}
+              >
+                {paragraph}
+              </p>
+            ))}
+            
+            {!isExpanded && (
+              <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-card to-transparent" />
+            )}
+          </div>
+          
+          {paragraphs.length > 2 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="mt-4 text-primary"
+            >
+              {isExpanded ? 'Show Less' : 'Read Full Story'}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -7,3 +7,5 @@ export { ModernStory } from './ModernStory';
 export { LifeApplicationBox } from './LifeApplicationBox';
 export { ShareWisdomCard } from './ShareWisdomCard';
 export { ShlokActions } from './ShlokActions';
+export { ReadingProgress } from './ReadingProgress';
+export { VerseNavigation } from './VerseNavigation';

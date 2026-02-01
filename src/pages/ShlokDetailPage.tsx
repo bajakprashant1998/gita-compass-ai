@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { getShlokByChapterAndVerse } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,8 @@ import { LifeApplicationBox } from '@/components/shlok/LifeApplicationBox';
 import { ShareWisdomCard } from '@/components/shlok/ShareWisdomCard';
 import { ShlokActions } from '@/components/shlok/ShlokActions';
 import { WisdomCardGenerator } from '@/components/shlok/WisdomCardGenerator';
+import { ReadingProgress } from '@/components/shlok/ReadingProgress';
+import { VerseNavigation } from '@/components/shlok/VerseNavigation';
 
 export default function ShlokDetailPage() {
   const { chapterNumber, verseNumber } = useParams<{ chapterNumber: string; verseNumber: string }>();
@@ -28,6 +31,26 @@ export default function ShlokDetailPage() {
     queryFn: () => getShlokByChapterAndVerse(chapterNum, verseNum),
     enabled: !!chapterNum && !!verseNum,
   });
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      
+      if (e.key === 'ArrowLeft') {
+        if (verseNum > 1) {
+          window.location.href = `/chapters/${chapterNum}/verse/${verseNum - 1}`;
+        } else if (chapterNum > 1) {
+          window.location.href = `/chapters/${chapterNum - 1}`;
+        }
+      } else if (e.key === 'ArrowRight') {
+        window.location.href = `/chapters/${chapterNum}/verse/${verseNum + 1}`;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [chapterNum, verseNum]);
 
   if (isLoading) {
     return (
@@ -80,6 +103,9 @@ export default function ShlokDetailPage() {
 
   return (
     <Layout>
+      {/* Reading Progress Bar */}
+      <ReadingProgress />
+      
       <SEOHead
         title={`Chapter ${chapterNum}, Verse ${verseNum} - ${shlok.life_application || 'Bhagavad Gita'}`}
         description={shlok.english_meaning.substring(0, 155) + '...'}
@@ -88,12 +114,13 @@ export default function ShlokDetailPage() {
         structuredData={combinedSchema}
         type="article"
       />
+      
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="max-w-4xl mx-auto">
           {/* Back Navigation */}
-          <Link to={`/chapters/${chapterNum}`} className="inline-block mb-4">
-            <Button variant="ghost" className="gap-2">
-              <ChevronLeft className="h-4 w-4" />
+          <Link to={`/chapters/${chapterNum}`} className="inline-block mb-6">
+            <Button variant="ghost" className="gap-2 group hover:bg-primary/10">
+              <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
               Back to Chapter {chapterNum}
             </Button>
           </Link>
@@ -129,6 +156,9 @@ export default function ShlokDetailPage() {
           <ShlokActions shlokId={shlok.id} />
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <VerseNavigation chapterNumber={chapterNum} verseNumber={verseNum} />
     </Layout>
   );
 }

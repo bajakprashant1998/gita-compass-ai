@@ -16,47 +16,62 @@ interface ShlokHeaderProps {
 
 export function ShlokHeader({ shlok }: ShlokHeaderProps) {
   return (
-    <div className="mb-8">
+    <div className="mb-12 animate-fade-in">
       {/* Breadcrumb Navigation */}
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
+      <Breadcrumb className="mb-8">
+        <BreadcrumbList className="text-sm">
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
+              <Link to="/" className="hover:text-primary transition-colors">Home</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/chapters">Chapters</Link>
+              <Link to="/chapters" className="hover:text-primary transition-colors">Chapters</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to={`/chapters/${shlok.chapter?.chapter_number}`}>
+              <Link to={`/chapters/${shlok.chapter?.chapter_number}`} className="hover:text-primary transition-colors">
                 Chapter {shlok.chapter?.chapter_number}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Shlok {shlok.verse_number}</BreadcrumbPage>
+            <BreadcrumbPage className="font-medium">Verse {shlok.verse_number}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
-      {/* Page Title */}
-      <div className="text-center">
-        <Badge variant="secondary" className="mb-4 text-sm px-4 py-1">
+      {/* Page Title - WebFX inspired bold typography */}
+      <div className="text-center space-y-4">
+        <Badge 
+          variant="secondary" 
+          className="px-4 py-1.5 text-xs font-semibold uppercase tracking-wider bg-primary/10 text-primary border-0"
+        >
           Bhagavad Gita
         </Badge>
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">
-          Chapter {shlok.chapter?.chapter_number} | Shlok {shlok.verse_number}
+        
+        <h1 className="headline-bold text-gradient">
+          Chapter {shlok.chapter?.chapter_number}, Verse {shlok.verse_number}
         </h1>
-        <p className="text-muted-foreground text-lg">
+        
+        <p className="text-xl md:text-2xl text-muted-foreground font-medium max-w-2xl mx-auto">
           {shlok.chapter?.title_english}
         </p>
+
+        {/* Quick stats bar */}
+        <div className="flex items-center justify-center gap-6 pt-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span>Active Wisdom</span>
+          </div>
+          <div className="h-4 w-px bg-border" />
+          <span>3 min read</span>
+        </div>
       </div>
     </div>
   );

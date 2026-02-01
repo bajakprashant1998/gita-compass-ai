@@ -120,9 +120,24 @@
 }
 
 @layer utilities {
-  /* Text gradient for headings */
+  /* Text gradient for headings - WebFX inspired bold gradients */
   .text-gradient {
-    @apply bg-gradient-to-r from-primary to-amber-600 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-amber-500 to-orange-500 bg-clip-text text-transparent;
+  }
+
+  /* Bold headline style - WebFX inspired */
+  .headline-bold {
+    @apply text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight;
+  }
+
+  /* Section divider - WebFX wave style */
+  .section-wave {
+    @apply relative;
+  }
+  
+  .section-wave::before {
+    content: '';
+    @apply absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent;
   }
 
   /* Calm hover effects */
@@ -135,6 +150,25 @@
     @apply bg-white/80 backdrop-blur-md dark:bg-black/40;
   }
 
+  /* Glow effect for important elements */
+  .glow-primary {
+    box-shadow: 0 0 40px -10px hsl(var(--primary) / 0.4);
+  }
+
+  /* Metric card style - WebFX inspired */
+  .metric-card {
+    @apply relative overflow-hidden rounded-2xl border bg-card p-6 transition-all duration-300;
+  }
+  
+  .metric-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300;
+  }
+  
+  .metric-card:hover::before {
+    @apply opacity-100;
+  }
+
   /* Problem category badge colors */
   .badge-anxiety { @apply bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300; }
   .badge-fear { @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300; }
@@ -144,6 +178,11 @@
   .badge-self-doubt { @apply bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300; }
   .badge-anger { @apply bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300; }
   .badge-decision-making { @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300; }
+
+  /* Reading progress bar */
+  .reading-progress {
+    @apply fixed top-0 left-0 h-1 bg-gradient-to-r from-primary via-amber-500 to-orange-500 z-50 transition-all duration-100;
+  }
 }
 
 /* Custom scrollbar */
