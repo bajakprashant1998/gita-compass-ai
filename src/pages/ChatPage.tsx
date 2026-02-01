@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Sparkles, User, Loader2, BookOpen } from 'lucide-react';
+import { Send, Sparkles, User, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import { QuickActionsBar } from '@/components/chat/QuickActionsBar';
@@ -185,23 +185,34 @@ export default function ChatPage() {
         canonicalUrl="https://gitawisdom.com/chat"
         keywords={['AI coach', 'Gita guidance', 'wisdom chat', 'personal guide', 'life advice AI']}
       />
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 h-[calc(100vh-8rem)]">
-        <div className="max-w-3xl mx-auto h-full flex flex-col">
-          {/* Header */}
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+
+      {/* Hero Header */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-8 border-b border-border/50">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-0 w-1/2 h-full bg-[radial-gradient(circle_at_80%_20%,hsl(var(--primary)/0.1),transparent_50%)]" />
+        </div>
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-amber-500/10 border border-primary/20 text-primary text-sm font-medium mb-4">
               <Sparkles className="h-4 w-4" />
               AI Gita Coach
             </div>
-            <h1 className="text-2xl font-bold">Your Personal Wisdom Guide</h1>
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">
+              Your Personal <span className="text-gradient">Wisdom Guide</span>
+            </h1>
             <p className="text-muted-foreground">
               Share what's on your mind. I'll offer guidance from the Bhagavad Gita.
             </p>
           </div>
+        </div>
+      </section>
 
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 h-[calc(100vh-16rem)]">
+        <div className="max-w-3xl mx-auto h-full flex flex-col">
           {/* Chat Area */}
-          <Card className="flex-1 flex flex-col overflow-hidden">
-            <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+          <Card className="flex-1 flex flex-col overflow-hidden border-border/50 shadow-xl shadow-primary/5">
+            <ScrollArea className="flex-1 p-4 md:p-6" ref={scrollRef}>
               {messages.length === 0 ? (
                 <ConversationStarters onSelect={handleQuickAction} />
               ) : (
@@ -209,19 +220,19 @@ export default function ChatPage() {
                   {messages.map((message, index) => (
                     <div
                       key={index}
-                      className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : ''} group`}
+                      className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : ''} group animate-fade-in`}
                     >
                       {message.role === 'assistant' && (
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Sparkles className="h-4 w-4 text-primary" />
+                        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/20">
+                          <Sparkles className="h-5 w-5 text-primary" />
                         </div>
                       )}
                       <div className="flex flex-col max-w-[85%]">
                         <div
                           className={`rounded-2xl px-4 py-3 ${
                             message.role === 'user'
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted'
+                              ? 'bg-gradient-to-r from-primary to-amber-500 text-white shadow-lg shadow-primary/20'
+                              : 'bg-muted/80 border border-border/50'
                           }`}
                         >
                           {message.role === 'assistant' ? (
@@ -237,24 +248,24 @@ export default function ChatPage() {
                         )}
                       </div>
                       {message.role === 'user' && (
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                          <User className="h-4 w-4 text-primary-foreground" />
+                        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/20">
+                          <User className="h-5 w-5 text-white" />
                         </div>
                       )}
                     </div>
                   ))}
                   {isLoading && messages[messages.length - 1]?.role === 'user' && (
-                    <div className="flex gap-3">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Sparkles className="h-4 w-4 text-primary" />
+                    <div className="flex gap-3 animate-fade-in">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/20">
+                        <Sparkles className="h-5 w-5 text-primary" />
                       </div>
-                      <div className="bg-muted rounded-2xl px-4 py-3 flex items-center gap-2">
+                      <div className="bg-muted/80 border border-border/50 rounded-2xl px-4 py-3 flex items-center gap-3">
                         <div className="flex gap-1">
-                          <span className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{ animationDelay: '0ms' }} />
-                          <span className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{ animationDelay: '150ms' }} />
-                          <span className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{ animationDelay: '300ms' }} />
+                          <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-amber-500 animate-bounce" style={{ animationDelay: '300ms' }} />
                         </div>
-                        <span className="text-sm text-muted-foreground ml-2">{typingMessage}</span>
+                        <span className="text-sm text-muted-foreground">{typingMessage}</span>
                       </div>
                     </div>
                   )}
@@ -263,22 +274,22 @@ export default function ChatPage() {
             </ScrollArea>
 
             {/* Input Area */}
-            <CardContent className="p-4 border-t space-y-3">
+            <CardContent className="p-4 border-t border-border/50 space-y-3 bg-gradient-to-b from-transparent to-muted/30">
               <QuickActionsBar onQuickAction={handleQuickAction} disabled={isLoading} />
-              <form onSubmit={handleSubmit} className="flex gap-2">
+              <form onSubmit={handleSubmit} className="flex gap-3">
                 <Textarea
                   ref={textareaRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Share what's on your mind..."
-                  className="min-h-[60px] max-h-[120px] resize-none"
+                  className="min-h-[60px] max-h-[120px] resize-none border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all"
                   disabled={isLoading}
                 />
                 <Button
                   type="submit"
                   size="icon"
-                  className="h-[60px] w-[60px]"
+                  className="h-[60px] w-[60px] bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30"
                   disabled={!input.trim() || isLoading}
                 >
                   {isLoading ? (

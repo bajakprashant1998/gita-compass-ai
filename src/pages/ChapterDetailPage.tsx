@@ -2,10 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { getChapter, getShloksByChapter } from '@/lib/api';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function ChapterDetailPage() {
   const { chapterNumber } = useParams<{ chapterNumber: string }>();
@@ -48,59 +47,89 @@ export default function ChapterDetailPage() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Navigation */}
-        <div className="flex items-center justify-between mb-8">
-          <Link to="/chapters">
-            <Button variant="ghost" className="gap-2">
-              <ChevronLeft className="h-4 w-4" />
-              All Chapters
-            </Button>
-          </Link>
-          <div className="flex gap-2">
-            {chapterNum > 1 && (
-              <Link to={`/chapters/${chapterNum - 1}`}>
-                <Button variant="outline" size="icon">
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-              </Link>
-            )}
-            {chapterNum < 18 && (
-              <Link to={`/chapters/${chapterNum + 1}`}>
-                <Button variant="outline" size="icon">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            )}
-          </div>
+      {/* Hero Section with Gradient Background */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-16 lg:py-24">
+        {/* Background Decorations */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-[radial-gradient(circle_at_80%_20%,hsl(var(--primary)/0.15),transparent_50%)]" />
+          <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-[radial-gradient(circle_at_20%_80%,hsl(var(--accent)/0.1),transparent_50%)]" />
         </div>
 
-        {/* Chapter Header */}
-        <div className="max-w-4xl mx-auto mb-12">
-          <div className="text-center">
-            <Badge variant="secondary" className="mb-4">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+          {/* Navigation */}
+          <div className="flex items-center justify-between mb-10">
+            <Link to="/chapters">
+              <Button variant="ghost" className="gap-2 hover:bg-primary/10">
+                <ChevronLeft className="h-4 w-4" />
+                All Chapters
+              </Button>
+            </Link>
+            <div className="flex gap-2">
+              {chapterNum > 1 && (
+                <Link to={`/chapters/${chapterNum - 1}`}>
+                  <Button variant="outline" size="icon" className="hover:border-primary hover:text-primary">
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                </Link>
+              )}
+              {chapterNum < 18 && (
+                <Link to={`/chapters/${chapterNum + 1}`}>
+                  <Button variant="outline" size="icon" className="hover:border-primary hover:text-primary">
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Chapter Info */}
+          <div className="max-w-4xl mx-auto text-center animate-fade-in">
+            <Badge 
+              variant="secondary" 
+              className="mb-6 text-base px-4 py-1.5 bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20"
+            >
               Chapter {chapter.chapter_number}
             </Badge>
-            <h1 className="text-4xl font-bold mb-2">{chapter.title_english}</h1>
+            
+            <h1 className="headline-bold text-4xl md:text-5xl lg:text-6xl mb-4">
+              {chapter.title_english}
+            </h1>
+            
             {chapter.title_sanskrit && (
-              <p className="text-xl text-muted-foreground sanskrit mb-4">
+              <p className="text-2xl md:text-3xl text-muted-foreground sanskrit mb-6">
                 {chapter.title_sanskrit}
               </p>
             )}
-            <div className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary font-medium mb-6">
+            
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary to-amber-500 text-white font-semibold mb-8">
+              <Sparkles className="h-4 w-4" />
               {chapter.theme}
             </div>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
               {chapter.description_english}
             </p>
+
+            {/* Verse Count Metric */}
+            <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl bg-card border border-border/50 shadow-lg shadow-primary/5">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center">
+                <BookOpen className="h-6 w-6 text-white" />
+              </div>
+              <div className="text-left">
+                <div className="text-3xl font-bold text-gradient">{shloks?.length || chapter.verse_count}</div>
+                <div className="text-sm text-muted-foreground">Sacred Verses</div>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Shloks List */}
+      {/* Verses Section */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-2 mb-6">
-            <BookOpen className="h-5 w-5 text-primary" />
-            <h2 className="text-2xl font-bold">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-1 h-8 rounded-full bg-gradient-to-b from-primary to-amber-500" />
+            <h2 className="text-2xl md:text-3xl font-bold">
               Verses ({shloks?.length || chapter.verse_count})
             </h2>
           </div>
@@ -113,49 +142,65 @@ export default function ChapterDetailPage() {
             </div>
           ) : shloks && shloks.length > 0 ? (
             <div className="space-y-4">
-              {shloks.map((shlok) => (
-                <Link key={shlok.id} to={`/chapters/${chapterNum}/verse/${shlok.verse_number}`}>
-                  <Card className="hover-lift cursor-pointer group">
-                    <CardContent className="p-6">
+              {shloks.map((shlok, index) => (
+                <Link 
+                  key={shlok.id} 
+                  to={`/chapters/${chapterNum}/verse/${shlok.verse_number}`}
+                  className="block animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className="group relative rounded-2xl border border-border/50 bg-card overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
+                    {/* Gradient Top Border */}
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-amber-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    
+                    <div className="p-6">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline">
-                              Verse {shlok.verse_number}
-                            </Badge>
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="text-2xl font-bold text-gradient">
+                              {shlok.verse_number}
+                            </span>
+                            <span className="text-sm text-muted-foreground">Verse</span>
                           </div>
-                          <p className="text-muted-foreground line-clamp-2 mb-2">
+                          <p className="text-muted-foreground line-clamp-2 mb-3">
                             {shlok.english_meaning}
                           </p>
                           {shlok.modern_story && (
-                            <p className="text-sm text-amber-600 dark:text-amber-400 mb-1">
-                              📖 {shlok.modern_story.slice(0, 120)}...
-                            </p>
+                            <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+                              <span className="text-lg">📖</span>
+                              <span className="line-clamp-1">{shlok.modern_story.slice(0, 80)}...</span>
+                            </div>
                           )}
                           {shlok.life_application && !shlok.modern_story && (
-                            <p className="text-sm text-primary">
-                              💡 {shlok.life_application.slice(0, 100)}...
-                            </p>
+                            <div className="flex items-center gap-2 text-sm text-primary">
+                              <span className="text-lg">💡</span>
+                              <span className="line-clamp-1">{shlok.life_application.slice(0, 80)}...</span>
+                            </div>
                           )}
                         </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                        
+                        <div className="flex items-center text-primary font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
+                          <span className="text-sm mr-2 hidden sm:block">Read Now</span>
+                          <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <p className="text-muted-foreground">
-                  No verses available for this chapter yet. Check back soon!
-                </p>
-              </CardContent>
-            </Card>
+            <div className="rounded-2xl border border-border/50 bg-card p-12 text-center">
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <p className="text-muted-foreground">
+                No verses available for this chapter yet. Check back soon!
+              </p>
+            </div>
           )}
         </div>
-      </div>
+      </section>
     </Layout>
   );
 }
