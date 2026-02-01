@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AIGenerateButtonProps {
   label?: string;
+  icon?: ReactNode;
   disabled?: boolean;
   className?: string;
   variant?: 'default' | 'outline' | 'secondary' | 'ghost';
@@ -16,6 +17,7 @@ interface AIGenerateButtonProps {
 
 export function AIGenerateButton({
   label = 'Generate',
+  icon,
   disabled = false,
   className,
   variant = 'outline',
@@ -57,6 +59,8 @@ export function AIGenerateButton({
     >
       {isLoading ? (
         <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      ) : icon ? (
+        icon
       ) : (
         <Sparkles className="h-3.5 w-3.5" />
       )}

@@ -29,6 +29,7 @@ import AdminChapterForm from "./pages/admin/AdminChapterForm";
 import AdminLanguages from "./pages/admin/AdminLanguages";
 import AdminAIRules from "./pages/admin/AdminAIRules";
 import AdminActivityLog from "./pages/admin/AdminActivityLog";
+import AdminSettings from "./pages/admin/AdminSettings";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -68,6 +69,7 @@ const App = () => (
               <Route path="/admin/languages" element={<AdminProtectedRoute><AdminLanguages /></AdminProtectedRoute>} />
               <Route path="/admin/ai-rules" element={<AdminProtectedRoute><AdminAIRules /></AdminProtectedRoute>} />
               <Route path="/admin/activity" element={<AdminProtectedRoute><AdminActivityLog /></AdminProtectedRoute>} />
+              <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>

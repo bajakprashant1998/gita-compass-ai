@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Save, ArrowLeft, CheckCircle, Plus, Sparkles, Settings } from 'lucide-react';
+import { Loader2, Save, ArrowLeft, CheckCircle, Plus, Sparkles, Settings, Languages, Volume2 } from 'lucide-react';
 import {
   getShlokById,
   createShlok,
@@ -35,6 +35,7 @@ import { AIGenerateButton } from '@/components/admin/AIGenerateButton';
 import { AddProblemModal } from '@/components/admin/AddProblemModal';
 import { StoryTypeManager } from '@/components/admin/StoryTypeManager';
 import { supabase } from '@/integrations/supabase/client';
+import { generateTTS, playBase64Audio } from '@/lib/adminSettings';
 
 interface ProblemMapping {
   id: string;
@@ -56,6 +57,7 @@ export default function AdminShlokForm() {
   const [storyTypes, setStoryTypes] = useState<StoryTypeConfig[]>([]);
   const [showAddProblem, setShowAddProblem] = useState(false);
   const [showStoryTypeManager, setShowStoryTypeManager] = useState(false);
+  const [playingAudio, setPlayingAudio] = useState(false);
 
   const [formData, setFormData] = useState<Partial<AdminShlok>>({
     chapter_id: '',
@@ -217,20 +219,61 @@ export default function AdminShlokForm() {
     }
   };
 
-  // AI Generation handlers
+  // AI Generation handlers - now with chapter/verse context
   const handleAIGenerate = async (
-    type: 'transliteration' | 'hindi_meaning' | 'english_meaning' | 'problem_context' | 'solution_gita' | 'life_application' | 'practical_action' | 'modern_story',
+    type: 'transliteration' | 'hindi_meaning' | 'english_meaning' | 'translate_hindi_to_english' | 'problem_context' | 'solution_gita' | 'life_application' | 'practical_action' | 'modern_story',
     field: keyof AdminShlok
   ) => {
     const content = await generateAIContent(type, {
       sanskrit_text: formData.sanskrit_text,
       english_meaning: formData.english_meaning,
+      hindi_meaning: formData.hindi_meaning,
       verse_content: formData.english_meaning || formData.sanskrit_text,
       story_type: formData.story_type || 'corporate',
+      chapter_number: selectedChapter?.chapter_number,
+      verse_number: formData.verse_number,
     });
     handleChange(field, content);
-    toast({ title: 'Generated', description: `${field.replace('_', ' ')} generated successfully` });
+    toast({ title: 'Generated', description: `${field.replace(/_/g, ' ')} generated successfully` });
     return content;
+  };
+
+  // Translate Hindi to English
+  const handleTranslateToEnglish = async () => {
+    if (!formData.hindi_meaning) {
+      toast({ title: 'No Hindi', description: 'Please enter or generate Hindi meaning first', variant: 'destructive' });
+      return '';
+    }
+    const content = await generateAIContent('translate_hindi_to_english', {
+      hindi_meaning: formData.hindi_meaning,
+      chapter_number: selectedChapter?.chapter_number,
+      verse_number: formData.verse_number,
+    });
+    handleChange('english_meaning', content);
+    toast({ title: 'Translated', description: 'Hindi meaning translated to English' });
+    return content;
+  };
+
+  // Play TTS audio for Sanskrit
+  const handlePlaySanskritAudio = async () => {
+    if (!formData.sanskrit_text) {
+      toast({ title: 'No Text', description: 'Please enter Sanskrit text first', variant: 'destructive' });
+      return;
+    }
+    setPlayingAudio(true);
+    try {
+      const result = await generateTTS(formData.sanskrit_text, 'sanskrit');
+      playBase64Audio(result.audioContent);
+      toast({ title: 'Playing Audio', description: 'Sanskrit verse audio is playing...' });
+    } catch (error) {
+      toast({
+        title: 'Audio Generation Failed',
+        description: error instanceof Error ? error.message : 'Check ElevenLabs API key in Settings',
+        variant: 'destructive',
+      });
+    } finally {
+      setPlayingAudio(false);
+    }
   };
 
   const handleGenerateAllSolutions = async () => {
@@ -245,6 +288,8 @@ export default function AdminShlokForm() {
     const result = await generateAIContentWithMeta('suggest_problems', {
       verse_content: formData.english_meaning || formData.sanskrit_text,
       existing_problems: problemMappings.map(p => ({ name: p.name, category: 'general' })),
+      chapter_number: selectedChapter?.chapter_number,
+      verse_number: formData.verse_number,
     });
 
     if (result.problems && Array.isArray(result.problems)) {
@@ -275,6 +320,8 @@ export default function AdminShlokForm() {
     }
     const suggestion = await generateAIContent('suggest_story_type', {
       story_content: formData.modern_story || formData.english_meaning,
+      chapter_number: selectedChapter?.chapter_number,
+      verse_number: formData.verse_number,
     });
     const storyType = suggestion.toLowerCase().trim() as StoryType;
     if (['corporate', 'family', 'youth', 'global'].includes(storyType)) {
@@ -386,7 +433,22 @@ export default function AdminShlokForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="audio">Sanskrit Audio URL</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="audio">Sanskrit Audio URL</Label>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePlaySanskritAudio}
+                      disabled={playingAudio || !formData.sanskrit_text}
+                    >
+                      {playingAudio ? (
+                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      ) : (
+                        <Volume2 className="h-4 w-4 mr-1" />
+                      )}
+                      Preview TTS
+                    </Button>
+                  </div>
                   <Input
                     id="audio"
                     type="url"
@@ -394,6 +456,9 @@ export default function AdminShlokForm() {
                     value={formData.sanskrit_audio_url || ''}
                     onChange={(e) => handleChange('sanskrit_audio_url', e.target.value)}
                   />
+                  <p className="text-sm text-muted-foreground">
+                    Use "Preview TTS" to hear AI-generated audio (requires ElevenLabs API key in Settings)
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -403,13 +468,22 @@ export default function AdminShlokForm() {
           <TabsContent value="meanings">
             <Card>
               <CardHeader>
-                <CardTitle>Meanings (Hindi & English)</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Meanings (Hindi & English)</CardTitle>
+                  <AIGenerateButton
+                    label="Translate Hindi → English"
+                    icon={<Languages className="h-4 w-4 mr-1" />}
+                    disabled={!formData.hindi_meaning}
+                    onGenerate={handleTranslateToEnglish}
+                    onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                  />
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="hindi">Hindi Meaning</Label>
+                      <Label htmlFor="hindi">Hindi Meaning (Primary)</Label>
                       <AIGenerateButton
                         label="Generate Hindi"
                         disabled={!formData.sanskrit_text}
@@ -424,6 +498,9 @@ export default function AdminShlokForm() {
                       value={formData.hindi_meaning || ''}
                       onChange={(e) => handleChange('hindi_meaning', e.target.value)}
                     />
+                    <p className="text-sm text-muted-foreground">
+                      Generate Hindi first, then translate to English for accuracy
+                    </p>
                   </div>
 
                   <div className="space-y-2">

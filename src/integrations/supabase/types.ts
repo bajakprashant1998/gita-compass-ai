@@ -47,6 +47,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_settings: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_secret: boolean | null
+          key: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_secret?: boolean | null
+          key: string
+          updated_at?: string | null
+          value?: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_secret?: boolean | null
+          key?: string
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       ai_search_rules: {
         Row: {
           created_at: string | null
@@ -346,6 +376,56 @@ export type Database = {
           },
           {
             foreignKeyName: "shlok_problems_shlok_id_fkey"
+            columns: ["shlok_id"]
+            isOneToOne: false
+            referencedRelation: "shloks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shlok_translations: {
+        Row: {
+          created_at: string | null
+          id: string
+          language_code: string
+          life_application: string | null
+          meaning: string | null
+          modern_story: string | null
+          practical_action: string | null
+          problem_context: string | null
+          shlok_id: string
+          solution_gita: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          language_code: string
+          life_application?: string | null
+          meaning?: string | null
+          modern_story?: string | null
+          practical_action?: string | null
+          problem_context?: string | null
+          shlok_id: string
+          solution_gita?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          language_code?: string
+          life_application?: string | null
+          meaning?: string | null
+          modern_story?: string | null
+          practical_action?: string | null
+          problem_context?: string | null
+          shlok_id?: string
+          solution_gita?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shlok_translations_shlok_id_fkey"
             columns: ["shlok_id"]
             isOneToOne: false
             referencedRelation: "shloks"
