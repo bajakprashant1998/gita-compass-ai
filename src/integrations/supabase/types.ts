@@ -14,6 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_activity_log: {
+        Row: {
+          action: string
+          created_at: string | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_search_rules: {
+        Row: {
+          created_at: string | null
+          enabled: boolean | null
+          fallback_shloks: string[] | null
+          id: string
+          keywords: string[]
+          priority: number | null
+          problem_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          enabled?: boolean | null
+          fallback_shloks?: string[] | null
+          id?: string
+          keywords?: string[]
+          priority?: number | null
+          problem_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          enabled?: boolean | null
+          fallback_shloks?: string[] | null
+          id?: string
+          keywords?: string[]
+          priority?: number | null
+          problem_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_search_rules_problem_id_fkey"
+            columns: ["problem_id"]
+            isOneToOne: false
+            referencedRelation: "problems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chapters: {
         Row: {
           chapter_number: number
@@ -144,8 +218,39 @@ export type Database = {
           },
         ]
       }
+      languages: {
+        Row: {
+          code: string
+          created_at: string | null
+          display_order: number | null
+          enabled: boolean | null
+          id: string
+          name: string
+          native_name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          display_order?: number | null
+          enabled?: boolean | null
+          id?: string
+          name: string
+          native_name: string
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          display_order?: number | null
+          enabled?: boolean | null
+          id?: string
+          name?: string
+          native_name?: string
+        }
+        Relationships: []
+      }
       problems: {
         Row: {
+          category: string | null
           color: string | null
           created_at: string | null
           description_english: string | null
@@ -157,6 +262,7 @@ export type Database = {
           slug: string
         }
         Insert: {
+          category?: string | null
           color?: string | null
           created_at?: string | null
           description_english?: string | null
@@ -168,6 +274,7 @@ export type Database = {
           slug: string
         }
         Update: {
+          category?: string | null
           color?: string | null
           created_at?: string | null
           description_english?: string | null
@@ -257,8 +364,13 @@ export type Database = {
           modern_story: string | null
           practical_action: string | null
           problem_context: string | null
+          published_at: string | null
+          sanskrit_audio_url: string | null
           sanskrit_text: string
+          scheduled_publish_at: string | null
           solution_gita: string | null
+          status: string | null
+          story_type: string | null
           transliteration: string | null
           updated_at: string | null
           verse_number: number
@@ -273,8 +385,13 @@ export type Database = {
           modern_story?: string | null
           practical_action?: string | null
           problem_context?: string | null
+          published_at?: string | null
+          sanskrit_audio_url?: string | null
           sanskrit_text: string
+          scheduled_publish_at?: string | null
           solution_gita?: string | null
+          status?: string | null
+          story_type?: string | null
           transliteration?: string | null
           updated_at?: string | null
           verse_number: number
@@ -289,8 +406,13 @@ export type Database = {
           modern_story?: string | null
           practical_action?: string | null
           problem_context?: string | null
+          published_at?: string | null
+          sanskrit_audio_url?: string | null
           sanskrit_text?: string
+          scheduled_publish_at?: string | null
           solution_gita?: string | null
+          status?: string | null
+          story_type?: string | null
           transliteration?: string | null
           updated_at?: string | null
           verse_number?: number
