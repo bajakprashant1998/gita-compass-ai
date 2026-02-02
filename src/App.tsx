@@ -2,7 +2,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
@@ -32,7 +31,9 @@ import AdminLanguages from "./pages/admin/AdminLanguages";
 import AdminAIRules from "./pages/admin/AdminAIRules";
 import AdminActivityLog from "./pages/admin/AdminActivityLog";
 import AdminSettings from "./pages/admin/AdminSettings";
+import { AdminAuthProvider } from "./contexts/AdminAuthContext";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
@@ -60,21 +61,25 @@ const App = () => (
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/donate" element={<DonatePage />} />
 
+
               {/* Admin Routes */}
-              <Route path="/admin/login" element={<AdminLoginPage />} />
-              <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
-              <Route path="/admin/shloks" element={<AdminProtectedRoute><AdminShlokList /></AdminProtectedRoute>} />
-              <Route path="/admin/shloks/create" element={<AdminProtectedRoute><AdminShlokForm /></AdminProtectedRoute>} />
-              <Route path="/admin/shloks/edit/:id" element={<AdminProtectedRoute><AdminShlokForm /></AdminProtectedRoute>} />
-              <Route path="/admin/problems" element={<AdminProtectedRoute><AdminProblemList /></AdminProtectedRoute>} />
-              <Route path="/admin/problems/create" element={<AdminProtectedRoute><AdminProblemForm /></AdminProtectedRoute>} />
-              <Route path="/admin/problems/edit/:id" element={<AdminProtectedRoute><AdminProblemForm /></AdminProtectedRoute>} />
-              <Route path="/admin/chapters" element={<AdminProtectedRoute><AdminChapterList /></AdminProtectedRoute>} />
-              <Route path="/admin/chapters/edit/:id" element={<AdminProtectedRoute><AdminChapterForm /></AdminProtectedRoute>} />
-              <Route path="/admin/languages" element={<AdminProtectedRoute><AdminLanguages /></AdminProtectedRoute>} />
-              <Route path="/admin/ai-rules" element={<AdminProtectedRoute><AdminAIRules /></AdminProtectedRoute>} />
-              <Route path="/admin/activity" element={<AdminProtectedRoute><AdminActivityLog /></AdminProtectedRoute>} />
-              <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
+              <Route element={<AdminAuthProvider><Outlet /></AdminAuthProvider>}>
+                <Route path="/admin/login" element={<AdminLoginPage />} />
+                <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+
+                <Route path="/admin/shloks" element={<AdminProtectedRoute><AdminShlokList /></AdminProtectedRoute>} />
+                <Route path="/admin/shloks/create" element={<AdminProtectedRoute><AdminShlokForm /></AdminProtectedRoute>} />
+                <Route path="/admin/shloks/edit/:id" element={<AdminProtectedRoute><AdminShlokForm /></AdminProtectedRoute>} />
+                <Route path="/admin/problems" element={<AdminProtectedRoute><AdminProblemList /></AdminProtectedRoute>} />
+                <Route path="/admin/problems/create" element={<AdminProtectedRoute><AdminProblemForm /></AdminProtectedRoute>} />
+                <Route path="/admin/problems/edit/:id" element={<AdminProtectedRoute><AdminProblemForm /></AdminProtectedRoute>} />
+                <Route path="/admin/chapters" element={<AdminProtectedRoute><AdminChapterList /></AdminProtectedRoute>} />
+                <Route path="/admin/chapters/edit/:id" element={<AdminProtectedRoute><AdminChapterForm /></AdminProtectedRoute>} />
+                <Route path="/admin/languages" element={<AdminProtectedRoute><AdminLanguages /></AdminProtectedRoute>} />
+                <Route path="/admin/ai-rules" element={<AdminProtectedRoute><AdminAIRules /></AdminProtectedRoute>} />
+                <Route path="/admin/activity" element={<AdminProtectedRoute><AdminActivityLog /></AdminProtectedRoute>} />
+                <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
+              </Route>
 
               <Route path="*" element={<NotFound />} />
             </Routes>

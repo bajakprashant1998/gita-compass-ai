@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   Menu,
   Settings,
+  LogOut,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -52,10 +53,20 @@ interface AdminSidebarProps {
   onToggle: () => void;
 }
 
-// Auth temporarily disabled - signOut removed
+import { useNavigate } from 'react-router-dom';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
+// ... imports
+
 export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   const [contentOpen, setContentOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(true);
+  const { signOut } = useAdminAuthContext();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/admin/login');
+  };
 
   return (
     <aside
@@ -210,7 +221,20 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
           )}
         </nav>
 
-        {/* Footer - Sign out hidden while auth disabled */}
+        {/* Footer */}
+        <div className="p-4 border-t border-border mt-auto">
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full flex items-center gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 justify-start",
+              collapsed && "justify-center px-2"
+            )}
+            onClick={handleSignOut}
+          >
+            <LogOut className="w-5 h-5" />
+            {!collapsed && <span className="font-medium">Sign Out</span>}
+          </Button>
+        </div>
       </div>
     </aside>
   );

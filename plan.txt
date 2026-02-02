@@ -1,0 +1,146 @@
+
+
+# Fix: Admin Panel Loading Issue After Tab Switch
+
+## Problem Identified
+
+When you switch tabs in Chrome and return to the admin panel, it gets stuck on "Verifying access..." indefinitely.
+
+| Symptom | Cause |
+|---------|-------|
+| Stuck on "Verifying access..." | `isLoading` starts as `true` and never becomes `false` |
+| Only happens after tab switch | `onAuthStateChange` may not fire when tab regains focus |
+
+### Root Cause
+
+The current `useAdminAuth` hook **only** uses `onAuthStateChange` to manage loading state. This creates a race condition:
+
+1. Component mounts with `isLoading: true`
+2. Hook waits for `onAuthStateChange` event to set `isLoading: false`
+3. When returning from another tab, this event may not fire (session already exists)
+4. Loading state never resolves - UI stuck forever
+
+---
+
+## Solution
+
+Separate **initial auth loading** from **ongoing auth changes**:
+
+1. **Initial Load**: Explicitly call `getSession()` on mount and await all operations before setting `isLoading: false`
+2. **Ongoing Changes**: `onAuthStateChange` handles session updates but does NOT control the initial loading state
+
+```text
+Current (broken):
+┌─────────────────────────────────┐
+│ onAuthStateChange controls ALL  │ → May never fire after tab switch
+└─────────────────────────────────┘
+
+Fixed:
+┌─────────────────────────────────┐
+│ initializeAuth() on mount       │ → Always runs, sets isLoading: false
+├─────────────────────────────────┤
+│ onAuthStateChange for updates   │ → Handles sign in/out, NOT initial load
+└─────────────────────────────────┘
+```
+
+---
+
+## File to Modify
+
+| File | Change |
+|------|--------|
+| `src/hooks/useAdminAuth.tsx` | Add explicit `initializeAuth()` function |
+
+---
+
+## Implementation Details
+
+### Updated `useAdminAuth.tsx` Logic:
+
+```typescript
+useEffect(() => {
+  let mounted = true;
+
+  // 1. INITIAL AUTH CHECK - Controls isLoading
+  const initializeAuth = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!mounted) return;
+
+      if (session?.user) {
+        // Await role check BEFORE setting isLoading: false
+        const isAdmin = await checkAdminRole(session.user.id);
+        if (mounted) {
+          setState({
+            user: session.user,
+            isAdmin,
+            isLoading: false,
+            error: null,
+          });
+        }
+      } else {
+        if (mounted) {
+          setState({ user: null, isAdmin: false, isLoading: false, error: null });
+        }
+      }
+    } catch (error) {
+      if (mounted) {
+        setState({ user: null, isAdmin: false, isLoading: false, error: 'Init failed' });
+      }
+    }
+  };
+
+  // 2. ONGOING AUTH CHANGES - Does NOT control isLoading
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    async (event, session) => {
+      if (!mounted) return;
+
+      if (event === 'SIGNED_OUT') {
+        setState({ user: null, isAdmin: false, isLoading: false, error: null });
+        return;
+      }
+
+      if (session?.user) {
+        // Fire and forget - update state but don't block
+        const isAdmin = await checkAdminRole(session.user.id);
+        if (mounted) {
+          setState({ user: session.user, isAdmin, isLoading: false, error: null });
+        }
+      }
+    }
+  );
+
+  // Run initial auth check
+  initializeAuth();
+
+  return () => {
+    mounted = false;
+    subscription.unsubscribe();
+  };
+}, [checkAdminRole]);
+```
+
+### Key Changes:
+1. **Add `initializeAuth()`** - Runs on mount, calls `getSession()`, awaits role check
+2. **Always set `isLoading: false`** - Even on error, ensure loading terminates
+3. **`onAuthStateChange` simplified** - Only handles state updates, not initial loading
+
+---
+
+## Why This Fixes the Tab Switch Issue
+
+| Scenario | Current Behavior | Fixed Behavior |
+|----------|------------------|----------------|
+| First load | Waits for auth event | `initializeAuth()` runs immediately |
+| Return from tab | Auth event may not fire | Already initialized, no waiting |
+| Sign in/out | Works correctly | Works correctly (no change) |
+
+---
+
+## Technical Notes
+
+- No `setTimeout` hacks - uses proper async/await flow
+- `mounted` flag prevents state updates after unmount
+- Error handling ensures loading never gets stuck
+- Maintains backward compatibility with sign in/out flows
+
