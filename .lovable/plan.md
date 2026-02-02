@@ -1,78 +1,154 @@
 
-# Multi-Feature Enhancement Plan
+# Comprehensive Enhancement Plan
 
-This plan addresses 4 distinct improvements: Wisdom Card text clarity, Chapter Detail page enhancement, Donate button admin toggle, and Chat page UX improvements.
-
----
-
-## 1. Wisdom Card - Bold & Clear Text
-
-**Issue**: The quote text in the wisdom card needs to be bolder and more legible.
-
-**File to modify**: `src/components/shlok/WisdomCardGenerator.tsx`
-
-**Changes**:
-- Increase font weight from `400` to `700` (bold)
-- Increase font size slightly for better readability
-- Add text shadow for better contrast on colored backgrounds
-- Improve letter spacing for clarity
+This plan addresses 7 key areas: page enhancements, admin toggle verification, real stats display, loading fixes, AI/TTS settings verification, and multi-language translator implementation.
 
 ---
 
-## 2. Chapter Detail Page - WebFX Enhancement
+## 1. Chapters Page Enhancement (WebFX Style)
 
-**Issue**: The page needs more visual impact with WebFX-inspired styling.
+**File**: `src/pages/ChaptersPage.tsx`
 
-**Files to modify**: 
-- `src/pages/ChapterDetailPage.tsx`
-- `src/components/chapters/VerseCard.tsx`
-
-**WebFX-Inspired Enhancements**:
-- Add animated stats counters
-- Enhance hero section with more dramatic gradients
-- Add floating decorative elements
-- Improve card hover effects with glow
-- Add progress indicator for chapter reading
-- Enhanced typography with larger headlines
-- Add "Key Themes" section with icon badges
-- Better visual hierarchy with section dividers
-
----
-
-## 3. Donate Button - Admin Toggle
-
-**Issue**: Need ability to show/hide the Donate button from admin panel.
-
-**Files to modify**:
-- `src/pages/admin/AdminSettings.tsx` - Add toggle in General tab
-- `src/components/layout/Header.tsx` - Read setting and conditionally render
-- Database: Add new setting `show_donate_button` if not exists
-
-**Implementation**:
-- Add a switch toggle in Admin Settings > General tab
-- Store setting as `show_donate_button` with value `true`/`false`
-- Header component fetches this setting and shows/hides button accordingly
-- Default to `true` (visible)
-
----
-
-## 4. Chat Page - Enhanced UX
-
-**Issue**: Make the chat page more user-friendly and engaging.
-
-**File to modify**: `src/pages/ChatPage.tsx`, `src/components/chat/ConversationStarters.tsx`, `src/components/chat/QuickActionsBar.tsx`
+**Current State**: Basic card grid with simple styling.
 
 **Enhancements**:
-- Add welcome message with user's name (if logged in)
-- Better empty state with more prominent starters
-- Add "Clear Chat" and "New Conversation" buttons
-- Improve mobile responsiveness
-- Add message timestamps
-- Add "scroll to bottom" button when scrolled up
-- Better loading states with skeleton
-- Add keyboard shortcut hints
-- Improve conversation starter cards with hover effects
-- Add quick action tooltips
+- Add animated stats counter using intersection observer
+- Add floating decorative elements (Om symbols, lotus patterns)
+- Enhance chapter cards with left gradient border (like VerseCard)
+- Add "Popular" badge to most-read chapters
+- Improve hover effects with glow and shadow
+- Add reading progress indicator per chapter
+- Enhanced search with autocomplete suggestions
+- Add "Quick Jump" dropdown for direct chapter access
+
+---
+
+## 2. Problems Page Enhancement (WebFX Style)
+
+**File**: `src/pages/ProblemsPage.tsx`
+
+**Current State**: Grid layout with basic cards, loading issue due to count query.
+
+**Issues Found**:
+- The verse count query works correctly (using aggregation)
+- Loading shows 8 skeleton items, should be more responsive
+
+**Enhancements**:
+- Add animated counter for stats section
+- Improve skeleton loading with staggered animation
+- Add floating action button for quick problem matching
+- Enhance problem cards with larger icons and better gradients
+- Add "Trending" badges based on verse count
+- Improve EmotionCloud with animated transitions
+- Add particle effects or subtle animations in hero section
+
+---
+
+## 3. Shlok Detail Page Enhancement (WebFX Style)
+
+**File**: `src/pages/ShlokDetailPage.tsx` and related components
+
+**Enhancements**:
+- Add decorative elements (floating Om symbols, lotus)
+- Enhance section transitions with better animations
+- Add "Jump to Section" floating sidebar
+- Improve card styling with WebFX metric-card glow effects
+- Add social proof section (reads count, shares)
+- Enhanced VerseNavigation with chapter progress
+
+---
+
+## 4. Donate Button Toggle Verification
+
+**Current Status**: Already implemented correctly!
+
+**Files**:
+- `src/pages/admin/AdminSettings.tsx` - Toggle exists in General tab (lines 409-428)
+- `src/components/layout/Header.tsx` - Fetches setting and conditionally renders (lines 36-44, 113-123, 189-196)
+- Database: `show_donate_button` key exists with value `true`
+
+**Verification Needed**: Test the toggle flow end-to-end to confirm:
+1. Toggle in admin panel saves to database
+2. Header reads the updated value
+3. Button visibility changes accordingly
+
+---
+
+## 5. Real Numbers on Home Page and Other Pages
+
+**Current State**: Using `getStats()` which queries real counts from database.
+
+**Database Stats**:
+- Chapters: 18 (real)
+- Shloks: 703 (real)
+- Problems: 8 (real)
+
+**Files to verify/update**:
+- `src/components/home/StatsSection.tsx` - Uses `getStats()` API
+- `src/pages/ChaptersPage.tsx` - Shows total verses calculated from chapters
+- `src/pages/ProblemsPage.tsx` - Shows problem count from query
+
+**Issue**: StatsSection falls back to hardcoded values (18, 700, 8) when query fails. These should reflect actual database counts.
+
+---
+
+## 6. Loading Issue Fix for Problems Page
+
+**Analysis**: The `getProblemsWithCounts` function makes two separate queries:
+1. Fetch all problems
+2. Fetch all shlok_problems to count
+
+This is inefficient for large datasets.
+
+**Fix**: Optimize the query to use a more efficient count approach.
+
+---
+
+## 7. Admin Settings - AI & TTS Verification
+
+**Current Implementation** (`src/pages/admin/AdminSettings.tsx`):
+
+**AI Content Generation**:
+- Gemini API Key input with show/hide toggle
+- Test button that calls `testGeminiConnection()`
+- Model selection dropdown
+- Temperature slider
+- Max tokens input
+
+**ElevenLabs TTS**:
+- API Key input with show/hide toggle
+- Test button that calls `testElevenLabsConnection()`
+- Voice selection dropdown
+- Test voice button that plays sample audio
+
+**Verification Needed**: These settings appear correctly implemented. Test flow:
+1. Enter API key
+2. Click Test button
+3. Should show checkmark (success) or X (error)
+
+---
+
+## 8. Multi-Language Translator on Shlok Detail Page
+
+**Database Structure Available**:
+- `languages` table: en (English), hi (Hindi), es (Spanish), fr (French), de (German)
+- `shlok_translations` table: columns for meaning, life_application, practical_action, modern_story, problem_context, solution_gita by language_code
+
+**Current State**: `shlok_translations` table is empty (no translations yet).
+
+**Implementation Plan**:
+
+**File**: `src/components/shlok/MeaningSection.tsx`
+
+Changes:
+- Add dropdown for all enabled languages (currently en, hi)
+- Fetch translations from `shlok_translations` table when non-default language selected
+- Fall back to shlok.hindi_meaning for Hindi if no translation exists
+- Add "Translation not available" message with option to request
+- Show translation source indicator
+
+**New API Function**: `src/lib/api.ts`
+- Add `getShlokTranslation(shlokId: string, languageCode: string)` function
 
 ---
 
@@ -80,111 +156,116 @@ This plan addresses 4 distinct improvements: Wisdom Card text clarity, Chapter D
 
 | File | Changes |
 |------|---------|
-| `src/components/shlok/WisdomCardGenerator.tsx` | Bold, clearer text in card |
-| `src/pages/ChapterDetailPage.tsx` | WebFX-style enhancements |
-| `src/components/chapters/VerseCard.tsx` | Enhanced card hover effects |
-| `src/pages/admin/AdminSettings.tsx` | Add Donate toggle |
-| `src/components/layout/Header.tsx` | Conditionally render Donate |
-| `src/pages/ChatPage.tsx` | UX improvements |
-| `src/components/chat/ConversationStarters.tsx` | Better starter cards |
-| Database migration | Add `show_donate_button` setting |
+| `src/pages/ChaptersPage.tsx` | WebFX styling, animated counters, enhanced cards |
+| `src/pages/ProblemsPage.tsx` | WebFX styling, loading optimization, enhanced UI |
+| `src/pages/ShlokDetailPage.tsx` | Decorative elements, section navigation |
+| `src/components/shlok/MeaningSection.tsx` | Multi-language dropdown, translation fetching |
+| `src/lib/api.ts` | Add `getShlokTranslation()` function |
+| `src/components/home/StatsSection.tsx` | Verify real stats display |
 
 ---
 
 ## Technical Details
 
-### 1. Wisdom Card Text Enhancement
+### Animated Counter Hook (Shared)
 
 ```typescript
-// Line ~331-340 in WisdomCardGenerator.tsx
-// Change the quote styling:
-<div
-  style={{
-    fontSize: selectedRatio === '1:1' ? 40 : selectedRatio === '4:5' ? 36 : 48,
-    fontWeight: 700,  // Changed from 400
-    fontStyle: 'normal',  // Changed from italic for clarity
-    lineHeight: 1.5,
-    letterSpacing: '0.5px',
-    textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
-    marginBottom: 30,
-  }}
->
+function useAnimatedCounter(end: number, duration = 1500): number {
+  const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const ref = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !hasAnimated) {
+        setHasAnimated(true);
+        // Animate to end value
+      }
+    });
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [end, hasAnimated]);
+
+  return count;
+}
 ```
 
-### 2. ChapterDetailPage WebFX Enhancements
-
-```text
-Hero Section Changes:
-- Larger chapter number badge with animation
-- Floating Om symbol decorations
-- Key themes displayed as gradient pills
-- Animated verse counter
-- Reading progress bar
-
-Verse List Changes:
-- Add search/filter for verses
-- Grid view option
-- Enhanced pagination
-```
-
-### 3. Admin Donate Toggle
+### Multi-Language Translation Fetch
 
 ```typescript
-// In AdminSettings.tsx General tab, add:
-<div className="flex items-center justify-between">
-  <div className="space-y-0.5">
-    <Label>Show Donate Button</Label>
-    <p className="text-sm text-muted-foreground">
-      Display the donate button in the header
-    </p>
+// In api.ts
+export async function getShlokTranslation(
+  shlokId: string, 
+  languageCode: string
+): Promise<ShlokTranslation | null> {
+  const { data, error } = await supabase
+    .from('shlok_translations')
+    .select('*')
+    .eq('shlok_id', shlokId)
+    .eq('language_code', languageCode)
+    .maybeSingle();
+    
+  if (error) throw error;
+  return data;
+}
+```
+
+### Enhanced MeaningSection with Language Selector
+
+```typescript
+// Language selector with all enabled languages
+const { data: languages } = useQuery({
+  queryKey: ['languages'],
+  queryFn: async () => {
+    const { data } = await supabase
+      .from('languages')
+      .select('*')
+      .eq('enabled', true)
+      .order('display_order');
+    return data || [];
+  }
+});
+
+// Select dropdown instead of simple tabs
+<Select value={language} onValueChange={setLanguage}>
+  <SelectTrigger>
+    <SelectValue />
+  </SelectTrigger>
+  <SelectContent>
+    {languages.map(lang => (
+      <SelectItem key={lang.code} value={lang.code}>
+        {lang.native_name} ({lang.name})
+      </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
+```
+
+### WebFX Card Enhancement Pattern
+
+```typescript
+// Enhanced card with left gradient border
+<div className="group relative rounded-2xl overflow-hidden">
+  {/* Left gradient border */}
+  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-primary via-amber-500 to-orange-500" />
+  
+  {/* Card content with glow effect */}
+  <div className="border-2 border-border/50 bg-card transition-all duration-300 
+    hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
+    {/* Content */}
   </div>
-  <Switch
-    checked={settings['show_donate_button'] !== 'false'}
-    onCheckedChange={(checked) => 
-      handleChange('show_donate_button', checked ? 'true' : 'false')
-    }
-  />
 </div>
-
-// In Header.tsx:
-const [showDonate, setShowDonate] = useState(true);
-
-useEffect(() => {
-  getSettingByKey('show_donate_button').then(value => {
-    setShowDonate(value !== 'false');
-  });
-}, []);
-
-// Then conditionally render the Donate button
-{showDonate && (
-  <Link to="/donate">
-    <Button>Donate</Button>
-  </Link>
-)}
-```
-
-### 4. Chat Page Enhancements
-
-```text
-New Features:
-1. Clear conversation button in header
-2. Message timestamps (relative: "2 min ago")
-3. Scroll-to-bottom FAB when scrolled up
-4. Better placeholder text
-5. Conversation starters with gradient borders
-6. Quick action tooltips
-7. Mobile keyboard handling improvements
-8. Auto-resize textarea
 ```
 
 ---
 
-## Database Migration
+## Verification Steps
 
-A new admin setting will be added:
+After implementation, verify:
 
-```sql
-INSERT INTO admin_settings (key, value, description, is_secret)
-VALUES ('show_donate_button', 'true', 'Show or hide the donate button in the header', false)
-ON CONFLICT (key) DO NOTHING;
-```
+1. **Donate Toggle**: Toggle off in admin, refresh main site, button should disappear
+2. **Real Stats**: Numbers should match database (18 chapters, 703 verses, 8 problems)
+3. **Loading**: Problems page should load smoothly without blank/flickering states
+4. **AI Settings**: Enter test API key, click Test, see success/failure indicator
+5. **TTS Settings**: Enter ElevenLabs key, select voice, click play icon to hear sample
+6. **Translation**: Select different language in meaning section, see translation or "not available" message
