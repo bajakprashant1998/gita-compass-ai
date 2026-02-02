@@ -28,6 +28,7 @@ import {
   Heart,
   Sparkles
 } from 'lucide-react';
+import { RadialGlow, FloatingOm } from '@/components/ui/decorative-elements';
 
 const contactFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -91,17 +92,19 @@ export default function ContactPage() {
         description="Get in touch with the Bhagavad Gita Gyan team. We'd love to hear from you!"
       />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-20">
+      {/* Hero Section with WebFX styling */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-20 lg:py-28">
         {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
+          <RadialGlow position="top-right" color="primary" className="opacity-50" />
+          <RadialGlow position="bottom-left" color="amber" className="opacity-30" />
+          <FloatingOm className="top-20 left-10 hidden lg:block" />
+          <FloatingOm className="bottom-20 right-20 hidden lg:block" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.1),transparent_40%)]" />
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center max-w-3xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-sm font-medium text-primary mb-6">
               <MessageCircle className="h-4 w-4" />
               We're here to help
@@ -122,206 +125,219 @@ export default function ContactPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
             {/* Contact Form */}
-            <div className="rounded-2xl border border-border/50 bg-card p-8 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center">
-                  <Send className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Send a Message</h2>
-                  <p className="text-muted-foreground">Fill out the form below</p>
-                </div>
-              </div>
-
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Your Name</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="Enter your name" 
-                              className="bg-background border-border/50 focus:border-primary/50"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email Address</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="email" 
-                              placeholder="your@email.com" 
-                              className="bg-background border-border/50 focus:border-primary/50"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+            <div className="group relative rounded-2xl overflow-hidden">
+              {/* Left gradient border */}
+              <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-primary via-amber-500 to-orange-500 z-10" />
+              
+              <div className="border-2 border-l-0 border-border/50 bg-card p-8 rounded-r-2xl group-hover:border-primary/30 group-hover:shadow-xl group-hover:shadow-primary/5 transition-all duration-300">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
+                    <Send className="h-6 w-6 text-white" />
                   </div>
+                  <div>
+                    <h2 className="text-2xl font-bold">Send a Message</h2>
+                    <p className="text-muted-foreground">Fill out the form below</p>
+                  </div>
+                </div>
 
-                  <FormField
-                    control={form.control}
-                    name="subject"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Subject</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="What's this about?" 
-                            className="bg-background border-border/50 focus:border-primary/50"
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Your Name</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="Enter your name" 
+                                className="bg-background border-border/50 focus:border-primary/50"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email Address</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="email" 
+                                placeholder="your@email.com" 
+                                className="bg-background border-border/50 focus:border-primary/50"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                  <FormField
-                    control={form.control}
-                    name="message"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Message</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Share your thoughts, questions, or suggestions..." 
-                            className="min-h-[150px] bg-background border-border/50 focus:border-primary/50 resize-none"
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name="subject"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Subject</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="What's this about?" 
+                              className="bg-background border-border/50 focus:border-primary/50"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <Button 
-                    type="submit" 
-                    disabled={isSubmitting}
-                    className="w-full bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <span className="animate-spin mr-2">⏳</span>
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4 mr-2" />
-                        Send Message
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </Form>
+                    <FormField
+                      control={form.control}
+                      name="message"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Message</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Share your thoughts, questions, or suggestions..." 
+                              className="min-h-[150px] bg-background border-border/50 focus:border-primary/50 resize-none"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button 
+                      type="submit" 
+                      disabled={isSubmitting}
+                      className="w-full bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <span className="animate-spin mr-2">⏳</span>
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4 mr-2" />
+                          Send Message
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </Form>
+              </div>
             </div>
 
             {/* Contact Info */}
             <div className="space-y-8">
               {/* Info Card */}
-              <div className="rounded-2xl border border-border/50 bg-card p-8 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center">
-                    <Sparkles className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold">Contact Info</h2>
-                    <p className="text-muted-foreground">Ways to reach us</p>
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Mail className="h-5 w-5 text-primary" />
+              <div className="group relative rounded-2xl overflow-hidden">
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-primary via-amber-500 to-orange-500 z-10" />
+                
+                <div className="border-2 border-l-0 border-border/50 bg-card p-8 rounded-r-2xl group-hover:border-primary/30 group-hover:shadow-xl group-hover:shadow-primary/5 transition-all duration-300">
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
+                      <Sparkles className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold mb-1">Email</h3>
-                      <a href="mailto:hello@bhagavadgitagyan.com" className="text-muted-foreground hover:text-primary transition-colors">
-                        hello@bhagavadgitagyan.com
+                      <h2 className="text-2xl font-bold">Contact Info</h2>
+                      <p className="text-muted-foreground">Ways to reach us</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/10 to-amber-500/10 flex items-center justify-center flex-shrink-0">
+                        <Mail className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold mb-1">Email</h3>
+                        <a href="mailto:hello@bhagavadgitagyan.com" className="text-muted-foreground hover:text-primary transition-colors">
+                          hello@bhagavadgitagyan.com
+                        </a>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/10 to-amber-500/10 flex items-center justify-center flex-shrink-0">
+                        <MapPin className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold mb-1">Location</h3>
+                        <p className="text-muted-foreground">
+                          Digital Platform - Serving Seekers Worldwide
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Social Links */}
+                  <div className="mt-8 pt-8 border-t border-border/50">
+                    <h3 className="font-semibold mb-4">Follow Us</h3>
+                    <div className="flex items-center gap-3">
+                      <a 
+                        href="#" 
+                        className="w-10 h-10 rounded-xl bg-background border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
+                        aria-label="Twitter"
+                      >
+                        <Twitter className="h-5 w-5" />
+                      </a>
+                      <a 
+                        href="#" 
+                        className="w-10 h-10 rounded-xl bg-background border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
+                        aria-label="GitHub"
+                      >
+                        <Github className="h-5 w-5" />
+                      </a>
+                      <a 
+                        href="#" 
+                        className="w-10 h-10 rounded-xl bg-background border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
+                        aria-label="Email"
+                      >
+                        <Mail className="h-5 w-5" />
                       </a>
                     </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-1">Location</h3>
-                      <p className="text-muted-foreground">
-                        Digital Platform - Serving Seekers Worldwide
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Social Links */}
-                <div className="mt-8 pt-8 border-t border-border/50">
-                  <h3 className="font-semibold mb-4">Follow Us</h3>
-                  <div className="flex items-center gap-3">
-                    <a 
-                      href="#" 
-                      className="w-10 h-10 rounded-xl bg-background border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
-                      aria-label="Twitter"
-                    >
-                      <Twitter className="h-5 w-5" />
-                    </a>
-                    <a 
-                      href="#" 
-                      className="w-10 h-10 rounded-xl bg-background border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
-                      aria-label="GitHub"
-                    >
-                      <Github className="h-5 w-5" />
-                    </a>
-                    <a 
-                      href="#" 
-                      className="w-10 h-10 rounded-xl bg-background border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
-                      aria-label="Email"
-                    >
-                      <Mail className="h-5 w-5" />
-                    </a>
                   </div>
                 </div>
               </div>
 
               {/* Donate Card */}
-              <div className="rounded-2xl border border-rose-500/30 bg-gradient-to-br from-rose-500/5 to-orange-500/5 p-8 hover:shadow-xl hover:shadow-rose-500/10 transition-all duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center">
-                    <Heart className="h-6 w-6 text-white" />
+              <div className="group relative rounded-2xl overflow-hidden">
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-rose-500 via-orange-500 to-amber-500 z-10" />
+                
+                <div className="border-2 border-l-0 border-rose-500/30 bg-gradient-to-br from-rose-500/5 to-orange-500/5 p-8 rounded-r-2xl group-hover:shadow-xl group-hover:shadow-rose-500/10 transition-all duration-300">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center shadow-lg shadow-rose-500/30">
+                      <Heart className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold">Support Our Mission</h2>
+                      <p className="text-muted-foreground">Help spread Gita wisdom</p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-2xl font-bold">Support Our Mission</h2>
-                    <p className="text-muted-foreground">Help spread Gita wisdom</p>
-                  </div>
+                  <p className="text-muted-foreground mb-6">
+                    Your support helps us maintain this platform and reach more seekers around the world.
+                  </p>
+                  <Button 
+                    asChild
+                    className="w-full bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 shadow-lg shadow-rose-500/20 hover:shadow-xl hover:shadow-rose-500/30 transition-all"
+                  >
+                    <a href="/donate">
+                      <Heart className="h-4 w-4 mr-2" />
+                      Donate Now
+                    </a>
+                  </Button>
                 </div>
-                <p className="text-muted-foreground mb-6">
-                  Your support helps us maintain this platform and reach more seekers around the world.
-                </p>
-                <Button 
-                  asChild
-                  className="w-full bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 shadow-lg shadow-rose-500/20"
-                >
-                  <a href="/donate">
-                    <Heart className="h-4 w-4 mr-2" />
-                    Donate Now
-                  </a>
-                </Button>
               </div>
             </div>
           </div>
@@ -350,9 +366,9 @@ export default function ContactPage() {
                 <AccordionItem 
                   key={index} 
                   value={`item-${index}`}
-                  className="border border-border/50 rounded-xl px-6 bg-card hover:border-primary/30 transition-colors"
+                  className="group border-2 border-border/50 rounded-xl px-6 bg-card hover:border-primary/30 hover:shadow-lg transition-all"
                 >
-                  <AccordionTrigger className="text-left font-semibold hover:text-primary">
+                  <AccordionTrigger className="text-left font-semibold hover:text-primary group-hover:text-primary transition-colors">
                     {faq.question}
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground">

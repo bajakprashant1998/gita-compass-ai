@@ -15,20 +15,11 @@ import {
 import { Link } from 'react-router-dom';
 import { RadialGlow, FloatingOm } from '@/components/ui/decorative-elements';
 
-const paypalEmail = 'cadbull2014@gmail.com';
-
-const getPayPalLink = (amount?: string) => {
-  const baseUrl = 'https://www.paypal.com/cgi-bin/webscr';
-  const params = new URLSearchParams({
-    cmd: '_donations',
-    business: paypalEmail,
-    currency_code: 'USD',
-    item_name: 'Bhagavad Gita Gyan Donation',
-  });
-  if (amount) {
-    params.append('amount', amount);
-  }
-  return `${baseUrl}?${params.toString()}`;
+// Direct PayPal payment links for each tier
+const paypalLinks = {
+  '$1': 'https://www.paypal.com/ncp/payment/8RSFYKXMJCNVA',
+  '$5': 'https://www.paypal.com/ncp/payment/L2WYGJLPQ4P5A',
+  '$10': 'https://www.paypal.com/ncp/payment/FX4UJ77W5PU7Q',
 };
 
 const donationTiers = [
@@ -80,9 +71,11 @@ const impactStats = [
 ];
 
 export default function DonatePage() {
-  const handleDonate = (amount?: string) => {
-    const numericAmount = amount?.replace('$', '');
-    window.open(getPayPalLink(numericAmount), '_blank');
+  const handleDonate = (amount: string) => {
+    const link = paypalLinks[amount as keyof typeof paypalLinks];
+    if (link) {
+      window.open(link, '_blank');
+    }
   };
 
   return (
@@ -204,7 +197,7 @@ export default function DonatePage() {
               variant="outline" 
               size="lg"
               className="border-rose-500/30 hover:bg-rose-500/5 hover:border-rose-500/50"
-              onClick={() => handleDonate()}
+              onClick={() => window.open('https://www.paypal.com/ncp/payment/L2WYGJLPQ4P5A', '_blank')}
             >
               <Heart className="h-4 w-4 mr-2 text-rose-500" />
               Custom Donation
