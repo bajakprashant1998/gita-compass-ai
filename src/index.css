@@ -256,3 +256,51 @@
 .animation-delay-200 { animation-delay: 200ms; }
 .animation-delay-300 { animation-delay: 300ms; }
 .animation-delay-400 { animation-delay: 400ms; }
+.animation-delay-500 { animation-delay: 500ms; }
+
+/* Floating animation for decorative elements */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(3deg);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Gradient border glow */
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, hsl(var(--primary)), hsl(38 100% 50%), hsl(25 100% 50%));
+  border-radius: 4px 0 0 4px;
+}
+
+/* Section jump indicator */
+.section-indicator {
+  @apply fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col gap-2;
+}
+
+.section-dot {
+  @apply w-2 h-2 rounded-full bg-muted-foreground/30 transition-all duration-300 cursor-pointer;
+}
+
+.section-dot.active {
+  @apply bg-primary w-3 h-3;
+}
+
+.section-dot:hover {
+  @apply bg-primary/70;
+}

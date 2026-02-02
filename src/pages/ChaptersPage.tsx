@@ -1,12 +1,14 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { getChapters } from '@/lib/api';
+import { getChapters, getStats } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, ChevronRight, Sparkles, ArrowRight } from 'lucide-react';
+import { BookOpen, Sparkles, ArrowRight, TrendingUp, Clock, Target } from 'lucide-react';
 import { ChapterFilters } from '@/components/chapters/ChapterFilters';
 import { SEOHead, generateBreadcrumbSchema } from '@/components/SEOHead';
+import { FloatingOm, RadialGlow, PopularBadge } from '@/components/ui/decorative-elements';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Key teachings for each chapter
 const chapterTeachings: Record<number, string[]> = {
@@ -30,14 +32,67 @@ const chapterTeachings: Record<number, string[]> = {
   18: ['Final teachings', 'Surrender completely', 'Attaining liberation'],
 };
 
+// Most popular chapters for badge
+const popularChapters = [2, 11, 18];
+
+// Animated counter hook inline
+function useAnimatedCounter(end: number, startCounting: boolean, duration = 1500) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!startCounting) return;
+    
+    let startTimestamp: number | null = null;
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      setCount(Math.floor(easeOutQuart * end));
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }, [end, duration, startCounting]);
+
+  return count;
+}
+
 export default function ChaptersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
+  const [quickJump, setQuickJump] = useState('');
+  const [isStatsVisible, setIsStatsVisible] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
   
   const { data: chapters, isLoading } = useQuery({
     queryKey: ['chapters'],
     queryFn: getChapters,
   });
+
+  const { data: stats } = useQuery({
+    queryKey: ['stats'],
+    queryFn: getStats,
+  });
+
+  // Intersection observer for stats animation
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsStatsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    
+    if (statsRef.current) {
+      observer.observe(statsRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, []);
 
   const availableThemes = useMemo(() => {
     if (!chapters) return [];
@@ -69,12 +124,22 @@ export default function ChaptersPage() {
     );
   };
 
+  const handleQuickJump = (value: string) => {
+    setQuickJump(value);
+    if (value) {
+      const element = document.getElementById(`chapter-${value}`);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   const breadcrumbs = [
     { name: 'Home', url: 'https://www.bhagavadgitagyan.com/' },
     { name: 'Chapters', url: 'https://www.bhagavadgitagyan.com/chapters' },
   ];
 
-  const totalVerses = chapters?.reduce((sum, ch) => sum + (ch.verse_count || 0), 0) || 700;
+  const totalVerses = stats?.shloks || chapters?.reduce((sum, ch) => sum + (ch.verse_count || 0), 0) || 700;
+  const chaptersCount = useAnimatedCounter(stats?.chapters || 18, isStatsVisible, 1200);
+  const versesCount = useAnimatedCounter(totalVerses, isStatsVisible, 1800);
 
   return (
     <Layout>
@@ -88,11 +153,16 @@ export default function ChaptersPage() {
       
       {/* Hero Section - WebFX inspired */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 border-b">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.1),transparent_50%)]" />
+        {/* Decorative Elements */}
+        <RadialGlow position="top-right" color="primary" className="opacity-50" />
+        <RadialGlow position="bottom-left" color="amber" className="opacity-30" />
+        <FloatingOm className="top-20 left-10 animate-float hidden lg:block" />
+        <FloatingOm className="bottom-20 right-10 animate-float animation-delay-500 hidden lg:block" />
+        
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative">
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold uppercase tracking-wider mb-6 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold uppercase tracking-wider mb-6 animate-fade-in border border-primary/20">
               <Sparkles className="h-4 w-4" />
               Complete Scripture
             </div>
@@ -109,19 +179,31 @@ export default function ChaptersPage() {
               Explore the wisdom within.
             </p>
 
-            {/* Stats row - WebFX metric style */}
-            <div className="flex flex-wrap justify-center gap-8 md:gap-12 animate-fade-in animation-delay-300">
-              <div className="text-center">
-                <div className="text-4xl md:text-5xl font-extrabold text-gradient">18</div>
+            {/* Stats row - WebFX metric style with animated counters */}
+            <div 
+              ref={statsRef}
+              className="flex flex-wrap justify-center gap-8 md:gap-12 animate-fade-in animation-delay-300"
+            >
+              <div className="text-center group">
+                <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <BookOpen className="h-8 w-8 text-white" />
+                </div>
+                <div className="text-4xl md:text-5xl font-extrabold text-gradient">{chaptersCount}</div>
                 <div className="text-sm text-muted-foreground font-medium uppercase tracking-wide mt-1">Chapters</div>
               </div>
-              <div className="hidden sm:block w-px h-16 bg-border" />
-              <div className="text-center">
-                <div className="text-4xl md:text-5xl font-extrabold text-gradient">{totalVerses}+</div>
+              <div className="hidden sm:block w-px h-24 bg-gradient-to-b from-transparent via-border to-transparent self-center" />
+              <div className="text-center group">
+                <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Target className="h-8 w-8 text-white" />
+                </div>
+                <div className="text-4xl md:text-5xl font-extrabold text-gradient">{versesCount}+</div>
                 <div className="text-sm text-muted-foreground font-medium uppercase tracking-wide mt-1">Verses</div>
               </div>
-              <div className="hidden sm:block w-px h-16 bg-border" />
-              <div className="text-center">
+              <div className="hidden sm:block w-px h-24 bg-gradient-to-b from-transparent via-border to-transparent self-center" />
+              <div className="text-center group">
+                <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Clock className="h-8 w-8 text-white" />
+                </div>
                 <div className="text-4xl md:text-5xl font-extrabold text-gradient">5000+</div>
                 <div className="text-sm text-muted-foreground font-medium uppercase tracking-wide mt-1">Years Old</div>
               </div>
@@ -131,20 +213,44 @@ export default function ChaptersPage() {
       </section>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Filters */}
-        <ChapterFilters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedThemes={selectedThemes}
-          onThemeToggle={handleThemeToggle}
-          availableThemes={availableThemes}
-        />
+        {/* Quick Jump & Filters Row */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="flex-1">
+            <ChapterFilters
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              selectedThemes={selectedThemes}
+              onThemeToggle={handleThemeToggle}
+              availableThemes={availableThemes}
+            />
+          </div>
+          
+          {/* Quick Jump Dropdown */}
+          <div className="w-full md:w-48">
+            <Select value={quickJump} onValueChange={handleQuickJump}>
+              <SelectTrigger className="h-12 bg-card border-2 border-border/50 hover:border-primary/30 transition-colors">
+                <SelectValue placeholder="Quick Jump..." />
+              </SelectTrigger>
+              <SelectContent>
+                {chapters?.map(ch => (
+                  <SelectItem key={ch.id} value={ch.chapter_number.toString()}>
+                    Ch. {ch.chapter_number}: {ch.title_english}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         {/* Chapters Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(18)].map((_, i) => (
-              <div key={i} className="h-72 animate-pulse rounded-2xl bg-muted" />
+              <div 
+                key={i} 
+                className="h-72 animate-pulse rounded-2xl bg-muted"
+                style={{ animationDelay: `${i * 50}ms` }}
+              />
             ))}
           </div>
         ) : filteredChapters.length === 0 ? (
@@ -155,59 +261,70 @@ export default function ChaptersPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredChapters.map((chapter, index) => {
               const teachings = chapterTeachings[chapter.chapter_number] || [];
+              const isPopular = popularChapters.includes(chapter.chapter_number);
               
               return (
                 <Link 
                   key={chapter.id} 
+                  id={`chapter-${chapter.chapter_number}`}
                   to={`/chapters/${chapter.chapter_number}`}
                   className="animate-fade-in"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="group h-full rounded-2xl border-2 border-border/50 bg-card overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-2">
-                    {/* Gradient header */}
-                    <div className="h-2 bg-gradient-to-r from-primary via-amber-500 to-orange-500" />
+                  <div className="group h-full relative rounded-2xl overflow-hidden">
+                    {/* Left Gradient Border */}
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-primary via-amber-500 to-orange-500 z-10" />
                     
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <Badge className="bg-primary/10 text-primary border-0 font-bold text-xs uppercase tracking-wider">
-                          Chapter {chapter.chapter_number}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground flex items-center gap-1.5 font-medium">
-                          <BookOpen className="h-4 w-4" />
-                          {chapter.verse_count} verses
-                        </span>
-                      </div>
+                    <div className="h-full border-2 border-l-0 border-border/50 bg-card rounded-r-2xl transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-xl group-hover:shadow-primary/10 group-hover:-translate-y-2">
+                      {/* Gradient header */}
+                      <div className="h-1 bg-gradient-to-r from-primary via-amber-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                       
-                      <h2 className="text-xl font-bold mb-1 group-hover:text-primary transition-colors">
-                        {chapter.title_english}
-                      </h2>
-                      {chapter.title_sanskrit && (
-                        <p className="text-sm text-muted-foreground sanskrit mb-4">
-                          {chapter.title_sanskrit}
-                        </p>
-                      )}
-                      
-                      <div className="mb-4">
-                        <span className="inline-block px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/10 to-amber-500/10 text-primary text-sm font-semibold border border-primary/20">
-                          {chapter.theme}
-                        </span>
-                      </div>
-                      
-                      {/* Key teachings */}
-                      {teachings.length > 0 && (
-                        <ul className="text-sm text-muted-foreground space-y-2 mb-5">
-                          {teachings.slice(0, 2).map((teaching) => (
-                            <li key={teaching} className="flex items-start gap-2">
-                              <span className="text-primary mt-0.5">✦</span>
-                              <span>{teaching}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                      
-                      <div className="flex items-center text-primary text-sm font-bold">
-                        <span>Explore Chapter</span>
-                        <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-2" />
+                      <div className="p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <Badge className="bg-gradient-to-r from-primary/10 to-amber-500/10 text-primary border border-primary/20 font-bold text-xs uppercase tracking-wider">
+                              Chapter {chapter.chapter_number}
+                            </Badge>
+                            {isPopular && <PopularBadge />}
+                          </div>
+                          <span className="text-sm text-muted-foreground flex items-center gap-1.5 font-medium">
+                            <BookOpen className="h-4 w-4" />
+                            {chapter.verse_count} verses
+                          </span>
+                        </div>
+                        
+                        <h2 className="text-xl font-bold mb-1 group-hover:text-primary transition-colors">
+                          {chapter.title_english}
+                        </h2>
+                        {chapter.title_sanskrit && (
+                          <p className="text-sm text-muted-foreground sanskrit mb-4">
+                            {chapter.title_sanskrit}
+                          </p>
+                        )}
+                        
+                        <div className="mb-4">
+                          <span className="inline-block px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/10 to-amber-500/10 text-primary text-sm font-semibold border border-primary/20">
+                            {chapter.theme}
+                          </span>
+                        </div>
+                        
+                        {/* Key teachings */}
+                        {teachings.length > 0 && (
+                          <ul className="text-sm text-muted-foreground space-y-2 mb-5">
+                            {teachings.slice(0, 2).map((teaching) => (
+                              <li key={teaching} className="flex items-start gap-2">
+                                <span className="text-primary mt-0.5 text-xs">✦</span>
+                                <span>{teaching}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        
+                        <div className="flex items-center text-primary text-sm font-bold mt-auto pt-4 border-t border-border/50">
+                          <TrendingUp className="h-4 w-4 mr-2" />
+                          <span>Explore Chapter</span>
+                          <ArrowRight className="h-4 w-4 ml-auto transition-transform group-hover:translate-x-2" />
+                        </div>
                       </div>
                     </div>
                   </div>

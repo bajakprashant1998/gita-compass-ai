@@ -195,3 +195,28 @@ export async function getStats() {
     problems: problemsResult.count || 8,
   };
 }
+
+// Get translation for a shlok in a specific language
+export async function getShlokTranslation(shlokId: string, languageCode: string) {
+  const { data, error } = await supabase
+    .from('shlok_translations')
+    .select('*')
+    .eq('shlok_id', shlokId)
+    .eq('language_code', languageCode)
+    .maybeSingle();
+  
+  if (error) throw error;
+  return data;
+}
+
+// Get all enabled languages
+export async function getLanguages() {
+  const { data, error } = await supabase
+    .from('languages')
+    .select('*')
+    .eq('enabled', true)
+    .order('display_order');
+  
+  if (error) throw error;
+  return data || [];
+}
