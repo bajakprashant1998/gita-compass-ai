@@ -1,14 +1,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, Session } from "@supabase/supabase-js";
+import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { getAdminCache, setAdminCache, clearAdminCache } from "@/lib/adminAuth";
-import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
 interface AdminAuthContextType {
     user: User | null;
     isAdmin: boolean;
     isLoading: boolean;
+    isReady: boolean; // Signals when auth is fully established and safe for DB calls
     error: string | null;
     signOut: () => Promise<void>;
 }
@@ -19,6 +19,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isReady, setIsReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -53,8 +54,6 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
             return verified;
         } catch (err) {
             console.error('AdminAuthContext: Role verification error', err);
-            // If network error but we have cache, might be worth handling?
-            // For now, fail safe
             return false;
         }
     };
@@ -72,19 +71,27 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
                 if (session?.user) {
                     // Force refresh session to ensure token is valid for DB calls
                     // This fixes issues where stale tokens cause DB queries to hang
-                    const { error: refreshError } = await supabase.auth.refreshSession();
-                    if (refreshError) console.warn('AdminAuthContext: Session refresh warning', refreshError);
+                    const { data: refreshedData, error: refreshError } = await supabase.auth.refreshSession();
+                    if (refreshError) {
+                        console.warn('AdminAuthContext: Session refresh warning', refreshError);
+                    }
 
-                    const verified = await checkAdminRole(session.user.id);
+                    // Use the refreshed session if available, otherwise fallback to initial
+                    const activeSession = refreshedData?.session || session;
+
+                    const verified = await checkAdminRole(activeSession.user.id);
                     if (mounted) {
-                        setUser(session.user);
+                        setUser(activeSession.user);
                         setIsAdmin(verified);
                         if (!verified) setError("You don't have admin privileges.");
+                        setIsReady(true);
                     }
                 } else {
                     if (mounted) {
                         setUser(null);
                         setIsAdmin(false);
+                        // Even if no user, we are 'ready' in the sense that we know we aren't logged in
+                        setIsReady(true);
                     }
                 }
             } catch (err: any) {
@@ -105,17 +112,20 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
                 // Only re-verify if user changed or we weren't admin
                 if (session.user.id !== user?.id) {
                     setIsLoading(true);
+                    setIsReady(false);
                     const verified = await checkAdminRole(session.user.id);
                     if (mounted) {
                         setUser(session.user);
                         setIsAdmin(verified);
                         setIsLoading(false);
+                        setIsReady(true);
                     }
                 }
             } else {
                 setUser(null);
                 setIsAdmin(false);
                 setIsLoading(false);
+                setIsReady(true);
                 clearAdminCache();
             }
         });
@@ -125,8 +135,6 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
             if (document.visibilityState === 'visible' && !user) {
                 supabase.auth.getSession().then(({ data: { session } }) => {
                     if (session?.user && session.user.id !== user?.id) {
-                        // Trigger re-verification via the existing logic or just reload
-                        // Simpler to just let the user refresh if stuck, but let's try to update
                         initAuth();
                     }
                 });
@@ -168,12 +176,13 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
             setUser(null);
             setIsAdmin(false);
             setIsLoading(false);
+            setIsReady(false);
             navigate("/admin/login");
         }
     };
 
     return (
-        <AdminAuthContext.Provider value={{ user, isAdmin, isLoading, error, signOut }}>
+        <AdminAuthContext.Provider value={{ user, isAdmin, isLoading, isReady, error, signOut }}>
             {children}
         </AdminAuthContext.Provider>
     );
