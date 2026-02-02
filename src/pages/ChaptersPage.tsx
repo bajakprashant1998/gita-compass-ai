@@ -282,9 +282,9 @@ export default function ChaptersPage() {
                       <div className="p-6">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-2">
-                            <Badge className="bg-gradient-to-r from-primary/10 to-amber-500/10 text-primary border border-primary/20 font-bold text-xs uppercase tracking-wider">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-primary to-amber-500 text-white text-xs font-bold uppercase tracking-wider shadow-sm">
                               Chapter {chapter.chapter_number}
-                            </Badge>
+                            </span>
                             {isPopular && <PopularBadge />}
                           </div>
                           <span className="text-sm text-muted-foreground flex items-center gap-1.5 font-medium">
