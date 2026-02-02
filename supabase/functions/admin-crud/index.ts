@@ -15,7 +15,7 @@ type TableName =
   | "shlok_problems"
   | "admin_activity_log";
 
-type Operation = "create" | "update" | "delete" | "bulk_update";
+type Operation = "create" | "update" | "delete" | "bulk_update" | "upsert";
 
 interface RequestBody {
   table: TableName;
@@ -23,6 +23,7 @@ interface RequestBody {
   data?: Record<string, unknown>;
   id?: string;
   ids?: string[];
+  conflictColumns?: string;
 }
 
 Deno.serve(async (req) => {
@@ -43,7 +44,7 @@ Deno.serve(async (req) => {
       },
     });
 
-    const { table, operation, data, id, ids } = (await req.json()) as RequestBody;
+    const { table, operation, data, id, ids, conflictColumns } = (await req.json()) as RequestBody;
 
     // Validate table name
     const allowedTables: TableName[] = [
@@ -135,6 +136,28 @@ Deno.serve(async (req) => {
 
         if (error) throw error;
         result = { success: true, updated: ids.length };
+        break;
+      }
+
+      case "upsert": {
+        if (!data) {
+          return new Response(
+            JSON.stringify({ error: "Data is required for upsert operation" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const { data: upserted, error } = await supabase
+          .from(table)
+          .upsert(data, { 
+            onConflict: conflictColumns || 'id',
+            ignoreDuplicates: false 
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = upserted;
         break;
       }
 
