@@ -150,6 +150,28 @@ Deno.serve(async (req) => {
     });
   } catch (error: unknown) {
     console.error("Admin CRUD error:", error);
+    
+    // Handle specific database errors with user-friendly messages
+    if (error && typeof error === 'object' && 'code' in error) {
+      const dbError = error as { code: string; message: string; details?: string };
+      
+      // Duplicate key violation
+      if (dbError.code === '23505') {
+        return new Response(
+          JSON.stringify({ error: "This record already exists. Please use a different chapter/verse combination." }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      // Foreign key violation
+      if (dbError.code === '23503') {
+        return new Response(
+          JSON.stringify({ error: "Referenced record not found. Please check your selections." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+    
     const errorMessage = error instanceof Error ? error.message : "Internal server error";
     return new Response(
       JSON.stringify({ error: errorMessage }),
