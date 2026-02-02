@@ -15,6 +15,8 @@ import ShlokByVerseRedirect from "./pages/ShlokByVerseRedirect";
 import ChatPage from "./pages/ChatPage";
 import AuthPage from "./pages/AuthPage";
 import DashboardPage from "./pages/DashboardPage";
+import ContactPage from "./pages/ContactPage";
+import DonatePage from "./pages/DonatePage";
 import NotFound from "./pages/NotFound";
 
 // Admin Pages
@@ -55,6 +57,8 @@ const App = () => (
               <Route path="/chat" element={<ChatPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/donate" element={<DonatePage />} />
 
               {/* Admin Routes */}
               <Route path="/admin/login" element={<AdminLoginPage />} />

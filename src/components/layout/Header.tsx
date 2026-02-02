@@ -7,10 +7,11 @@ import {
   User, 
   Menu, 
   X,
-  Sparkles,
   Home,
-  Grid3X3
+  Grid3X3,
+  Heart
 } from 'lucide-react';
+import { BhagwaFlag } from '@/components/ui/bhagwa-flag';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 
@@ -53,7 +54,7 @@ export function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
             <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-amber-500 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-primary/30 group-hover:scale-105">
-              <Sparkles className="h-5 w-5 text-white" />
+              <BhagwaFlag className="h-5 w-5 text-white" />
               {/* Glow effect on hover */}
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary to-amber-500 opacity-0 blur-md transition-opacity group-hover:opacity-50" />
             </div>
@@ -94,6 +95,17 @@ export function Header() {
 
           {/* Right side */}
           <div className="hidden md:flex md:items-center md:gap-3">
+            {/* Donate Button */}
+            <Link to="/donate">
+              <Button 
+                size="sm" 
+                className="gap-2 rounded-lg bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 shadow-md shadow-rose-500/20 hover:shadow-lg hover:shadow-rose-500/30 transition-all"
+              >
+                <Heart className="h-4 w-4" />
+                Donate
+              </Button>
+            </Link>
+
             {loading ? (
               <div className="h-9 w-24 animate-pulse rounded-lg bg-muted" />
             ) : user ? (
@@ -156,7 +168,15 @@ export function Header() {
                 )}
               </Link>
             ))}
-            <div className="pt-3 mt-2 border-t border-border/50 animate-fade-in" style={{ animationDelay: '200ms' }}>
+            <div className="pt-3 mt-2 border-t border-border/50 space-y-2 animate-fade-in" style={{ animationDelay: '200ms' }}>
+              {/* Donate Button in Mobile Menu */}
+              <Link to="/donate" onClick={() => setMobileMenuOpen(false)}>
+                <Button className="w-full gap-2 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600">
+                  <Heart className="h-4 w-4" />
+                  Donate
+                </Button>
+              </Link>
+              
               {user ? (
                 <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="outline" className="w-full gap-2 border-border/50">
