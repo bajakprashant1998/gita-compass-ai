@@ -46,16 +46,30 @@ const colorMap: Record<string, { bg: string; icon: string; gradient: string }> =
 };
 
 async function getProblemsWithCounts() {
-  const { data: problems, error } = await supabase
+  // First get all problems
+  const { data: problems, error: problemsError } = await supabase
     .from('problems')
-    .select('*, shlok_problems(count)')
+    .select('*')
     .order('display_order');
   
-  if (error) throw error;
+  if (problemsError) throw problemsError;
   
-  return problems.map(p => ({
+  // Then get counts for each problem from shlok_problems
+  const { data: counts, error: countsError } = await supabase
+    .from('shlok_problems')
+    .select('problem_id');
+  
+  if (countsError) throw countsError;
+  
+  // Count occurrences per problem_id
+  const countMap = (counts || []).reduce((acc, item) => {
+    acc[item.problem_id] = (acc[item.problem_id] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  
+  return (problems || []).map(p => ({
     ...p,
-    verseCount: (p.shlok_problems as any)?.[0]?.count || 0,
+    verseCount: countMap[p.id] || 0,
   }));
 }
 

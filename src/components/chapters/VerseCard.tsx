@@ -43,7 +43,7 @@ export function VerseCard({ shlok, chapterNumber, animationDelay = 0 }: VerseCar
           
           {/* Sanskrit Text Block */}
           <div className="mb-5">
-            <p className="sanskrit text-base md:text-lg text-center text-foreground/90 whitespace-pre-line line-clamp-3 leading-relaxed">
+            <p className="sanskrit text-base md:text-lg text-center font-bold bg-gradient-to-r from-primary via-amber-500 to-orange-500 bg-clip-text text-transparent whitespace-pre-line line-clamp-3 leading-relaxed">
               ॥ {shlok.sanskrit_text.split('\n').slice(0, 2).join(' ')} ॥
             </p>
           </div>

@@ -73,22 +73,22 @@ Output only the English translation, nothing else.`,
     problem_context: `You are analyzing ${verseContext}.
 Based on the verse content, identify what life problem or challenge this specific verse addresses.
 Be specific about the emotional or situational context.
-Write 1-2 sentences describing the problem scenario that this particular verse speaks to.`,
+Write exactly 50-75 words describing the problem scenario that this particular verse speaks to.`,
 
     solution_gita: `You are analyzing ${verseContext}.
 Based on this specific Gita verse, explain what solution or guidance it offers for the identified problem.
 Focus on the practical wisdom and philosophical insight unique to this verse.
-Write 2-3 sentences.`,
+Write exactly 50-75 words.`,
 
     life_application: `You are analyzing ${verseContext}.
 Explain how the teaching of this specific verse can be applied in modern daily life.
 Give practical examples that resonate with contemporary readers.
-Write 2-3 sentences specific to this verse's teaching.`,
+Write exactly 25-35 words with a practical focus.`,
 
     practical_action: `You are analyzing ${verseContext}.
-Provide specific, actionable steps that someone can take today based on this verse's teaching.
+Provide one specific, actionable step that someone can take today based on this verse's teaching.
 Be concrete and practical - what exactly should someone do?
-Write 2-3 bullet points as a single paragraph, specific to this verse.`,
+Write exactly 25-30 words as a single action step.`,
 
     modern_story: `You are creating content for ${verseContext}.
 Write a 200-300 word modern story that illustrates this specific verse's teaching.
