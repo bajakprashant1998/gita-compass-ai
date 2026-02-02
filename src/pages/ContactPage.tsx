@@ -8,23 +8,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
 } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { 
-  Mail, 
-  MapPin, 
-  Send, 
-  MessageCircle, 
-  HelpCircle, 
-  Twitter, 
-  Github, 
+import {
+  Mail,
+  MapPin,
+  Send,
+  MessageCircle,
+  HelpCircle,
+  Twitter,
+  Github,
   Heart,
   Sparkles
 } from 'lucide-react';
@@ -87,7 +87,7 @@ export default function ContactPage() {
 
   return (
     <Layout>
-      <SEOHead 
+      <SEOHead
         title="Contact Us | Bhagavad Gita Gyan"
         description="Get in touch with the Bhagavad Gita Gyan team. We'd love to hear from you!"
       />
@@ -113,7 +113,7 @@ export default function ContactPage() {
               Get In <span className="text-gradient">Touch</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Have questions, suggestions, or just want to connect? We'd love to hear from you. 
+              Have questions, suggestions, or just want to connect? We'd love to hear from you.
               Reach out and let's explore the path of wisdom together.
             </p>
           </div>
@@ -128,7 +128,7 @@ export default function ContactPage() {
             <div className="group relative rounded-2xl overflow-hidden">
               {/* Left gradient border */}
               <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-primary via-amber-500 to-orange-500 z-10" />
-              
+
               <div className="border-2 border-l-0 border-border/50 bg-card p-8 rounded-r-2xl group-hover:border-primary/30 group-hover:shadow-xl group-hover:shadow-primary/5 transition-all duration-300">
                 <div className="flex items-center gap-3 mb-8">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
@@ -150,10 +150,10 @@ export default function ContactPage() {
                           <FormItem>
                             <FormLabel>Your Name</FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="Enter your name" 
+                              <Input
+                                placeholder="Enter your name"
                                 className="bg-background border-border/50 focus:border-primary/50"
-                                {...field} 
+                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -167,11 +167,11 @@ export default function ContactPage() {
                           <FormItem>
                             <FormLabel>Email Address</FormLabel>
                             <FormControl>
-                              <Input 
-                                type="email" 
-                                placeholder="your@email.com" 
+                              <Input
+                                type="email"
+                                placeholder="your@email.com"
                                 className="bg-background border-border/50 focus:border-primary/50"
-                                {...field} 
+                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -187,10 +187,10 @@ export default function ContactPage() {
                         <FormItem>
                           <FormLabel>Subject</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="What's this about?" 
+                            <Input
+                              placeholder="What's this about?"
                               className="bg-background border-border/50 focus:border-primary/50"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
@@ -205,10 +205,10 @@ export default function ContactPage() {
                         <FormItem>
                           <FormLabel>Message</FormLabel>
                           <FormControl>
-                            <Textarea 
-                              placeholder="Share your thoughts, questions, or suggestions..." 
+                            <Textarea
+                              placeholder="Share your thoughts, questions, or suggestions..."
                               className="min-h-[150px] bg-background border-border/50 focus:border-primary/50 resize-none"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
@@ -216,8 +216,8 @@ export default function ContactPage() {
                       )}
                     />
 
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={isSubmitting}
                       className="w-full bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
                     >
@@ -243,7 +243,7 @@ export default function ContactPage() {
               {/* Info Card */}
               <div className="group relative rounded-2xl overflow-hidden">
                 <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-primary via-amber-500 to-orange-500 z-10" />
-                
+
                 <div className="border-2 border-l-0 border-border/50 bg-card p-8 rounded-r-2xl group-hover:border-primary/30 group-hover:shadow-xl group-hover:shadow-primary/5 transition-all duration-300">
                   <div className="flex items-center gap-3 mb-8">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
@@ -262,9 +262,14 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <h3 className="font-semibold mb-1">Email</h3>
-                        <a href="mailto:hello@bhagavadgitagyan.com" className="text-muted-foreground hover:text-primary transition-colors">
-                          hello@bhagavadgitagyan.com
-                        </a>
+                        <div className="flex flex-col gap-1">
+                          <a href="mailto:info@dibull.com" className="text-muted-foreground hover:text-primary transition-colors">
+                            info@dibull.com
+                          </a>
+                          <a href="mailto:cadbull2014@gmail.com" className="text-muted-foreground hover:text-primary transition-colors">
+                            cadbull2014@gmail.com
+                          </a>
+                        </div>
                       </div>
                     </div>
 
@@ -275,7 +280,8 @@ export default function ContactPage() {
                       <div>
                         <h3 className="font-semibold mb-1">Location</h3>
                         <p className="text-muted-foreground">
-                          Digital Platform - Serving Seekers Worldwide
+                          A-823 Moneyplant High street,<br />
+                          Jagatpur Road, Gota Ahmedabad
                         </p>
                       </div>
                     </div>
@@ -285,22 +291,22 @@ export default function ContactPage() {
                   <div className="mt-8 pt-8 border-t border-border/50">
                     <h3 className="font-semibold mb-4">Follow Us</h3>
                     <div className="flex items-center gap-3">
-                      <a 
-                        href="#" 
+                      <a
+                        href="#"
                         className="w-10 h-10 rounded-xl bg-background border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
                         aria-label="Twitter"
                       >
                         <Twitter className="h-5 w-5" />
                       </a>
-                      <a 
-                        href="#" 
+                      <a
+                        href="#"
                         className="w-10 h-10 rounded-xl bg-background border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
                         aria-label="GitHub"
                       >
                         <Github className="h-5 w-5" />
                       </a>
-                      <a 
-                        href="#" 
+                      <a
+                        href="#"
                         className="w-10 h-10 rounded-xl bg-background border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
                         aria-label="Email"
                       >
@@ -314,7 +320,7 @@ export default function ContactPage() {
               {/* Donate Card */}
               <div className="group relative rounded-2xl overflow-hidden">
                 <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-rose-500 via-orange-500 to-amber-500 z-10" />
-                
+
                 <div className="border-2 border-l-0 border-rose-500/30 bg-gradient-to-br from-rose-500/5 to-orange-500/5 p-8 rounded-r-2xl group-hover:shadow-xl group-hover:shadow-rose-500/10 transition-all duration-300">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center shadow-lg shadow-rose-500/30">
@@ -328,7 +334,7 @@ export default function ContactPage() {
                   <p className="text-muted-foreground mb-6">
                     Your support helps us maintain this platform and reach more seekers around the world.
                   </p>
-                  <Button 
+                  <Button
                     asChild
                     className="w-full bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 shadow-lg shadow-rose-500/20 hover:shadow-xl hover:shadow-rose-500/30 transition-all"
                   >
@@ -363,8 +369,8 @@ export default function ContactPage() {
           <div className="max-w-3xl mx-auto">
             <Accordion type="single" collapsible className="space-y-4">
               {faqs.map((faq, index) => (
-                <AccordionItem 
-                  key={index} 
+                <AccordionItem
+                  key={index}
                   value={`item-${index}`}
                   className="group border-2 border-border/50 rounded-xl px-6 bg-card hover:border-primary/30 hover:shadow-lg transition-all"
                 >

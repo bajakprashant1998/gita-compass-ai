@@ -31,6 +31,7 @@ import AdminAIRules from "./pages/admin/AdminAIRules";
 import AdminActivityLog from "./pages/admin/AdminActivityLog";
 import AdminSettings from "./pages/admin/AdminSettings";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Index />} />

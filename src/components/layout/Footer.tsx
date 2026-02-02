@@ -93,7 +93,7 @@ export function Footer() {
                 <Github className="h-5 w-5" />
               </a>
               <a
-                href="#"
+                href="mailto:info@dibull.com"
                 className="w-10 h-10 rounded-xl bg-card border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
                 aria-label="Email"
               >
