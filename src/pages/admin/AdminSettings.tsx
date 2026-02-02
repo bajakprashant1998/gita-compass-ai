@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -13,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Save, Eye, EyeOff, CheckCircle, XCircle, Volume2 } from 'lucide-react';
+import { Loader2, Save, Eye, EyeOff, CheckCircle, XCircle, Volume2, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   getAdminSettings,
@@ -401,10 +402,31 @@ export default function AdminSettings() {
               <CardHeader>
                 <CardTitle>General Settings</CardTitle>
                 <CardDescription>
-                  Configure default behavior for the admin panel.
+                  Configure default behavior for the admin panel and site.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Donate Button Toggle */}
+                <div className="flex items-center justify-between p-4 rounded-lg border border-border/50 bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center">
+                      <Heart className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <Label className="text-base">Show Donate Button</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Display the donate button in the header navigation
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={settings['show_donate_button'] !== 'false'}
+                    onCheckedChange={(checked) => 
+                      handleChange('show_donate_button', checked ? 'true' : 'false')
+                    }
+                  />
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="default_language">Default Language</Label>
                   <Select

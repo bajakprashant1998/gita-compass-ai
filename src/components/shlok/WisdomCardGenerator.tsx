@@ -330,10 +330,12 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
                 </div>
                 <div
                   style={{
-                    fontSize: selectedRatio === '1:1' ? 36 : selectedRatio === '4:5' ? 32 : 42,
-                    fontWeight: 400,
-                    fontStyle: 'italic',
-                    lineHeight: 1.6,
+                    fontSize: selectedRatio === '1:1' ? 38 : selectedRatio === '4:5' ? 34 : 44,
+                    fontWeight: 700,
+                    fontStyle: 'normal',
+                    lineHeight: 1.5,
+                    letterSpacing: '0.5px',
+                    textShadow: '1px 1px 3px rgba(0,0,0,0.15)',
                     marginBottom: 30,
                   }}
                 >
