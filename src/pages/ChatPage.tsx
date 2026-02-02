@@ -12,7 +12,9 @@ import {
   Loader2, 
   RotateCcw, 
   ArrowDown,
-  Keyboard
+  Keyboard,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
@@ -23,14 +25,19 @@ import { SEOHead } from '@/components/SEOHead';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
+import { FloatingOm, RadialGlow } from '@/components/ui/decorative-elements';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp?: Date;
+  isCollapsed?: boolean;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gita-coach`;
+const MAX_CHARS = 500;
+const COLLAPSE_THRESHOLD = 800;
 
 const typingMessages = [
   "Consulting ancient wisdom...",
@@ -45,6 +52,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [typingMessage, setTypingMessage] = useState(typingMessages[0]);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [collapsedMessages, setCollapsedMessages] = useState<Set<number>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useAuth();
@@ -110,6 +118,18 @@ export default function ChatPage() {
       textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
     }
   }, [input]);
+
+  const toggleMessageCollapse = (index: number) => {
+    setCollapsedMessages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  };
 
   const handleSubmit = async (e?: React.FormEvent, overrideInput?: string) => {
     e?.preventDefault();
@@ -223,8 +243,16 @@ export default function ChatPage() {
 
   const handleClearChat = () => {
     setMessages([]);
+    setCollapsedMessages(new Set());
     toast.success('Conversation cleared');
   };
+
+  const handleTranslate = (langCode: string, content: string) => {
+    toast.info(`Translation to ${langCode === 'hi' ? 'Hindi' : 'English'} - Feature coming soon!`);
+  };
+
+  const charCount = input.length;
+  const isOverLimit = charCount > MAX_CHARS;
 
   return (
     <Layout>
@@ -238,14 +266,18 @@ export default function ChatPage() {
       {/* Hero Header - More compact */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-6 border-b border-border/50">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-[radial-gradient(circle_at_80%_20%,hsl(var(--primary)/0.1),transparent_50%)]" />
+          <RadialGlow position="top-right" color="primary" className="opacity-30" />
+          <FloatingOm className="absolute top-2 right-8 text-6xl opacity-5" />
         </div>
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="max-w-3xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
-                <Sparkles className="h-6 w-6 text-white" />
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary to-amber-500 rounded-xl blur-md opacity-50 animate-pulse" />
+                <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
+                  <Sparkles className="h-6 w-6 text-white" />
+                </div>
               </div>
               <div>
                 <h1 className="text-xl md:text-2xl font-bold">
@@ -262,7 +294,7 @@ export default function ChatPage() {
                 variant="outline" 
                 size="sm" 
                 onClick={handleClearChat}
-                className="gap-2 text-muted-foreground hover:text-foreground"
+                className="gap-2 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all"
               >
                 <RotateCcw className="h-4 w-4" />
                 <span className="hidden sm:inline">New Chat</span>
@@ -275,69 +307,126 @@ export default function ChatPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 h-[calc(100vh-14rem)]">
         <div className="max-w-3xl mx-auto h-full flex flex-col">
           {/* Chat Area */}
-          <Card className="flex-1 flex flex-col overflow-hidden border-border/50 shadow-xl shadow-primary/5">
+          <Card className="flex-1 flex flex-col overflow-hidden border-border/50 shadow-xl shadow-primary/5 relative">
+            {/* Decorative background */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl" />
+              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-amber-500/5 rounded-full blur-3xl" />
+            </div>
+
             <ScrollArea 
-              className="flex-1 p-4 md:p-6" 
+              className="flex-1 p-4 md:p-6 relative" 
               ref={scrollRef}
             >
               {messages.length === 0 ? (
-                <ConversationStarters onSelect={handleQuickAction} />
+                <div className="relative">
+                  <FloatingOm className="absolute top-0 right-0 text-8xl" />
+                  <ConversationStarters onSelect={handleQuickAction} />
+                </div>
               ) : (
                 <div className="space-y-6">
-                  {messages.map((message, index) => (
-                    <div
-                      key={index}
-                      className={cn(
-                        "flex gap-3 group animate-fade-in",
-                        message.role === 'user' ? 'justify-end' : ''
-                      )}
-                    >
-                      {message.role === 'assistant' && (
-                        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/20">
-                          <Sparkles className="h-5 w-5 text-primary" />
-                        </div>
-                      )}
-                      <div className="flex flex-col max-w-[85%]">
-                        <div
-                          className={cn(
-                            "rounded-2xl px-4 py-3",
-                            message.role === 'user'
-                              ? 'bg-gradient-to-r from-primary to-amber-500 text-white shadow-lg shadow-primary/20'
-                              : 'bg-muted/80 border border-border/50'
-                          )}
-                        >
-                          {message.role === 'assistant' ? (
-                            <div className="prose prose-sm dark:prose-invert max-w-none">
-                              <ReactMarkdown>{message.content || '...'}</ReactMarkdown>
+                  {messages.map((message, index) => {
+                    const isLongMessage = message.role === 'assistant' && message.content.length > COLLAPSE_THRESHOLD;
+                    const isCollapsed = collapsedMessages.has(index);
+
+                    return (
+                      <div
+                        key={index}
+                        className={cn(
+                          "flex gap-3 group animate-fade-in",
+                          message.role === 'user' ? 'justify-end' : ''
+                        )}
+                      >
+                        {message.role === 'assistant' && (
+                          <div className="relative flex-shrink-0">
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-amber-500/30 rounded-xl blur-sm animate-pulse" />
+                            <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30 backdrop-blur-sm">
+                              <Sparkles className="h-5 w-5 text-primary" />
                             </div>
-                          ) : (
-                            <p>{message.content}</p>
-                          )}
+                          </div>
+                        )}
+                        <div className="flex flex-col max-w-[85%]">
+                          <div
+                            className={cn(
+                              "rounded-2xl px-4 py-3 backdrop-blur-sm",
+                              message.role === 'user'
+                                ? 'bg-gradient-to-r from-primary to-amber-500 text-white shadow-lg shadow-primary/20'
+                                : 'bg-gradient-to-br from-muted/90 to-muted/70 border border-border/50 shadow-sm'
+                            )}
+                          >
+                            {message.role === 'assistant' ? (
+                              isLongMessage ? (
+                                <Collapsible open={!isCollapsed}>
+                                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                                    <CollapsibleContent className="CollapsibleContent">
+                                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                                    </CollapsibleContent>
+                                    {isCollapsed && (
+                                      <ReactMarkdown>{message.content.slice(0, 400) + '...'}</ReactMarkdown>
+                                    )}
+                                  </div>
+                                  <CollapsibleTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => toggleMessageCollapse(index)}
+                                      className="mt-2 gap-1 text-xs text-primary hover:text-primary/80"
+                                    >
+                                      {isCollapsed ? (
+                                        <>
+                                          <ChevronDown className="h-3 w-3" />
+                                          Read more
+                                        </>
+                                      ) : (
+                                        <>
+                                          <ChevronUp className="h-3 w-3" />
+                                          Show less
+                                        </>
+                                      )}
+                                    </Button>
+                                  </CollapsibleTrigger>
+                                </Collapsible>
+                              ) : (
+                                <div className="prose prose-sm dark:prose-invert max-w-none">
+                                  <ReactMarkdown>{message.content || '...'}</ReactMarkdown>
+                                </div>
+                              )
+                            ) : (
+                              <p>{message.content}</p>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between mt-1 px-1">
+                            {message.timestamp && (
+                              <span className="text-xs text-muted-foreground/80">
+                                {formatDistanceToNow(message.timestamp, { addSuffix: true })}
+                              </span>
+                            )}
+                            {message.role === 'assistant' && message.content && (
+                              <MessageActions 
+                                content={message.content} 
+                                className="ml-auto" 
+                                onTranslate={handleTranslate}
+                              />
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between mt-1 px-1">
-                          {message.timestamp && (
-                            <span className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(message.timestamp, { addSuffix: true })}
-                            </span>
-                          )}
-                          {message.role === 'assistant' && message.content && (
-                            <MessageActions content={message.content} className="ml-auto" />
-                          )}
-                        </div>
+                        {message.role === 'user' && (
+                          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/20">
+                            <User className="h-5 w-5 text-white" />
+                          </div>
+                        )}
                       </div>
-                      {message.role === 'user' && (
-                        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/20">
-                          <User className="h-5 w-5 text-white" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                   {isLoading && messages[messages.length - 1]?.role === 'user' && (
                     <div className="flex gap-3 animate-fade-in">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/20">
-                        <Sparkles className="h-5 w-5 text-primary" />
+                      <div className="relative flex-shrink-0">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-amber-500/30 rounded-xl blur-sm animate-pulse" />
+                        <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30">
+                          <Sparkles className="h-5 w-5 text-primary animate-spin" />
+                        </div>
                       </div>
-                      <div className="bg-muted/80 border border-border/50 rounded-2xl px-4 py-3 flex items-center gap-3">
+                      <div className="bg-gradient-to-br from-muted/90 to-muted/70 border border-border/50 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm backdrop-blur-sm">
                         <div className="flex gap-1">
                           <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
                           <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -358,7 +447,7 @@ export default function ChatPage() {
                   variant="secondary"
                   size="sm"
                   onClick={scrollToBottom}
-                  className="rounded-full shadow-lg gap-2 bg-background/95 backdrop-blur-sm border border-border/50"
+                  className="rounded-full shadow-lg gap-2 bg-background/95 backdrop-blur-sm border border-primary/30 hover:border-primary/50 transition-all"
                 >
                   <ArrowDown className="h-4 w-4" />
                   New messages
@@ -367,7 +456,7 @@ export default function ChatPage() {
             )}
 
             {/* Input Area */}
-            <CardContent className="p-4 border-t border-border/50 space-y-3 bg-gradient-to-b from-transparent to-muted/30">
+            <CardContent className="p-4 border-t border-border/50 space-y-3 bg-gradient-to-b from-transparent via-muted/20 to-muted/40 relative">
               <QuickActionsBar onQuickAction={handleQuickAction} disabled={isLoading} />
               <form onSubmit={handleSubmit} className="flex gap-3">
                 <div className="flex-1 relative">
@@ -377,20 +466,31 @@ export default function ChatPage() {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Share what's on your mind..."
-                    className="min-h-[60px] max-h-[120px] resize-none border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all pr-24"
+                    className={cn(
+                      "min-h-[60px] max-h-[120px] resize-none border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all pr-24",
+                      isOverLimit && "border-destructive focus:border-destructive"
+                    )}
                     disabled={isLoading}
                   />
-                  {/* Keyboard shortcut hint */}
-                  <div className="absolute bottom-2 right-3 hidden md:flex items-center gap-1 text-xs text-muted-foreground/60">
-                    <Keyboard className="h-3 w-3" />
-                    <span>Enter to send</span>
+                  {/* Character count & keyboard hint */}
+                  <div className="absolute bottom-2 right-3 hidden md:flex items-center gap-3 text-xs">
+                    <span className={cn(
+                      "transition-colors",
+                      isOverLimit ? "text-destructive font-medium" : "text-muted-foreground/60"
+                    )}>
+                      {charCount}/{MAX_CHARS}
+                    </span>
+                    <div className="flex items-center gap-1 text-muted-foreground/60">
+                      <Keyboard className="h-3 w-3" />
+                      <span>Enter</span>
+                    </div>
                   </div>
                 </div>
                 <Button
                   type="submit"
                   size="icon"
-                  className="h-[60px] w-[60px] bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30"
-                  disabled={!input.trim() || isLoading}
+                  className="h-[60px] w-[60px] bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-105"
+                  disabled={!input.trim() || isLoading || isOverLimit}
                 >
                   {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
