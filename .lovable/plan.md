@@ -1,271 +1,166 @@
 
-# Comprehensive Enhancement Plan
+# Implementation Plan: Logo, Favicon, GTM & Donate Button Fix
 
-This plan addresses 7 key areas: page enhancements, admin toggle verification, real stats display, loading fixes, AI/TTS settings verification, and multi-language translator implementation.
-
----
-
-## 1. Chapters Page Enhancement (WebFX Style)
-
-**File**: `src/pages/ChaptersPage.tsx`
-
-**Current State**: Basic card grid with simple styling.
-
-**Enhancements**:
-- Add animated stats counter using intersection observer
-- Add floating decorative elements (Om symbols, lotus patterns)
-- Enhance chapter cards with left gradient border (like VerseCard)
-- Add "Popular" badge to most-read chapters
-- Improve hover effects with glow and shadow
-- Add reading progress indicator per chapter
-- Enhanced search with autocomplete suggestions
-- Add "Quick Jump" dropdown for direct chapter access
+This plan covers three main tasks: fixing the donate button toggle, replacing the logo/favicon, and adding Google Tag Manager.
 
 ---
 
-## 2. Problems Page Enhancement (WebFX Style)
+## Task 1: Fix Donate Button Toggle (Admin Setting Not Working)
 
-**File**: `src/pages/ProblemsPage.tsx`
+**Problem Identified**: The RLS (Row Level Security) policy on the `admin_settings` table only allows users with the 'admin' role to read settings. When an anonymous visitor (or non-admin user) visits the site, the query to fetch `show_donate_button` fails due to RLS, causing the Header to default to showing the button.
 
-**Current State**: Grid layout with basic cards, loading issue due to count query.
+**Solution**: Add a public read policy for non-sensitive settings like `show_donate_button`.
 
-**Issues Found**:
-- The verse count query works correctly (using aggregation)
-- Loading shows 8 skeleton items, should be more responsive
-
-**Enhancements**:
-- Add animated counter for stats section
-- Improve skeleton loading with staggered animation
-- Add floating action button for quick problem matching
-- Enhance problem cards with larger icons and better gradients
-- Add "Trending" badges based on verse count
-- Improve EmotionCloud with animated transitions
-- Add particle effects or subtle animations in hero section
+**Database Migration Required**:
+```sql
+-- Allow public to read non-secret settings (like show_donate_button)
+CREATE POLICY "Public can read non-secret settings"
+ON public.admin_settings
+FOR SELECT
+TO public
+USING (is_secret = false);
+```
 
 ---
 
-## 3. Shlok Detail Page Enhancement (WebFX Style)
+## Task 2: Replace Logo Throughout Website
 
-**File**: `src/pages/ShlokDetailPage.tsx` and related components
+**Current State**: The logo is a triangular saffron flag (Bhagwa Dhwaj) SVG component.
 
-**Enhancements**:
-- Add decorative elements (floating Om symbols, lotus)
-- Enhance section transitions with better animations
-- Add "Jump to Section" floating sidebar
-- Improve card styling with WebFX metric-card glow effects
-- Add social proof section (reads count, shares)
-- Enhanced VerseNavigation with chapter progress
+**New Logo**: Om symbol with flute and peacock feather (provided image).
 
----
+**Files to Modify**:
 
-## 4. Donate Button Toggle Verification
+| File | Change |
+|------|--------|
+| `public/logo.png` | Copy uploaded image here |
+| `src/components/ui/bhagwa-flag.tsx` | Replace with image component |
+| `src/components/layout/Header.tsx` | Update logo usage |
+| `src/components/layout/Footer.tsx` | Update logo usage |
+| `src/pages/admin/AdminLoginPage.tsx` | Update logo usage |
+| `src/components/admin/AdminSidebar.tsx` | Update admin logo |
 
-**Current Status**: Already implemented correctly!
-
-**Files**:
-- `src/pages/admin/AdminSettings.tsx` - Toggle exists in General tab (lines 409-428)
-- `src/components/layout/Header.tsx` - Fetches setting and conditionally renders (lines 36-44, 113-123, 189-196)
-- Database: `show_donate_button` key exists with value `true`
-
-**Verification Needed**: Test the toggle flow end-to-end to confirm:
-1. Toggle in admin panel saves to database
-2. Header reads the updated value
-3. Button visibility changes accordingly
+**Implementation Approach**:
+- Copy the uploaded logo to `public/logo.png`
+- Create a new `Logo` component that renders an `<img>` tag
+- Replace all `BhagwaFlag` usages with the new `Logo` component
 
 ---
 
-## 5. Real Numbers on Home Page and Other Pages
+## Task 3: Update Favicon
 
-**Current State**: Using `getStats()` which queries real counts from database.
+**File**: `index.html` and `public/favicon.png`
 
-**Database Stats**:
-- Chapters: 18 (real)
-- Shloks: 703 (real)
-- Problems: 8 (real)
-
-**Files to verify/update**:
-- `src/components/home/StatsSection.tsx` - Uses `getStats()` API
-- `src/pages/ChaptersPage.tsx` - Shows total verses calculated from chapters
-- `src/pages/ProblemsPage.tsx` - Shows problem count from query
-
-**Issue**: StatsSection falls back to hardcoded values (18, 700, 8) when query fails. These should reflect actual database counts.
+**Changes**:
+- Copy uploaded image to `public/favicon.png`
+- Update `index.html` to reference the new favicon
 
 ---
 
-## 6. Loading Issue Fix for Problems Page
+## Task 4: Add Google Tag Manager Code
 
-**Analysis**: The `getProblemsWithCounts` function makes two separate queries:
-1. Fetch all problems
-2. Fetch all shlok_problems to count
+**File**: `index.html`
 
-This is inefficient for large datasets.
-
-**Fix**: Optimize the query to use a more efficient count approach.
+**Changes**:
+- Add GTM head script immediately after `<head>` tag
+- Add GTM noscript after opening `<body>` tag
 
 ---
 
-## 7. Admin Settings - AI & TTS Verification
+## Summary of Changes
 
-**Current Implementation** (`src/pages/admin/AdminSettings.tsx`):
-
-**AI Content Generation**:
-- Gemini API Key input with show/hide toggle
-- Test button that calls `testGeminiConnection()`
-- Model selection dropdown
-- Temperature slider
-- Max tokens input
-
-**ElevenLabs TTS**:
-- API Key input with show/hide toggle
-- Test button that calls `testElevenLabsConnection()`
-- Voice selection dropdown
-- Test voice button that plays sample audio
-
-**Verification Needed**: These settings appear correctly implemented. Test flow:
-1. Enter API key
-2. Click Test button
-3. Should show checkmark (success) or X (error)
-
----
-
-## 8. Multi-Language Translator on Shlok Detail Page
-
-**Database Structure Available**:
-- `languages` table: en (English), hi (Hindi), es (Spanish), fr (French), de (German)
-- `shlok_translations` table: columns for meaning, life_application, practical_action, modern_story, problem_context, solution_gita by language_code
-
-**Current State**: `shlok_translations` table is empty (no translations yet).
-
-**Implementation Plan**:
-
-**File**: `src/components/shlok/MeaningSection.tsx`
-
-Changes:
-- Add dropdown for all enabled languages (currently en, hi)
-- Fetch translations from `shlok_translations` table when non-default language selected
-- Fall back to shlok.hindi_meaning for Hindi if no translation exists
-- Add "Translation not available" message with option to request
-- Show translation source indicator
-
-**New API Function**: `src/lib/api.ts`
-- Add `getShlokTranslation(shlokId: string, languageCode: string)` function
-
----
-
-## Summary of Files to Edit
-
-| File | Changes |
-|------|---------|
-| `src/pages/ChaptersPage.tsx` | WebFX styling, animated counters, enhanced cards |
-| `src/pages/ProblemsPage.tsx` | WebFX styling, loading optimization, enhanced UI |
-| `src/pages/ShlokDetailPage.tsx` | Decorative elements, section navigation |
-| `src/components/shlok/MeaningSection.tsx` | Multi-language dropdown, translation fetching |
-| `src/lib/api.ts` | Add `getShlokTranslation()` function |
-| `src/components/home/StatsSection.tsx` | Verify real stats display |
+| File | Action |
+|------|--------|
+| `public/logo.png` | Create (copy from uploaded image) |
+| `public/favicon.png` | Create (copy from uploaded image) |
+| `src/components/ui/bhagwa-flag.tsx` | Replace SVG with image-based Logo component |
+| `src/components/layout/Header.tsx` | Update component import |
+| `src/components/layout/Footer.tsx` | Update component import |
+| `src/pages/admin/AdminLoginPage.tsx` | Update component import |
+| `src/components/admin/AdminSidebar.tsx` | Update admin sidebar logo |
+| `index.html` | Add GTM scripts + update favicon reference |
+| Database | Add RLS policy for public read on non-secret settings |
 
 ---
 
 ## Technical Details
 
-### Animated Counter Hook (Shared)
+### New Logo Component
 
 ```typescript
-function useAnimatedCounter(end: number, duration = 1500): number {
-  const [count, setCount] = useState(0);
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const ref = useRef<HTMLElement>(null);
+// src/components/ui/bhagwa-flag.tsx (renamed conceptually to Logo)
+interface LogoProps {
+  className?: string;
+}
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !hasAnimated) {
-        setHasAnimated(true);
-        // Animate to end value
-      }
-    });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [end, hasAnimated]);
-
-  return count;
+export function BhagwaFlag({ className }: LogoProps) {
+  return (
+    <img 
+      src="/logo.png" 
+      alt="Bhagavad Gita Gyan" 
+      className={className}
+    />
+  );
 }
 ```
 
-### Multi-Language Translation Fetch
+### GTM Code in index.html
 
-```typescript
-// In api.ts
-export async function getShlokTranslation(
-  shlokId: string, 
-  languageCode: string
-): Promise<ShlokTranslation | null> {
-  const { data, error } = await supabase
-    .from('shlok_translations')
-    .select('*')
-    .eq('shlok_id', shlokId)
-    .eq('language_code', languageCode)
-    .maybeSingle();
-    
-  if (error) throw error;
-  return data;
-}
-```
-
-### Enhanced MeaningSection with Language Selector
-
-```typescript
-// Language selector with all enabled languages
-const { data: languages } = useQuery({
-  queryKey: ['languages'],
-  queryFn: async () => {
-    const { data } = await supabase
-      .from('languages')
-      .select('*')
-      .eq('enabled', true)
-      .order('display_order');
-    return data || [];
-  }
-});
-
-// Select dropdown instead of simple tabs
-<Select value={language} onValueChange={setLanguage}>
-  <SelectTrigger>
-    <SelectValue />
-  </SelectTrigger>
-  <SelectContent>
-    {languages.map(lang => (
-      <SelectItem key={lang.code} value={lang.code}>
-        {lang.native_name} ({lang.name})
-      </SelectItem>
-    ))}
-  </SelectContent>
-</Select>
-```
-
-### WebFX Card Enhancement Pattern
-
-```typescript
-// Enhanced card with left gradient border
-<div className="group relative rounded-2xl overflow-hidden">
-  {/* Left gradient border */}
-  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-primary via-amber-500 to-orange-500" />
+```html
+<head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-ML97X8GS');</script>
+  <!-- End Google Tag Manager -->
   
-  {/* Card content with glow effect */}
-  <div className="border-2 border-border/50 bg-card transition-all duration-300 
-    hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
-    {/* Content */}
-  </div>
-</div>
+  <meta charset="UTF-8" />
+  ...
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-ML97X8GS"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  
+  <div id="root"></div>
+  ...
+</body>
+```
+
+### RLS Policy for Public Settings Read
+
+```sql
+CREATE POLICY "Public can read non-secret settings"
+ON public.admin_settings
+FOR SELECT
+TO public
+USING (is_secret = false);
 ```
 
 ---
 
 ## Verification Steps
 
-After implementation, verify:
+After implementation:
 
-1. **Donate Toggle**: Toggle off in admin, refresh main site, button should disappear
-2. **Real Stats**: Numbers should match database (18 chapters, 703 verses, 8 problems)
-3. **Loading**: Problems page should load smoothly without blank/flickering states
-4. **AI Settings**: Enter test API key, click Test, see success/failure indicator
-5. **TTS Settings**: Enter ElevenLabs key, select voice, click play icon to hear sample
-6. **Translation**: Select different language in meaning section, see translation or "not available" message
+1. **Donate Toggle**: 
+   - Go to Admin Settings, toggle off "Show Donate Button", click Save
+   - Visit the main site - Donate button should be hidden
+   - Toggle on again, save - button should reappear
+
+2. **New Logo**: 
+   - Check Header on all pages shows new Om symbol logo
+   - Check Footer shows new logo
+   - Check Admin Login page shows new logo
+   - Check Admin Sidebar shows new logo
+
+3. **Favicon**: 
+   - Open site in new tab - favicon should show new Om symbol
+
+4. **GTM**: 
+   - Open browser DevTools Network tab
+   - Check for requests to `googletagmanager.com`
+   - Verify GTM container loads successfully
