@@ -17,19 +17,7 @@ import DashboardPage from "./pages/DashboardPage";
 import ContactPage from "./pages/ContactPage";
 import DonatePage from "./pages/DonatePage";
 import NotFound from "./pages/NotFound";
-
-// Admin Pages
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminShlokList from "./pages/admin/AdminShlokList";
-import AdminShlokForm from "./pages/admin/AdminShlokForm";
-import AdminProblemList from "./pages/admin/AdminProblemList";
-import AdminProblemForm from "./pages/admin/AdminProblemForm";
-import AdminChapterList from "./pages/admin/AdminChapterList";
-import AdminChapterForm from "./pages/admin/AdminChapterForm";
-import AdminLanguages from "./pages/admin/AdminLanguages";
-import AdminAIRules from "./pages/admin/AdminAIRules";
-import AdminActivityLog from "./pages/admin/AdminActivityLog";
-import AdminSettings from "./pages/admin/AdminSettings";
+import { AdminRoutes } from "./components/admin/AdminRoutes";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -60,20 +48,8 @@ const App = () => (
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/donate" element={<DonatePage />} />
 
-              {/* Admin Routes - No Auth */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/shloks" element={<AdminShlokList />} />
-              <Route path="/admin/shloks/create" element={<AdminShlokForm />} />
-              <Route path="/admin/shloks/edit/:id" element={<AdminShlokForm />} />
-              <Route path="/admin/problems" element={<AdminProblemList />} />
-              <Route path="/admin/problems/create" element={<AdminProblemForm />} />
-              <Route path="/admin/problems/edit/:id" element={<AdminProblemForm />} />
-              <Route path="/admin/chapters" element={<AdminChapterList />} />
-              <Route path="/admin/chapters/edit/:id" element={<AdminChapterForm />} />
-              <Route path="/admin/languages" element={<AdminLanguages />} />
-              <Route path="/admin/ai-rules" element={<AdminAIRules />} />
-              <Route path="/admin/activity" element={<AdminActivityLog />} />
-              <Route path="/admin/settings" element={<AdminSettings />} />
+              {/* Admin Routes - wrapped with AdminAuthProvider */}
+              <Route path="/admin/*" element={<AdminRoutes />} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
