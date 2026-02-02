@@ -17,6 +17,40 @@ import type {
 export type { AIGenerationType, AIGenerationRequest };
 
 // ============================================
+// ADMIN CRUD HELPER (Uses Edge Function)
+// ============================================
+
+type TableName = 
+  | 'shloks' 
+  | 'problems' 
+  | 'chapters' 
+  | 'languages' 
+  | 'ai_search_rules' 
+  | 'shlok_problems'
+  | 'admin_activity_log';
+
+type Operation = 'create' | 'update' | 'delete' | 'bulk_update';
+
+async function adminCrud<T>(
+  table: TableName,
+  operation: Operation,
+  options: {
+    data?: Record<string, unknown>;
+    id?: string;
+    ids?: string[];
+  } = {}
+): Promise<T> {
+  const { data, error } = await supabase.functions.invoke('admin-crud', {
+    body: { table, operation, ...options },
+  });
+
+  if (error) throw error;
+  if (data?.error) throw new Error(data.error);
+
+  return data as T;
+}
+
+// ============================================
 // AI GENERATION
 // ============================================
 
@@ -152,32 +186,26 @@ export async function getShlokById(id: string): Promise<AdminShlok | null> {
 }
 
 export async function createShlok(data: Partial<AdminShlok>): Promise<AdminShlok> {
-  const { data: newShlok, error } = await supabase
-    .from('shloks')
-    .insert({
-      chapter_id: data.chapter_id!,
-      verse_number: data.verse_number!,
-      sanskrit_text: data.sanskrit_text!,
-      transliteration: data.transliteration,
-      hindi_meaning: data.hindi_meaning,
-      english_meaning: data.english_meaning!,
-      life_application: data.life_application,
-      practical_action: data.practical_action,
-      modern_story: data.modern_story,
-      problem_context: data.problem_context,
-      solution_gita: data.solution_gita,
-      status: data.status || 'draft',
-      story_type: data.story_type,
-      sanskrit_audio_url: data.sanskrit_audio_url,
-      scheduled_publish_at: data.scheduled_publish_at,
-      published_at: data.status === 'published' ? new Date().toISOString() : null,
-    })
-    .select()
-    .single();
+  const insertData = {
+    chapter_id: data.chapter_id!,
+    verse_number: data.verse_number!,
+    sanskrit_text: data.sanskrit_text!,
+    transliteration: data.transliteration,
+    hindi_meaning: data.hindi_meaning,
+    english_meaning: data.english_meaning!,
+    life_application: data.life_application,
+    practical_action: data.practical_action,
+    modern_story: data.modern_story,
+    problem_context: data.problem_context,
+    solution_gita: data.solution_gita,
+    status: data.status || 'draft',
+    story_type: data.story_type,
+    sanskrit_audio_url: data.sanskrit_audio_url,
+    scheduled_publish_at: data.scheduled_publish_at,
+    published_at: data.status === 'published' ? new Date().toISOString() : null,
+  };
 
-  if (error) throw error;
-
-  return newShlok as unknown as AdminShlok;
+  return adminCrud<AdminShlok>('shloks', 'create', { data: insertData });
 }
 
 export async function updateShlok(id: string, data: Partial<AdminShlok>): Promise<AdminShlok> {
@@ -192,21 +220,11 @@ export async function updateShlok(id: string, data: Partial<AdminShlok>): Promis
   delete updateData.chapter;
   delete updateData.problems;
 
-  const { data: updatedShlok, error } = await supabase
-    .from('shloks')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) throw error;
-
-  return updatedShlok as unknown as AdminShlok;
+  return adminCrud<AdminShlok>('shloks', 'update', { id, data: updateData });
 }
 
 export async function deleteShlok(id: string): Promise<void> {
-  const { error } = await supabase.from('shloks').delete().eq('id', id);
-  if (error) throw error;
+  await adminCrud<{ success: boolean }>('shloks', 'delete', { id });
 }
 
 export async function bulkUpdateShlokStatus(ids: string[], status: ShlokStatus): Promise<void> {
@@ -216,12 +234,7 @@ export async function bulkUpdateShlokStatus(ids: string[], status: ShlokStatus):
     updateData.published_at = new Date().toISOString();
   }
 
-  const { error } = await supabase
-    .from('shloks')
-    .update(updateData)
-    .in('id', ids);
-
-  if (error) throw error;
+  await adminCrud<{ success: boolean }>('shloks', 'bulk_update', { ids, data: updateData });
 }
 
 // ============================================
@@ -255,45 +268,29 @@ export async function getAdminProblems(): Promise<AdminProblem[]> {
 }
 
 export async function createProblem(data: Partial<AdminProblem>): Promise<AdminProblem> {
-  const { data: newProblem, error } = await supabase
-    .from('problems')
-    .insert({
-      name: data.name!,
-      slug: data.slug!,
-      description_english: data.description_english,
-      description_hindi: data.description_hindi,
-      icon: data.icon,
-      color: data.color,
-      category: data.category,
-      display_order: data.display_order || 0,
-    })
-    .select()
-    .single();
+  const insertData = {
+    name: data.name!,
+    slug: data.slug!,
+    description_english: data.description_english,
+    description_hindi: data.description_hindi,
+    icon: data.icon,
+    color: data.color,
+    category: data.category,
+    display_order: data.display_order || 0,
+  };
 
-  if (error) throw error;
-
-  return newProblem as unknown as AdminProblem;
+  return adminCrud<AdminProblem>('problems', 'create', { data: insertData });
 }
 
 export async function updateProblem(id: string, data: Partial<AdminProblem>): Promise<AdminProblem> {
   const updateData = { ...data };
   delete updateData.shlok_count;
 
-  const { data: updatedProblem, error } = await supabase
-    .from('problems')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) throw error;
-
-  return updatedProblem as unknown as AdminProblem;
+  return adminCrud<AdminProblem>('problems', 'update', { id, data: updateData });
 }
 
 export async function deleteProblem(id: string): Promise<void> {
-  const { error } = await supabase.from('problems').delete().eq('id', id);
-  if (error) throw error;
+  await adminCrud<{ success: boolean }>('problems', 'delete', { id });
 }
 
 // ============================================
@@ -318,15 +315,7 @@ export async function updateChapter(id: string, data: Partial<{
   description_english: string;
   description_hindi: string;
 }>) {
-  const { data: updated, error } = await supabase
-    .from('chapters')
-    .update(data)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return updated;
+  return adminCrud('chapters', 'update', { id, data });
 }
 
 // ============================================
@@ -344,29 +333,19 @@ export async function getLanguages(): Promise<Language[]> {
 }
 
 export async function toggleLanguage(id: string, enabled: boolean): Promise<void> {
-  const { error } = await supabase
-    .from('languages')
-    .update({ enabled })
-    .eq('id', id);
-
-  if (error) throw error;
+  await adminCrud('languages', 'update', { id, data: { enabled } });
 }
 
 export async function createLanguage(data: Partial<Language>): Promise<Language> {
-  const { data: newLang, error } = await supabase
-    .from('languages')
-    .insert({
-      code: data.code!,
-      name: data.name!,
-      native_name: data.native_name!,
-      enabled: data.enabled ?? false,
-      display_order: data.display_order || 0,
-    })
-    .select()
-    .single();
+  const insertData = {
+    code: data.code!,
+    name: data.name!,
+    native_name: data.native_name!,
+    enabled: data.enabled ?? false,
+    display_order: data.display_order || 0,
+  };
 
-  if (error) throw error;
-  return newLang as Language;
+  return adminCrud<Language>('languages', 'create', { data: insertData });
 }
 
 // ============================================
@@ -387,40 +366,26 @@ export async function getAIRules(): Promise<AISearchRule[]> {
 }
 
 export async function createAIRule(data: Partial<AISearchRule>): Promise<AISearchRule> {
-  const { data: newRule, error } = await supabase
-    .from('ai_search_rules')
-    .insert({
-      keywords: data.keywords || [],
-      problem_id: data.problem_id,
-      fallback_shloks: data.fallback_shloks || [],
-      priority: data.priority || 5,
-      enabled: data.enabled ?? true,
-    })
-    .select()
-    .single();
+  const insertData = {
+    keywords: data.keywords || [],
+    problem_id: data.problem_id,
+    fallback_shloks: data.fallback_shloks || [],
+    priority: data.priority || 5,
+    enabled: data.enabled ?? true,
+  };
 
-  if (error) throw error;
-  return newRule as unknown as AISearchRule;
+  return adminCrud<AISearchRule>('ai_search_rules', 'create', { data: insertData });
 }
 
 export async function updateAIRule(id: string, data: Partial<AISearchRule>): Promise<AISearchRule> {
   const updateData = { ...data };
   delete updateData.problem;
 
-  const { data: updated, error } = await supabase
-    .from('ai_search_rules')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return updated as unknown as AISearchRule;
+  return adminCrud<AISearchRule>('ai_search_rules', 'update', { id, data: updateData });
 }
 
 export async function deleteAIRule(id: string): Promise<void> {
-  const { error } = await supabase.from('ai_search_rules').delete().eq('id', id);
-  if (error) throw error;
+  await adminCrud<{ success: boolean }>('ai_search_rules', 'delete', { id });
 }
 
 // ============================================
@@ -475,18 +440,21 @@ export async function logActivity(
 ): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
   
-  if (!user) return;
+  // Use a placeholder user ID if not authenticated (for dev mode)
+  const userId = user?.id || '00000000-0000-0000-0000-000000000000';
 
-  const { error } = await supabase.from('admin_activity_log').insert([{
-    user_id: user.id,
-    action,
-    entity_type: entityType,
-    entity_id: entityId,
-    old_value: oldValue ? JSON.parse(JSON.stringify(oldValue)) : null,
-    new_value: newValue ? JSON.parse(JSON.stringify(newValue)) : null,
-  }]);
-
-  if (error) {
+  try {
+    await adminCrud('admin_activity_log', 'create', {
+      data: {
+        user_id: userId,
+        action,
+        entity_type: entityType,
+        entity_id: entityId,
+        old_value: oldValue ? JSON.parse(JSON.stringify(oldValue)) : null,
+        new_value: newValue ? JSON.parse(JSON.stringify(newValue)) : null,
+      },
+    });
+  } catch (error) {
     console.error('Failed to log activity:', error);
   }
 }
@@ -499,19 +467,19 @@ export async function updateShlokProblems(
   shlokId: string,
   problems: Array<{ id: string; relevance_score: number }>
 ): Promise<void> {
-  // Delete existing mappings
+  // Delete existing mappings using direct supabase (read operations still work)
   await supabase.from('shlok_problems').delete().eq('shlok_id', shlokId);
 
   if (problems.length === 0) return;
 
-  // Insert new mappings
-  const { error } = await supabase.from('shlok_problems').insert(
-    problems.map(p => ({
-      shlok_id: shlokId,
-      problem_id: p.id,
-      relevance_score: p.relevance_score,
-    }))
-  );
-
-  if (error) throw error;
+  // Insert new mappings one by one using edge function
+  for (const p of problems) {
+    await adminCrud('shlok_problems', 'create', {
+      data: {
+        shlok_id: shlokId,
+        problem_id: p.id,
+        relevance_score: p.relevance_score,
+      },
+    });
+  }
 }
