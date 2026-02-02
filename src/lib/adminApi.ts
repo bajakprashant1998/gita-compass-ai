@@ -133,7 +133,9 @@ export async function getAdminShloks(filters: ShlokFilters): Promise<{
   }
 
   if (filters.search) {
-    query = query.or(`sanskrit_text.ilike.%${filters.search}%,english_meaning.ilike.%${filters.search}%`);
+    // Sanitize special characters that could break PostgREST queries
+    const sanitizedSearch = filters.search.replace(/[%_(),.*]/g, '');
+    query = query.or(`sanskrit_text.ilike.%${sanitizedSearch}%,english_meaning.ilike.%${sanitizedSearch}%`);
   }
 
   const from = (filters.page - 1) * filters.perPage;

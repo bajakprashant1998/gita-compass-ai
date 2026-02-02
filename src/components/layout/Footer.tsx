@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import { Heart, Twitter, Github, Mail, Send, BookOpen, MessageCircle, ArrowRight, Phone } from 'lucide-react';
 import { BhagwaFlag } from '@/components/ui/bhagwa-flag';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
-export function Footer() {
+export const Footer = forwardRef<HTMLElement, object>(function Footer(_props, ref) {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -23,7 +23,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="relative overflow-hidden border-t border-border/50 bg-gradient-to-b from-background to-muted/30">
+    <footer ref={ref} className="relative overflow-hidden border-t border-border/50 bg-gradient-to-b from-background to-muted/30">
       {/* Background Decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-1/2 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
@@ -200,4 +200,6 @@ export function Footer() {
       </div>
     </footer>
   );
-}
+});
+
+Footer.displayName = 'Footer';
