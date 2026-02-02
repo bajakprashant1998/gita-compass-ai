@@ -67,10 +67,8 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-amber-500 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-primary/30 group-hover:scale-105">
-              <BhagwaFlag className="h-5 w-5 text-white" />
-              {/* Glow effect on hover */}
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary to-amber-500 opacity-0 blur-md transition-opacity group-hover:opacity-50" />
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl overflow-hidden transition-all duration-300 group-hover:shadow-lg group-hover:shadow-primary/30 group-hover:scale-105">
+              <BhagwaFlag className="h-10 w-10" />
             </div>
             <span className="text-xl font-semibold tracking-tight">
               Bhagavad Gita<span className="text-gradient">Gyan</span>

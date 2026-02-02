@@ -14,6 +14,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BhagwaFlag } from '@/components/ui/bhagwa-flag';
 import {
   Collapsible,
   CollapsibleContent,
@@ -69,8 +70,8 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
         <div className="flex items-center justify-between p-4 border-b border-border">
           {!collapsed && (
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-primary-foreground" />
+              <div className="w-8 h-8 rounded-lg overflow-hidden">
+                <BhagwaFlag className="w-8 h-8" />
               </div>
               <span className="font-bold text-lg">GitaAdmin</span>
             </div>
