@@ -24,37 +24,30 @@ interface Chapter {
   verse_count?: number;
 }
 
-import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
-
 export default function AdminChapterList() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [editingId, setEditingId] = useState<string | null>(null);
   const { toast } = useToast();
-  const { isReady } = useAdminAuthContext();
-
-  const loadChapters = async () => {
-    setIsLoading(true);
-    try {
-      const data = await getChapters();
-      setChapters(data);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load chapters',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   useEffect(() => {
-    if (isReady) {
-      loadChapters();
-    }
-  }, [isReady, toast]);
+    const loadChapters = async () => {
+      try {
+        const data = await getChapters();
+        setChapters(data);
+      } catch (error) {
+        console.error('Failed to load chapters:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load chapters',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadChapters();
+  }, [toast]);
 
   return (
     <div className="space-y-6">

@@ -67,8 +67,6 @@ const statusConfig: Record<ShlokStatus, { label: string; icon: React.ReactNode; 
   },
 };
 
-import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
-
 export default function AdminShlokList() {
   const [shloks, setShloks] = useState<AdminShlok[]>([]);
   const [chapters, setChapters] = useState<{ id: string; chapter_number: number; title_english: string }[]>([]);
@@ -82,7 +80,6 @@ export default function AdminShlokList() {
     perPage: 25,
   });
   const { toast } = useToast();
-  const { isReady } = useAdminAuthContext();
 
   const loadData = async () => {
     setIsLoading(true);
@@ -117,10 +114,8 @@ export default function AdminShlokList() {
   };
 
   useEffect(() => {
-    if (isReady) {
-      loadData();
-    }
-  }, [filters, isReady]);
+    loadData();
+  }, [filters]);
 
   const handleSelectAll = (checked: boolean) => {
     setSelectedIds(checked ? shloks.map(s => s.id) : []);

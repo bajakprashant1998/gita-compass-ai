@@ -18,16 +18,11 @@ import { getAdminStats } from '@/lib/adminApi';
 import type { AdminStats } from '@/types/admin';
 import { Skeleton } from '@/components/ui/skeleton';
 
-import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
-
 export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { isReady } = useAdminAuthContext();
 
   useEffect(() => {
-    if (!isReady) return; // Wait for auth to be fully ready before fetching
-
     const loadStats = async () => {
       console.log('AdminDashboard: Loading stats...');
       try {
@@ -51,7 +46,7 @@ export default function AdminDashboard() {
     };
 
     loadStats();
-  }, [isReady]);
+  }, []);
 
   return (
     <div className="p-8">

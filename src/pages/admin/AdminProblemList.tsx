@@ -36,15 +36,12 @@ const categoryColors: Record<ProblemCategory, string> = {
   spiritual: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
 };
 
-import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
-
 export default function AdminProblemList() {
-  const [problems, setProblems] = useState<any[]>([]);
+  const [problems, setProblems] = useState<AdminProblem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
-  const { isReady } = useAdminAuthContext();
 
   const loadProblems = async () => {
     setIsLoading(true);
@@ -64,10 +61,8 @@ export default function AdminProblemList() {
   };
 
   useEffect(() => {
-    if (isReady) {
-      loadProblems();
-    }
-  }, [isReady]);
+    loadProblems();
+  }, []);
 
   const handleDelete = async () => {
     if (!deleteId) return;
