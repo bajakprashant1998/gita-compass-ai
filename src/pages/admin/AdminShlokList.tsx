@@ -48,6 +48,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { AIBulkGenerateModal } from '@/components/admin/AIBulkGenerateModal';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 
 const statusConfig: Record<ShlokStatus, { label: string; icon: React.ReactNode; className: string }> = {
   published: {
@@ -68,6 +69,7 @@ const statusConfig: Record<ShlokStatus, { label: string; icon: React.ReactNode; 
 };
 
 export default function AdminShlokList() {
+  const { isReady } = useAdminAuthContext();
   const [shloks, setShloks] = useState<AdminShlok[]>([]);
   const [chapters, setChapters] = useState<{ id: string; chapter_number: number; title_english: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,8 +116,9 @@ export default function AdminShlokList() {
   };
 
   useEffect(() => {
+    if (!isReady) return; // Wait for auth to be ready
     loadData();
-  }, [filters]);
+  }, [isReady, filters]);
 
   const handleSelectAll = (checked: boolean) => {
     setSelectedIds(checked ? shloks.map(s => s.id) : []);
