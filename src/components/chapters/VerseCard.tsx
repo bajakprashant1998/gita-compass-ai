@@ -1,58 +1,81 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Shlok } from '@/types';
+import { cn } from '@/lib/utils';
 
 interface VerseCardProps {
   shlok: Shlok;
   chapterNumber: number;
   animationDelay?: number;
+  compact?: boolean;
 }
 
-export function VerseCard({ shlok, chapterNumber, animationDelay = 0 }: VerseCardProps) {
+export function VerseCard({ shlok, chapterNumber, animationDelay = 0, compact = false }: VerseCardProps) {
   return (
     <Link 
       to={`/chapters/${chapterNumber}/verse/${shlok.verse_number}`}
       className="block animate-fade-in"
       style={{ animationDelay: `${animationDelay}ms` }}
     >
-      <article className="verse-card group">
+      <article className={cn(
+        "verse-card group relative overflow-hidden rounded-2xl bg-card border border-border/50",
+        "transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1"
+      )}>
+        {/* Glow effect on hover */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
         {/* Left Gradient Border */}
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-amber-500 to-orange-500 rounded-l-2xl" />
         
         {/* Card Content */}
-        <div className="pl-6 pr-6 py-6">
+        <div className={cn("pl-6 pr-6", compact ? "py-4" : "py-6")}>
           {/* Header: Verse Number + Arrow */}
           <header className="flex items-center justify-between mb-4">
             <div className="flex items-baseline gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Verse
               </span>
-              <span className="text-3xl md:text-4xl font-extrabold text-gradient">
+              <span className={cn(
+                "font-extrabold text-gradient",
+                compact ? "text-2xl md:text-3xl" : "text-3xl md:text-4xl"
+              )}>
                 {shlok.verse_number}
               </span>
             </div>
             
             <div className="flex items-center text-primary font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
               <span className="text-sm mr-2 hidden sm:block">Read Now</span>
-              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-amber-500 flex items-center justify-center">
+                <ArrowRight className="h-4 w-4 text-white transition-transform group-hover:translate-x-0.5" />
+              </div>
             </div>
           </header>
           
           {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-primary/30 via-amber-500/30 to-transparent mb-5" />
+          <div className="h-px bg-gradient-to-r from-primary/30 via-amber-500/30 to-transparent mb-4" />
           
-          {/* Sanskrit Text Block */}
-          <div className="mb-5">
-            <p className="sanskrit text-base md:text-lg text-center font-bold bg-gradient-to-r from-primary via-amber-500 to-orange-500 bg-clip-text text-transparent whitespace-pre-line line-clamp-3 leading-relaxed">
+          {/* Sanskrit Text Block - Bold with saffron gradient */}
+          <div className={cn("mb-4", compact && "hidden md:block")}>
+            <p className={cn(
+              "sanskrit text-center font-bold",
+              "bg-gradient-to-r from-primary via-amber-500 to-orange-500 bg-clip-text text-transparent",
+              "whitespace-pre-line leading-relaxed",
+              compact ? "text-base line-clamp-2" : "text-base md:text-lg line-clamp-3"
+            )}>
               ॥ {shlok.sanskrit_text.split('\n').slice(0, 2).join(' ')} ॥
             </p>
           </div>
           
           {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-5" />
+          {!compact && (
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-4" />
+          )}
           
           {/* English Meaning */}
-          <p className="text-sm md:text-base text-muted-foreground line-clamp-2 mb-4 leading-relaxed">
+          <p className={cn(
+            "text-muted-foreground leading-relaxed mb-4",
+            compact ? "text-sm line-clamp-1" : "text-sm md:text-base line-clamp-2"
+          )}>
             "{shlok.english_meaning}"
           </p>
           

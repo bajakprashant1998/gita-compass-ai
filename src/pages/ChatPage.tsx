@@ -1,21 +1,33 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Sparkles, User, Loader2 } from 'lucide-react';
+import { 
+  Send, 
+  Sparkles, 
+  User, 
+  Loader2, 
+  RotateCcw, 
+  ArrowDown,
+  Keyboard
+} from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import { QuickActionsBar } from '@/components/chat/QuickActionsBar';
 import { MessageActions } from '@/components/chat/MessageActions';
 import { ConversationStarters } from '@/components/chat/ConversationStarters';
 import { SEOHead } from '@/components/SEOHead';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { formatDistanceToNow } from 'date-fns';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  timestamp?: Date;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gita-coach`;
@@ -32,8 +44,10 @@ export default function ChatPage() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [typingMessage, setTypingMessage] = useState(typingMessages[0]);
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { user } = useAuth();
 
   // Handle initial query from URL
   useEffect(() => {
@@ -47,12 +61,34 @@ export default function ChatPage() {
     }
   }, [searchParams]);
 
-  // Auto-scroll to bottom
-  useEffect(() => {
+  // Scroll handling
+  const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, []);
+
+  // Auto-scroll to bottom on new messages
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  // Handle scroll position to show/hide scroll button
+  const handleScroll = useCallback(() => {
+    if (scrollRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      setShowScrollButton(!isNearBottom && messages.length > 0);
+    }
+  }, [messages.length]);
+
+  useEffect(() => {
+    const scrollElement = scrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener('scroll', handleScroll);
+      return () => scrollElement.removeEventListener('scroll', handleScroll);
+    }
+  }, [handleScroll]);
 
   // Rotate typing message
   useEffect(() => {
@@ -67,12 +103,20 @@ export default function ChatPage() {
     return () => clearInterval(interval);
   }, [isLoading]);
 
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
+    }
+  }, [input]);
+
   const handleSubmit = async (e?: React.FormEvent, overrideInput?: string) => {
     e?.preventDefault();
     const messageText = overrideInput || input.trim();
     if (!messageText || isLoading) return;
 
-    const userMessage: Message = { role: 'user', content: messageText };
+    const userMessage: Message = { role: 'user', content: messageText, timestamp: new Date() };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
@@ -113,7 +157,7 @@ export default function ChatPage() {
       let buffer = '';
 
       // Add empty assistant message
-      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: '', timestamp: new Date() }]);
 
       while (true) {
         const { done, value } = await reader.read();
@@ -177,6 +221,11 @@ export default function ChatPage() {
     handleSubmit(undefined, text);
   };
 
+  const handleClearChat = () => {
+    setMessages([]);
+    toast.success('Conversation cleared');
+  };
+
   return (
     <Layout>
       <SEOHead
@@ -186,33 +235,51 @@ export default function ChatPage() {
         keywords={['AI coach', 'Gita guidance', 'wisdom chat', 'personal guide', 'life advice AI']}
       />
 
-      {/* Hero Header */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-8 border-b border-border/50">
+      {/* Hero Header - More compact */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-6 border-b border-border/50">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 right-0 w-1/2 h-full bg-[radial-gradient(circle_at_80%_20%,hsl(var(--primary)/0.1),transparent_50%)]" />
         </div>
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-amber-500/10 border border-primary/20 text-primary text-sm font-medium mb-4">
-              <Sparkles className="h-4 w-4" />
-              AI Gita Coach
+          <div className="max-w-3xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
+                <Sparkles className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold">
+                  AI <span className="text-gradient">Wisdom Guide</span>
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {user ? `Welcome back! Share what's on your mind.` : 'Personalized guidance from the Gita'}
+                </p>
+              </div>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold mb-2">
-              Your Personal <span className="text-gradient">Wisdom Guide</span>
-            </h1>
-            <p className="text-muted-foreground">
-              Share what's on your mind. I'll offer guidance from the Bhagavad Gita.
-            </p>
+            
+            {messages.length > 0 && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleClearChat}
+                className="gap-2 text-muted-foreground hover:text-foreground"
+              >
+                <RotateCcw className="h-4 w-4" />
+                <span className="hidden sm:inline">New Chat</span>
+              </Button>
+            )}
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 h-[calc(100vh-16rem)]">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 h-[calc(100vh-14rem)]">
         <div className="max-w-3xl mx-auto h-full flex flex-col">
           {/* Chat Area */}
           <Card className="flex-1 flex flex-col overflow-hidden border-border/50 shadow-xl shadow-primary/5">
-            <ScrollArea className="flex-1 p-4 md:p-6" ref={scrollRef}>
+            <ScrollArea 
+              className="flex-1 p-4 md:p-6" 
+              ref={scrollRef}
+            >
               {messages.length === 0 ? (
                 <ConversationStarters onSelect={handleQuickAction} />
               ) : (
@@ -220,7 +287,10 @@ export default function ChatPage() {
                   {messages.map((message, index) => (
                     <div
                       key={index}
-                      className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : ''} group animate-fade-in`}
+                      className={cn(
+                        "flex gap-3 group animate-fade-in",
+                        message.role === 'user' ? 'justify-end' : ''
+                      )}
                     >
                       {message.role === 'assistant' && (
                         <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/20">
@@ -229,11 +299,12 @@ export default function ChatPage() {
                       )}
                       <div className="flex flex-col max-w-[85%]">
                         <div
-                          className={`rounded-2xl px-4 py-3 ${
+                          className={cn(
+                            "rounded-2xl px-4 py-3",
                             message.role === 'user'
                               ? 'bg-gradient-to-r from-primary to-amber-500 text-white shadow-lg shadow-primary/20'
                               : 'bg-muted/80 border border-border/50'
-                          }`}
+                          )}
                         >
                           {message.role === 'assistant' ? (
                             <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -243,9 +314,16 @@ export default function ChatPage() {
                             <p>{message.content}</p>
                           )}
                         </div>
-                        {message.role === 'assistant' && message.content && (
-                          <MessageActions content={message.content} className="mt-1" />
-                        )}
+                        <div className="flex items-center justify-between mt-1 px-1">
+                          {message.timestamp && (
+                            <span className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(message.timestamp, { addSuffix: true })}
+                            </span>
+                          )}
+                          {message.role === 'assistant' && message.content && (
+                            <MessageActions content={message.content} className="ml-auto" />
+                          )}
+                        </div>
                       </div>
                       {message.role === 'user' && (
                         <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/20">
@@ -273,19 +351,41 @@ export default function ChatPage() {
               )}
             </ScrollArea>
 
+            {/* Scroll to bottom button */}
+            {showScrollButton && (
+              <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-10">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={scrollToBottom}
+                  className="rounded-full shadow-lg gap-2 bg-background/95 backdrop-blur-sm border border-border/50"
+                >
+                  <ArrowDown className="h-4 w-4" />
+                  New messages
+                </Button>
+              </div>
+            )}
+
             {/* Input Area */}
             <CardContent className="p-4 border-t border-border/50 space-y-3 bg-gradient-to-b from-transparent to-muted/30">
               <QuickActionsBar onQuickAction={handleQuickAction} disabled={isLoading} />
               <form onSubmit={handleSubmit} className="flex gap-3">
-                <Textarea
-                  ref={textareaRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Share what's on your mind..."
-                  className="min-h-[60px] max-h-[120px] resize-none border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all"
-                  disabled={isLoading}
-                />
+                <div className="flex-1 relative">
+                  <Textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Share what's on your mind..."
+                    className="min-h-[60px] max-h-[120px] resize-none border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all pr-24"
+                    disabled={isLoading}
+                  />
+                  {/* Keyboard shortcut hint */}
+                  <div className="absolute bottom-2 right-3 hidden md:flex items-center gap-1 text-xs text-muted-foreground/60">
+                    <Keyboard className="h-3 w-3" />
+                    <span>Enter to send</span>
+                  </div>
+                </div>
                 <Button
                   type="submit"
                   size="icon"

@@ -14,10 +14,12 @@ import {
 import { BhagwaFlag } from '@/components/ui/bhagwa-flag';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { getSettingByKey } from '@/lib/adminSettings';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showDonate, setShowDonate] = useState(true);
   const { user, loading } = useAuth();
   const location = useLocation();
 
@@ -28,6 +30,18 @@ export function Header() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Fetch donate button visibility setting
+  useEffect(() => {
+    getSettingByKey('show_donate_button')
+      .then(value => {
+        setShowDonate(value !== 'false');
+      })
+      .catch(() => {
+        // Default to showing donate button if fetch fails
+        setShowDonate(true);
+      });
   }, []);
 
   const navigation = [
@@ -95,16 +109,18 @@ export function Header() {
 
           {/* Right side */}
           <div className="hidden md:flex md:items-center md:gap-3">
-            {/* Donate Button */}
-            <Link to="/donate">
-              <Button 
-                size="sm" 
-                className="gap-2 rounded-lg bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 shadow-md shadow-rose-500/20 hover:shadow-lg hover:shadow-rose-500/30 transition-all"
-              >
-                <Heart className="h-4 w-4" />
-                Donate
-              </Button>
-            </Link>
+            {/* Donate Button - Conditionally rendered */}
+            {showDonate && (
+              <Link to="/donate">
+                <Button 
+                  size="sm" 
+                  className="gap-2 rounded-lg bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 shadow-md shadow-rose-500/20 hover:shadow-lg hover:shadow-rose-500/30 transition-all"
+                >
+                  <Heart className="h-4 w-4" />
+                  Donate
+                </Button>
+              </Link>
+            )}
 
             {loading ? (
               <div className="h-9 w-24 animate-pulse rounded-lg bg-muted" />
@@ -169,13 +185,15 @@ export function Header() {
               </Link>
             ))}
             <div className="pt-3 mt-2 border-t border-border/50 space-y-2 animate-fade-in" style={{ animationDelay: '200ms' }}>
-              {/* Donate Button in Mobile Menu */}
-              <Link to="/donate" onClick={() => setMobileMenuOpen(false)}>
-                <Button className="w-full gap-2 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600">
-                  <Heart className="h-4 w-4" />
-                  Donate
-                </Button>
-              </Link>
+              {/* Donate Button in Mobile Menu - Conditionally rendered */}
+              {showDonate && (
+                <Link to="/donate" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full gap-2 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600">
+                    <Heart className="h-4 w-4" />
+                    Donate
+                  </Button>
+                </Link>
+              )}
               
               {user ? (
                 <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
