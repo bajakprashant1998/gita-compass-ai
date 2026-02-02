@@ -40,11 +40,11 @@ export function ModernStory({ shlok }: ModernStoryProps) {
       return;
     }
 
-    // Fetch new audio
+    // Fetch new audio using Google TTS
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-tts`,
         {
           method: 'POST',
           headers: {
@@ -54,7 +54,7 @@ export function ModernStory({ shlok }: ModernStoryProps) {
           },
           body: JSON.stringify({
             text: shlok.modern_story,
-            voiceId: 'JBFqnCBsd6RMkjVDRZzb', // George - warm narrator voice
+            language: 'english',
           }),
         }
       );
@@ -64,8 +64,9 @@ export function ModernStory({ shlok }: ModernStoryProps) {
         throw new Error(errorData.error || 'Failed to generate audio');
       }
 
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
+      // Google TTS returns JSON with base64 audio content
+      const data = await response.json();
+      const audioUrl = `data:audio/mpeg;base64,${data.audioContent}`;
       
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
