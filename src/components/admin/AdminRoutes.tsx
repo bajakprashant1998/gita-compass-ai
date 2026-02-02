@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
+import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminShlokList from "@/pages/admin/AdminShlokList";
 import AdminShlokForm from "@/pages/admin/AdminShlokForm";
@@ -15,26 +16,29 @@ import AdminLoginPage from "@/pages/admin/AdminLoginPage";
 
 /**
  * Admin routes wrapper that provides AdminAuthContext.
- * Must be rendered inside BrowserRouter since AdminAuthProvider uses useNavigate.
+ * All routes except /admin/login are protected and require admin authentication.
  */
 export function AdminRoutes() {
   return (
     <AdminAuthProvider>
       <Routes>
+        {/* Public admin route - login page */}
         <Route path="login" element={<AdminLoginPage />} />
-        <Route path="" element={<AdminDashboard />} />
-        <Route path="shloks" element={<AdminShlokList />} />
-        <Route path="shloks/create" element={<AdminShlokForm />} />
-        <Route path="shloks/edit/:id" element={<AdminShlokForm />} />
-        <Route path="problems" element={<AdminProblemList />} />
-        <Route path="problems/create" element={<AdminProblemForm />} />
-        <Route path="problems/edit/:id" element={<AdminProblemForm />} />
-        <Route path="chapters" element={<AdminChapterList />} />
-        <Route path="chapters/edit/:id" element={<AdminChapterForm />} />
-        <Route path="languages" element={<AdminLanguages />} />
-        <Route path="ai-rules" element={<AdminAIRules />} />
-        <Route path="activity" element={<AdminActivityLog />} />
-        <Route path="settings" element={<AdminSettings />} />
+        
+        {/* Protected admin routes - require authentication */}
+        <Route path="" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+        <Route path="shloks" element={<AdminProtectedRoute><AdminShlokList /></AdminProtectedRoute>} />
+        <Route path="shloks/create" element={<AdminProtectedRoute><AdminShlokForm /></AdminProtectedRoute>} />
+        <Route path="shloks/edit/:id" element={<AdminProtectedRoute><AdminShlokForm /></AdminProtectedRoute>} />
+        <Route path="problems" element={<AdminProtectedRoute><AdminProblemList /></AdminProtectedRoute>} />
+        <Route path="problems/create" element={<AdminProtectedRoute><AdminProblemForm /></AdminProtectedRoute>} />
+        <Route path="problems/edit/:id" element={<AdminProtectedRoute><AdminProblemForm /></AdminProtectedRoute>} />
+        <Route path="chapters" element={<AdminProtectedRoute><AdminChapterList /></AdminProtectedRoute>} />
+        <Route path="chapters/edit/:id" element={<AdminProtectedRoute><AdminChapterForm /></AdminProtectedRoute>} />
+        <Route path="languages" element={<AdminProtectedRoute><AdminLanguages /></AdminProtectedRoute>} />
+        <Route path="ai-rules" element={<AdminProtectedRoute><AdminAIRules /></AdminProtectedRoute>} />
+        <Route path="activity" element={<AdminProtectedRoute><AdminActivityLog /></AdminProtectedRoute>} />
+        <Route path="settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
       </Routes>
     </AdminAuthProvider>
   );
