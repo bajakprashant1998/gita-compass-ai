@@ -13,16 +13,32 @@ import {
   Check
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { RadialGlow, FloatingOm } from '@/components/ui/decorative-elements';
+
+const paypalEmail = 'cadbull2014@gmail.com';
+
+const getPayPalLink = (amount?: string) => {
+  const baseUrl = 'https://www.paypal.com/cgi-bin/webscr';
+  const params = new URLSearchParams({
+    cmd: '_donations',
+    business: paypalEmail,
+    currency_code: 'USD',
+    item_name: 'Bhagavad Gita Gyan Donation',
+  });
+  if (amount) {
+    params.append('amount', amount);
+  }
+  return `${baseUrl}?${params.toString()}`;
+};
 
 const donationTiers = [
   {
     name: 'Seeker',
-    amount: '$5',
-    description: 'Support our mission',
+    amount: '$1',
+    description: 'Show your support',
     icon: Coffee,
     features: [
       'Support platform maintenance',
-      'Help reach more seekers',
       'Our heartfelt gratitude',
     ],
     color: 'from-amber-400 to-orange-500',
@@ -30,27 +46,25 @@ const donationTiers = [
   },
   {
     name: 'Devotee',
-    amount: '$25',
-    description: 'Make a meaningful impact',
+    amount: '$5',
+    description: 'Make an impact',
     icon: Heart,
     features: [
       'Everything in Seeker',
-      'Support new feature development',
-      'Help add more translations',
-      'Recognition on supporters page',
+      'Help reach more seekers',
+      'Support new features',
     ],
     color: 'from-rose-500 to-orange-500',
     popular: true,
   },
   {
     name: 'Patron',
-    amount: '$100',
+    amount: '$10',
     description: 'Champion the cause',
     icon: Star,
     features: [
       'Everything in Devotee',
       'Support major initiatives',
-      'Help expand to more languages',
       'Priority feature requests',
       'Special patron badge',
     ],
@@ -66,6 +80,11 @@ const impactStats = [
 ];
 
 export default function DonatePage() {
+  const handleDonate = (amount?: string) => {
+    const numericAmount = amount?.replace('$', '');
+    window.open(getPayPalLink(numericAmount), '_blank');
+  };
+
   return (
     <Layout>
       <SEOHead 
@@ -77,19 +96,20 @@ export default function DonatePage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-rose-500/5 via-background to-orange-500/5 py-20">
         {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-rose-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl" />
+          <RadialGlow position="top-right" color="primary" className="opacity-40" />
+          <RadialGlow position="bottom-left" color="amber" className="opacity-30" />
+          <FloatingOm className="top-20 left-10 hidden lg:block" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,hsl(var(--primary)/0.1),transparent_40%)]" />
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center max-w-3xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-500/10 border border-rose-500/20 text-sm font-medium text-rose-600 dark:text-rose-400 mb-6">
               <Heart className="h-4 w-4" />
               Support Our Mission
             </div>
             <h1 className="headline-bold text-4xl md:text-5xl lg:text-6xl mb-6">
-              Help Spread <span className="bg-gradient-to-r from-rose-500 to-orange-500 bg-clip-text text-transparent">Gita Wisdom</span>
+              Help Spread <span className="text-gradient">Gita Wisdom</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
               Your contribution helps us maintain this platform, add new features, 
@@ -103,7 +123,7 @@ export default function DonatePage() {
                   <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-gradient-to-br from-rose-500/10 to-orange-500/10 flex items-center justify-center">
                     <stat.icon className="h-6 w-6 text-rose-500" />
                   </div>
-                  <div className="text-2xl font-bold bg-gradient-to-r from-rose-500 to-orange-500 bg-clip-text text-transparent">
+                  <div className="text-2xl font-bold text-gradient">
                     {stat.value}
                   </div>
                   <div className="text-sm text-muted-foreground">{stat.label}</div>
@@ -134,7 +154,7 @@ export default function DonatePage() {
                   tier.popular 
                     ? 'border-rose-500/50 shadow-xl shadow-rose-500/10' 
                     : 'border-border/50'
-                } bg-card p-8 hover:border-rose-500/30 hover:shadow-xl transition-all duration-300`}
+                } bg-card p-8 hover:border-rose-500/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
               >
                 {tier.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-medium">
@@ -166,7 +186,7 @@ export default function DonatePage() {
 
                 <Button 
                   className={`w-full bg-gradient-to-r ${tier.color} hover:opacity-90 shadow-lg`}
-                  onClick={() => window.open('https://www.paypal.com', '_blank')}
+                  onClick={() => handleDonate(tier.amount)}
                 >
                   <Gift className="h-4 w-4 mr-2" />
                   Donate {tier.amount}
@@ -184,7 +204,7 @@ export default function DonatePage() {
               variant="outline" 
               size="lg"
               className="border-rose-500/30 hover:bg-rose-500/5 hover:border-rose-500/50"
-              onClick={() => window.open('https://www.paypal.com', '_blank')}
+              onClick={() => handleDonate()}
             >
               <Heart className="h-4 w-4 mr-2 text-rose-500" />
               Custom Donation
