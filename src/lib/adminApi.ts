@@ -20,12 +20,12 @@ export type { AIGenerationType, AIGenerationRequest };
 // ADMIN CRUD HELPER (Uses Edge Function)
 // ============================================
 
-type TableName = 
-  | 'shloks' 
-  | 'problems' 
-  | 'chapters' 
-  | 'languages' 
-  | 'ai_search_rules' 
+type TableName =
+  | 'shloks'
+  | 'problems'
+  | 'chapters'
+  | 'languages'
+  | 'ai_search_rules'
   | 'shlok_problems'
   | 'admin_activity_log';
 
@@ -211,7 +211,7 @@ export async function createShlok(data: Partial<AdminShlok>): Promise<AdminShlok
 
 export async function updateShlok(id: string, data: Partial<AdminShlok>): Promise<AdminShlok> {
   const updateData: Record<string, unknown> = { ...data };
-  
+
   // Set published_at when status changes to published
   if (data.status === 'published') {
     updateData.published_at = new Date().toISOString();
@@ -230,7 +230,7 @@ export async function deleteShlok(id: string): Promise<void> {
 
 export async function bulkUpdateShlokStatus(ids: string[], status: ShlokStatus): Promise<void> {
   const updateData: Record<string, unknown> = { status };
-  
+
   if (status === 'published') {
     updateData.published_at = new Date().toISOString();
   }
@@ -440,7 +440,7 @@ export async function logActivity(
   newValue?: Record<string, unknown>
 ): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   // Use a placeholder user ID if not authenticated (for dev mode)
   const userId = user?.id || '00000000-0000-0000-0000-000000000000';
 

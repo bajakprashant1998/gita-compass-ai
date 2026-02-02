@@ -34,8 +34,8 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
           <p className="text-muted-foreground">
             {error || 'You do not have permission to access the admin panel.'}
           </p>
-          <a 
-            href="/admin/login" 
+          <a
+            href="/admin/login"
             className="text-primary hover:underline mt-4"
           >
             Sign in with a different account

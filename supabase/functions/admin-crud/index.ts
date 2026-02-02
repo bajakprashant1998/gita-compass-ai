@@ -6,12 +6,12 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-type TableName = 
-  | "shloks" 
-  | "problems" 
-  | "chapters" 
-  | "languages" 
-  | "ai_search_rules" 
+type TableName =
+  | "shloks"
+  | "problems"
+  | "chapters"
+  | "languages"
+  | "ai_search_rules"
   | "shlok_problems"
   | "admin_activity_log";
 

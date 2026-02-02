@@ -26,7 +26,7 @@ export function AdminHeader({ title, subtitle }: AdminHeaderProps) {
               <ExternalLink className="h-5 w-5" />
             </Link>
           </Button>
-          
+
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />

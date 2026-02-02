@@ -1,11 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  BookOpen, 
-  MessageCircle, 
-  User, 
-  Menu, 
+import {
+  BookOpen,
+  MessageCircle,
+  User,
+  Menu,
   X,
   Home,
   Grid3X3,
@@ -59,17 +59,18 @@ export function Header() {
   return (
     <header className={cn(
       "sticky top-0 z-50 border-b transition-all duration-300",
-      scrolled 
-        ? "bg-background/95 backdrop-blur-lg border-border/50 shadow-sm" 
+      scrolled
+        ? "bg-background/95 backdrop-blur-lg border-border/50 shadow-sm"
         : "bg-background/80 backdrop-blur-md border-transparent"
     )}>
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl overflow-hidden transition-all duration-300 group-hover:shadow-lg group-hover:shadow-primary/30 group-hover:scale-105">
-              <BhagwaFlag className="h-10 w-10" />
+            <div className="relative flex h-10 w-10 items-center justify-center">
+              <img src="/logo.png" alt="Logo" className="h-full w-full object-contain" />
             </div>
+
             <span className="text-xl font-semibold tracking-tight">
               Bhagavad Gita<span className="text-gradient">Gyan</span>
             </span>
@@ -90,12 +91,12 @@ export function Header() {
               >
                 <item.icon className="h-4 w-4" />
                 {item.name}
-                
+
                 {/* Active indicator */}
                 {isActive(item.href) && (
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-primary to-amber-500 rounded-full" />
                 )}
-                
+
                 {item.badge && (
                   <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-primary to-amber-500 text-white animate-pulse">
                     {item.badge}
@@ -110,8 +111,8 @@ export function Header() {
             {/* Donate Button - Conditionally rendered */}
             {showDonate && (
               <Link to="/donate">
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   className="gap-2 rounded-lg bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 shadow-md shadow-rose-500/20 hover:shadow-lg hover:shadow-rose-500/30 transition-all"
                 >
                   <Heart className="h-4 w-4" />
@@ -120,44 +121,50 @@ export function Header() {
               </Link>
             )}
 
-            {loading ? (
-              <div className="h-9 w-24 animate-pulse rounded-lg bg-muted" />
-            ) : user ? (
-              <Link to="/dashboard">
-                <Button variant="outline" size="sm" className="gap-2 rounded-lg border-border/50 hover:border-primary/50 hover:bg-primary/5">
-                  <User className="h-4 w-4" />
-                  Dashboard
-                </Button>
-              </Link>
-            ) : (
-              <Link to="/auth">
-                <Button size="sm" className="gap-2 rounded-lg bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all">
-                  <User className="h-4 w-4" />
-                  Sign In
-                </Button>
-              </Link>
-            )}
+            {
+              loading ? (
+                <div className="h-9 w-24 animate-pulse rounded-lg bg-muted" />
+              ) : user ? (
+                <Link to="/dashboard">
+                  <Button variant="outline" size="sm" className="gap-2 rounded-lg border-border/50 hover:border-primary/50 hover:bg-primary/5">
+                    <User className="h-4 w-4" />
+                    Dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <Link to="/auth">
+                  <Button size="sm" className="gap-2 rounded-lg bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all">
+                    <User className="h-4 w-4" />
+                    Sign In
+                  </Button>
+                </Link>
+              )
+            }
           </div>
 
           {/* Mobile menu button */}
-          <button
+          < button
             type="button"
             className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)
+            }
           >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
+            {
+              mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
           </button>
         </div>
 
         {/* Mobile Navigation */}
-        <div className={cn(
-          "md:hidden overflow-hidden transition-all duration-300 ease-in-out",
-          mobileMenuOpen ? "max-h-96 pb-4" : "max-h-0"
-        )}>
+        < div className={
+          cn(
+            "md:hidden overflow-hidden transition-all duration-300 ease-in-out",
+            mobileMenuOpen ? "max-h-96 pb-4" : "max-h-0"
+          )
+        } >
           <div className="flex flex-col gap-1 pt-4 border-t border-border/50">
             {navigation.map((item, index) => (
               <Link
@@ -192,22 +199,23 @@ export function Header() {
                   </Button>
                 </Link>
               )}
-              
-              {user ? (
-                <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full gap-2 border-border/50">
-                    <User className="h-4 w-4" />
-                    Dashboard
-                  </Button>
-                </Link>
-              ) : (
-                <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full gap-2 bg-gradient-to-r from-primary to-amber-500">
-                    <User className="h-4 w-4" />
-                    Sign In
-                  </Button>
-                </Link>
-              )}
+              {
+                user ? (
+                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full gap-2 border-border/50">
+                      <User className="h-4 w-4" />
+                      Dashboard
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full gap-2 bg-gradient-to-r from-primary to-amber-500">
+                      <User className="h-4 w-4" />
+                      Sign In
+                    </Button>
+                  </Link>
+                )
+              }
             </div>
           </div>
         </div>

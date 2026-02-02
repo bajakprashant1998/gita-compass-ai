@@ -56,6 +56,7 @@ export interface Profile {
   display_name?: string;
   avatar_url?: string;
   preferred_language: 'english' | 'hindi';
+  role?: 'user' | 'admin';
   created_at?: string;
   updated_at?: string;
 }

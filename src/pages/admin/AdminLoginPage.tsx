@@ -31,7 +31,7 @@ export default function AdminLoginPage() {
     }
 
     const result = await signIn(email, password);
-    
+
     if (result.success) {
       navigate('/admin', { replace: true });
     } else {
@@ -51,8 +51,9 @@ export default function AdminLoginPage() {
         <div className="rounded-2xl border border-border/50 bg-card/95 backdrop-blur-sm p-8 shadow-xl shadow-primary/5">
           {/* Logo */}
           <Link to="/" className="flex items-center justify-center gap-2.5 mb-8">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden">
-              <BhagwaFlag className="h-12 w-12" />
+            <div className="flex h-12 w-12 items-center justify-center">
+              <img src="/logo.png" alt="Logo" className="h-full w-full object-contain" />
+
             </div>
             <span className="text-xl font-semibold tracking-tight">
               Bhagavad Gita<span className="text-gradient">Gyan</span>
@@ -107,8 +108,8 @@ export default function AdminLoginPage() {
               </div>
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20"
               disabled={isLoading}
             >
@@ -132,7 +133,7 @@ export default function AdminLoginPage() {
             </Link>
           </div>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }

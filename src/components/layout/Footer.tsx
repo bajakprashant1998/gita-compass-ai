@@ -13,7 +13,7 @@ export function Footer() {
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    
+
     setIsSubmitting(true);
     // Simulate newsletter signup
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -34,18 +34,19 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2.5 mb-6 group">
-              <div className="relative flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden transition-all duration-300 group-hover:shadow-lg group-hover:shadow-primary/30">
-                <BhagwaFlag className="h-12 w-12" />
+              <div className="relative flex h-12 w-12 items-center justify-center">
+                <img src="/logo.png" alt="Logo" className="h-full w-full object-contain" />
               </div>
+
               <span className="text-2xl font-semibold tracking-tight">
                 Bhagavad Gita<span className="text-gradient">Gyan</span>
               </span>
             </Link>
             <p className="text-muted-foreground max-w-md mb-8 text-lg leading-relaxed">
-              Ancient wisdom for modern problems. A calm mentor that understands 
+              Ancient wisdom for modern problems. A calm mentor that understands
               modern life, powered by timeless wisdom from the Bhagavad Gita.
             </p>
-            
+
             {/* Newsletter */}
             <div className="mb-8">
               <h4 className="font-semibold mb-3 flex items-center gap-2">
@@ -61,8 +62,8 @@ export function Footer() {
                   className="flex-1 bg-card border-border/50 focus:border-primary/50"
                   required
                 />
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={isSubmitting}
                   className="bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-md shadow-primary/20"
                 >
@@ -74,25 +75,25 @@ export function Footer() {
                 </Button>
               </form>
             </div>
-            
+
             {/* Social Links */}
             <div className="flex items-center gap-3">
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="w-10 h-10 rounded-xl bg-card border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
                 aria-label="Twitter"
               >
                 <Twitter className="h-5 w-5" />
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="w-10 h-10 rounded-xl bg-card border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
                 aria-label="GitHub"
               >
                 <Github className="h-5 w-5" />
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="w-10 h-10 rounded-xl bg-card border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
                 aria-label="Email"
               >

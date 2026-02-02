@@ -1,202 +1,123 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import type { User } from '@supabase/supabase-js';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'sonner';
 
-interface AdminAuthState {
-  user: User | null;
-  isAdmin: boolean;
-  isLoading: boolean;
-  error: string | null;
+interface AdminAuthContextType {
+    user: User | null;
+    session: Session | null;
+    isAdmin: boolean;
+    isLoading: boolean;
+    error: string | null;
+    signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+    signOut: () => Promise<void>;
 }
 
-interface AdminAuthContextValue extends AdminAuthState {
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error: string | null }>;
-  signOut: () => Promise<void>;
-}
-
-const AdminAuthContext = createContext<AdminAuthContextValue | undefined>(undefined);
+const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AdminAuthState>({
-    user: null,
-    isAdmin: false,
-    isLoading: true,
-    error: null,
-  });
+    const { user, session, profile, loading: authLoading, signIn: authSignIn, signOut: authSignOut } = useAuth();
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  const checkAdminRole = useCallback(async (userId: string): Promise<boolean> => {
-    try {
-      const { data, error } = await supabase.rpc('has_role', {
-        _user_id: userId,
-        _role: 'admin',
-      });
+    useEffect(() => {
+        const checkAdminStatus = async () => {
+            // Wait for the main auth to be ready
+            if (authLoading) return;
 
-      if (error) {
-        console.error('Error checking admin role:', error);
-        return false;
-      }
+            if (!user) {
+                setIsAdmin(false);
+                setIsLoading(false);
+                return;
+            }
 
-      return data === true;
-    } catch (err) {
-      console.error('Exception checking admin role:', err);
-      return false;
-    }
-  }, []);
+            // Check if profile has role='admin'
+            if (profile?.role === 'admin') {
+                setIsAdmin(true);
+                setError(null);
+            } else {
+                // Double check with DB if profile in context might be stale or incomplete
+                // (though useAuth fetches profile, sometimes we want to be sure about sensitive roles)
+                try {
+                    const { data, error } = await supabase
+                        .from('profiles')
+                        .select('role')
+                        .eq('user_id', user.id)
+                        .single();
 
-  // Handle visibility change - refresh session when tab becomes visible
-  useEffect(() => {
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible') {
+                    if (error) {
+                        console.error('Error verifying admin status:', error);
+                        setIsAdmin(false);
+                        setError('Failed to verify admin privileges');
+                    } else if (data?.role === 'admin') {
+                        setIsAdmin(true);
+                        setError(null);
+                    } else {
+                        setIsAdmin(false);
+                        setError('You do not have administrative privileges.');
+                    }
+                } catch (err) {
+                    console.error('Exception checking admin status:', err);
+                    setIsAdmin(false);
+                }
+            }
+            setIsLoading(false);
+        };
+
+        checkAdminStatus();
+    }, [user, profile, authLoading]);
+
+    const signIn = async (email: string, password: string) => {
         try {
-          const { data: { session } } = await supabase.auth.getSession();
-          
-          if (session?.user) {
-            const isAdmin = await checkAdminRole(session.user.id);
-            setState({
-              user: session.user,
-              isAdmin,
-              isLoading: false,
-              error: null,
-            });
-          } else {
-            setState({
-              user: null,
-              isAdmin: false,
-              isLoading: false,
-              error: null,
-            });
-          }
-        } catch (error) {
-          console.error('Visibility change auth check failed:', error);
+            setIsLoading(true);
+            await authSignIn(email, password);
+            // The useEffect will trigger and verify admin status
+            return { success: true };
+        } catch (err: any) {
+            setIsLoading(false);
+            return { success: false, error: err.message || 'Failed to sign in' };
         }
-      }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [checkAdminRole]);
-
-  // Main auth initialization and subscription
-  useEffect(() => {
-    let mounted = true;
-
-    const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!mounted) return;
-
-        if (session?.user) {
-          const isAdmin = await checkAdminRole(session.user.id);
-          if (mounted) {
-            setState({
-              user: session.user,
-              isAdmin,
-              isLoading: false,
-              error: null,
-            });
-          }
-        } else {
-          if (mounted) {
-            setState({ user: null, isAdmin: false, isLoading: false, error: null });
-          }
+    const signOut = async () => {
+        try {
+            setIsLoading(true);
+            await authSignOut();
+            setIsAdmin(false);
+            navigate('/admin/login');
+        } catch (err: any) {
+            toast.error('Failed to sign out');
+        } finally {
+            setIsLoading(false);
         }
-      } catch (error) {
-        console.error('Auth initialization failed:', error);
-        if (mounted) {
-          setState({ user: null, isAdmin: false, isLoading: false, error: 'Init failed' });
-        }
-      }
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
-
-        if (event === 'SIGNED_OUT') {
-          setState({ user: null, isAdmin: false, isLoading: false, error: null });
-          return;
-        }
-
-        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
-          const isAdmin = await checkAdminRole(session.user.id);
-          if (mounted) {
-            setState({ user: session.user, isAdmin, isLoading: false, error: null });
-          }
-        }
-      }
+    return (
+        <AdminAuthContext.Provider
+            value={{
+                user,
+                session,
+                isAdmin,
+                isLoading: isLoading || authLoading,
+                error,
+                signIn,
+                signOut,
+            }}
+        >
+            {children}
+        </AdminAuthContext.Provider>
     );
-
-    initializeAuth();
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, [checkAdminRole]);
-
-  const signIn = async (email: string, password: string) => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        setState(prev => ({ ...prev, isLoading: false, error: error.message }));
-        return { success: false, error: error.message };
-      }
-
-      if (!data.user) {
-        setState(prev => ({ ...prev, isLoading: false, error: 'Sign in failed' }));
-        return { success: false, error: 'Sign in failed' };
-      }
-
-      const isAdmin = await checkAdminRole(data.user.id);
-
-      if (!isAdmin) {
-        await supabase.auth.signOut();
-        setState({
-          user: null,
-          isAdmin: false,
-          isLoading: false,
-          error: 'You do not have admin access',
-        });
-        return { success: false, error: 'You do not have admin access' };
-      }
-
-      setState({
-        user: data.user,
-        isAdmin: true,
-        isLoading: false,
-        error: null,
-      });
-
-      return { success: true, error: null };
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Sign in failed';
-      setState(prev => ({ ...prev, isLoading: false, error: message }));
-      return { success: false, error: message };
-    }
-  };
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setState({ user: null, isAdmin: false, isLoading: false, error: null });
-  };
-
-  return (
-    <AdminAuthContext.Provider value={{ ...state, signIn, signOut }}>
-      {children}
-    </AdminAuthContext.Provider>
-  );
 }
 
 export function useAdminAuthContext() {
-  const context = useContext(AdminAuthContext);
-  if (!context) {
-    throw new Error('useAdminAuthContext must be used within AdminAuthProvider');
-  }
-  return context;
+    const context = useContext(AdminAuthContext);
+    if (context === undefined) {
+        throw new Error('useAdminAuthContext must be used within an AdminAuthProvider');
+    }
+    return context;
 }
