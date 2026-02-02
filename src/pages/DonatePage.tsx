@@ -197,7 +197,7 @@ export default function DonatePage() {
               variant="outline" 
               size="lg"
               className="border-rose-500/30 hover:bg-rose-500/5 hover:border-rose-500/50"
-              onClick={() => window.open('https://www.paypal.com/ncp/payment/L2WYGJLPQ4P5A', '_blank')}
+              onClick={() => window.open('https://www.paypal.com/ncp/payment/M2Y7XQW6NJBSQ', '_blank')}
             >
               <Heart className="h-4 w-4 mr-2 text-rose-500" />
               Custom Donation
