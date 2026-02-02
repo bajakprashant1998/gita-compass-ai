@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import { BhagwaFlag } from '@/components/ui/bhagwa-flag';
 import { Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -11,7 +11,7 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { signIn, isLoading, isAdmin, user } = useAdminAuth();
+  const { signIn, isLoading, isAdmin, user } = useAdminAuthContext();
   const navigate = useNavigate();
 
   // Redirect if already authenticated as admin
