@@ -34,9 +34,8 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2.5 mb-6 group">
-              <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-amber-500 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-primary/30">
-                <BhagwaFlag className="h-6 w-6 text-white" />
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary to-amber-500 opacity-0 blur-md transition-opacity group-hover:opacity-50" />
+              <div className="relative flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden transition-all duration-300 group-hover:shadow-lg group-hover:shadow-primary/30">
+                <BhagwaFlag className="h-12 w-12" />
               </div>
               <span className="text-2xl font-semibold tracking-tight">
                 Bhagavad Gita<span className="text-gradient">Gyan</span>

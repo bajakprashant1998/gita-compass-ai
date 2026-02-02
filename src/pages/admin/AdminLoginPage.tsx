@@ -51,8 +51,8 @@ export default function AdminLoginPage() {
         <div className="rounded-2xl border border-border/50 bg-card/95 backdrop-blur-sm p-8 shadow-xl shadow-primary/5">
           {/* Logo */}
           <Link to="/" className="flex items-center justify-center gap-2.5 mb-8">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-amber-500">
-              <BhagwaFlag className="h-6 w-6 text-white" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden">
+              <BhagwaFlag className="h-12 w-12" />
             </div>
             <span className="text-xl font-semibold tracking-tight">
               Bhagavad Gita<span className="text-gradient">Gyan</span>
