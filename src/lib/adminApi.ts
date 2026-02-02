@@ -468,19 +468,41 @@ export async function updateShlokProblems(
   shlokId: string,
   problems: Array<{ id: string; relevance_score: number }>
 ): Promise<void> {
-  // Delete existing mappings using direct supabase (read operations still work)
-  await supabase.from('shlok_problems').delete().eq('shlok_id', shlokId);
+  // First, get existing problem mappings for this shlok
+  const { data: existingMappings } = await supabase
+    .from('shlok_problems')
+    .select('id, problem_id')
+    .eq('shlok_id', shlokId);
 
-  if (problems.length === 0) return;
+  const existingProblemIds = new Set((existingMappings || []).map(m => m.problem_id));
+  const newProblemIds = new Set(problems.map(p => p.id));
 
-  // Insert new mappings one by one using edge function
+  // Delete mappings that are no longer needed
+  const toDelete = (existingMappings || []).filter(m => !newProblemIds.has(m.problem_id));
+  for (const mapping of toDelete) {
+    await adminCrud('shlok_problems', 'delete', { id: mapping.id });
+  }
+
+  // Upsert new/updated mappings (only those that don't already exist or need update)
   for (const p of problems) {
-    await adminCrud('shlok_problems', 'create', {
-      data: {
-        shlok_id: shlokId,
-        problem_id: p.id,
-        relevance_score: p.relevance_score,
-      },
-    });
+    if (!existingProblemIds.has(p.id)) {
+      // Only create if it doesn't exist
+      await adminCrud('shlok_problems', 'create', {
+        data: {
+          shlok_id: shlokId,
+          problem_id: p.id,
+          relevance_score: p.relevance_score,
+        },
+      });
+    } else {
+      // Update existing mapping's relevance score
+      const existingMapping = existingMappings?.find(m => m.problem_id === p.id);
+      if (existingMapping) {
+        await adminCrud('shlok_problems', 'update', {
+          id: existingMapping.id,
+          data: { relevance_score: p.relevance_score },
+        });
+      }
+    }
   }
 }
