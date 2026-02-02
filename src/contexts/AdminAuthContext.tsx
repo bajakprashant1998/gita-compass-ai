@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 interface AdminAuthContextType {
@@ -18,12 +18,11 @@ interface AdminAuthContextType {
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
-    const { user, session, profile, loading: authLoading, signIn: authSignIn, signOut: authSignOut } = useAuth();
+    const { user, session, loading: authLoading, signIn: authSignIn, signOut: authSignOut } = useAuth();
     const [isAdmin, setIsAdmin] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
-    const location = useLocation();
 
     useEffect(() => {
         const checkAdminStatus = async () => {
@@ -36,41 +35,35 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
-            // Check if profile has role='admin'
-            if (profile?.role === 'admin') {
-                setIsAdmin(true);
-                setError(null);
-            } else {
-                // Double check with DB if profile in context might be stale or incomplete
-                // (though useAuth fetches profile, sometimes we want to be sure about sensitive roles)
-                try {
-                    const { data, error } = await supabase
-                        .from('profiles')
-                        .select('role')
-                        .eq('user_id', user.id)
-                        .single();
+            // Roles are stored in the user_roles table (never on profiles)
+            try {
+                const { data, error } = await supabase
+                    .from('user_roles')
+                    .select('role')
+                    .eq('user_id', user.id)
+                    .eq('role', 'admin')
+                    .maybeSingle();
 
-                    if (error) {
-                        console.error('Error verifying admin status:', error);
-                        setIsAdmin(false);
-                        setError('Failed to verify admin privileges');
-                    } else if (data?.role === 'admin') {
-                        setIsAdmin(true);
-                        setError(null);
-                    } else {
-                        setIsAdmin(false);
-                        setError('You do not have administrative privileges.');
-                    }
-                } catch (err) {
-                    console.error('Exception checking admin status:', err);
+                if (error) {
+                    console.error('Error verifying admin status:', error);
                     setIsAdmin(false);
+                    setError('Failed to verify admin privileges');
+                } else if (data) {
+                    setIsAdmin(true);
+                    setError(null);
+                } else {
+                    setIsAdmin(false);
+                    setError('You do not have administrative privileges.');
                 }
+            } catch (err) {
+                console.error('Exception checking admin status:', err);
+                setIsAdmin(false);
             }
             setIsLoading(false);
         };
 
         checkAdminStatus();
-    }, [user, profile, authLoading]);
+    }, [user, authLoading]);
 
     const signIn = async (email: string, password: string) => {
         try {
