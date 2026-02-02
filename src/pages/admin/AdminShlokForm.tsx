@@ -171,19 +171,25 @@ export default function AdminShlokForm() {
   };
 
   const handleSubmit = async (status: ShlokStatus) => {
-    if (!formData.chapter_id || !formData.sanskrit_text || !formData.english_meaning) {
+    if (!formData.chapter_id || !formData.sanskrit_text) {
       toast({
         title: 'Validation Error',
-        description: 'Please fill in all required fields',
+        description: 'Please fill in Chapter and Sanskrit Text',
         variant: 'destructive',
       });
       return;
     }
+    
+    // Set a default english_meaning if not provided (required by DB)
+    const dataToSubmit = {
+      ...formData,
+      english_meaning: formData.english_meaning || 'Pending translation',
+    };
 
     setIsSaving(true);
 
     try {
-      const dataToSave = { ...formData, status };
+      const dataToSave = { ...dataToSubmit, status };
       let savedShlok: AdminShlok;
 
       if (isEdit && id) {
