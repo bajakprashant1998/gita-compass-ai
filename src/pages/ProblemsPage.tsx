@@ -98,10 +98,19 @@ async function getProblemsWithCounts() {
 
   if (error) throw error;
 
-  return (data || []).map((p: any) => ({
-    ...p,
-    verseCount: Array.isArray(p.shlok_problems) ? (p.shlok_problems[0]?.count ?? 0) : 0,
-  }));
+  return (data || []).map((p: any) => {
+    // Handle both array format [{count: N}] and object format {count: N}
+    let count = 0;
+    if (Array.isArray(p.shlok_problems) && p.shlok_problems.length > 0) {
+      count = p.shlok_problems[0]?.count ?? 0;
+    } else if (p.shlok_problems && typeof p.shlok_problems === 'object') {
+      count = p.shlok_problems.count ?? 0;
+    }
+    return {
+      ...p,
+      verseCount: count,
+    };
+  });
 }
 
 // Animated counter hook

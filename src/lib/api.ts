@@ -160,8 +160,14 @@ export async function getRandomShlok(): Promise<Shlok | null> {
   } as Shlok;
 }
 
+// Sanitize special characters that could break PostgREST queries
+function sanitizeSearchQuery(query: string): string {
+  return query.replace(/[%_(),.*]/g, '');
+}
+
 export async function searchShloks(query: string): Promise<Shlok[]> {
-  const encodedQuery = encodeURIComponent(`%${query}%`);
+  const sanitizedQuery = sanitizeSearchQuery(query);
+  const encodedQuery = encodeURIComponent(`%${sanitizedQuery}%`);
   const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/shloks?select=*,chapters(*)&or=(english_meaning.ilike.${encodedQuery},life_application.ilike.${encodedQuery},practical_action.ilike.${encodedQuery})&limit=20`;
   
   const response = await fetch(url, {

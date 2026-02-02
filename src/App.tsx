@@ -17,8 +17,10 @@ import DashboardPage from "./pages/DashboardPage";
 import ContactPage from "./pages/ContactPage";
 import DonatePage from "./pages/DonatePage";
 import NotFound from "./pages/NotFound";
-
-// Admin Pages
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ScrollToTop from "./components/ScrollToTop";
+import AdminLayout from "@/components/admin/AdminLayout";
+import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminShlokList from "./pages/admin/AdminShlokList";
 import AdminShlokForm from "./pages/admin/AdminShlokForm";
@@ -30,10 +32,6 @@ import AdminLanguages from "./pages/admin/AdminLanguages";
 import AdminAIRules from "./pages/admin/AdminAIRules";
 import AdminActivityLog from "./pages/admin/AdminActivityLog";
 import AdminSettings from "./pages/admin/AdminSettings";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ScrollToTop from "./components/ScrollToTop";
-import AdminLayout from "@/components/admin/AdminLayout";
-import AdminLoginPage from "./pages/admin/AdminLoginPage";
 
 const queryClient = new QueryClient();
 
