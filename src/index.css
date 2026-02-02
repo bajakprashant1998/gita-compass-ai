@@ -183,6 +183,23 @@
   .reading-progress {
     @apply fixed top-0 left-0 h-1 bg-gradient-to-r from-primary via-amber-500 to-orange-500 z-50 transition-all duration-100;
   }
+
+  /* Verse card - WebFX style */
+  .verse-card {
+    @apply relative rounded-2xl bg-card border border-border/50 overflow-hidden;
+    @apply transition-all duration-300 ease-out;
+    @apply hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30;
+  }
+
+  .verse-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5;
+    @apply opacity-0 transition-opacity duration-300;
+  }
+
+  .verse-card:hover::before {
+    @apply opacity-100;
+  }
 }
 
 /* Custom scrollbar */
