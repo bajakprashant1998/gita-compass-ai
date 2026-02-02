@@ -1,180 +1,127 @@
 
-# Plan: Fix App Loading, Security, and Admin Authentication
 
-## Summary
+# Fix TTS: Switch from ElevenLabs to Google Cloud Text-to-Speech
 
-This plan addresses four key areas:
-1. **App Verification** - The app loads correctly with minor React warnings (not critical)
-2. **Security Fixes** - Sanitize search inputs and add chat message policies
-3. **Admin Authentication** - The user `cadbull2014@gmail.com` already has admin role in the database
-4. **Loading Issue** - Fix React ref warnings causing console noise
+## Problem Identified
 
----
+The edge function logs show the **ElevenLabs account has exceeded its quota and is blocked**:
 
-## Current Status Analysis
+```
+"status":"quota_exceeded","message":"This request exceeds your quota of 10000. You have 1361 credits remaining..."
+"status":"detected_unusual_activity","message":"Unusual activity detected. Free Tier usage disabled..."
+```
 
-| Item | Status |
-|------|--------|
-| App Loading | ✅ Working - console shows React ref warnings, not breaking errors |
-| Admin User | ✅ Already exists with admin role in `user_roles` table |
-| Search Sanitization | ⚠️ Needs fix - direct string interpolation in queries |
-| Chat Policies | ⚠️ Missing UPDATE/DELETE policies |
+This explains why TTS works in admin (cached/different text) but fails on the public verse page with "Invalid ElevenLabs API key" error (the error message is misleading - it's actually a quota/abuse block).
 
-### Admin Authentication Status
+## Solution
 
-The user `cadbull2014@gmail.com`:
-- **User ID**: `13a5c42e-8c80-4bb9-a605-ed19507aa149`
-- **Has roles**: `user` AND `admin` in `user_roles` table
-- **Email confirmed**: Yes
-- **Can login at**: `/admin/login`
-
----
+Since you've provided a Gemini API key (`AIzaSyAiNQVwsZy6CRTCXEppljE7qT2TzvKfouA`), we'll switch to **Google Cloud Text-to-Speech** which is available through the same Google Cloud project.
 
 ## Implementation Steps
 
-### 1. Sanitize Search Inputs
+### 1. Create Google TTS Edge Function
 
-**Files to modify:**
-- `src/lib/api.ts`
-- `src/lib/adminApi.ts`
+**New file**: `supabase/functions/google-tts/index.ts`
 
-**Changes:**
+This function will:
+- Use Google Cloud TTS REST API: `https://texttospeech.googleapis.com/v1/text:synthesize`
+- Accept text, language code, and voice settings
+- Return base64-encoded MP3 audio
+- Support English (en-US) and Hindi (hi-IN) voices for Sanskrit content
 
-Add a sanitization function and apply it before queries:
+### 2. Add Google TTS Settings to Database
 
-```typescript
-// Sanitize special characters that could break PostgREST queries
-function sanitizeSearchQuery(query: string): string {
-  return query.replace(/[%_(),.*]/g, '');
-}
-```
+Add new settings for Google TTS:
+- `google_tts_api_key` - Your Gemini API key (same for all Google Cloud services)
+- `google_tts_voice_en` - English voice (e.g., `en-US-Neural2-D`)
+- `google_tts_voice_hi` - Hindi voice for Sanskrit (e.g., `hi-IN-Neural2-B`)
+- `tts_provider` - Switch between `google` and `elevenlabs`
 
-Apply to:
-- `searchShloks()` function in api.ts (line 164)
-- `getAdminShloks()` function in adminApi.ts (line 136)
+### 3. Update ModernStory Component
 
----
+Modify `src/components/shlok/ModernStory.tsx` to:
+- Call the new `google-tts` edge function instead of `elevenlabs-tts`
+- Parse the JSON response with base64 audio content
+- Create audio from base64 data URI
 
-### 2. Add Chat Message RLS Policies
+### 4. Update Admin Settings
 
-**Database migration to add:**
+Modify `src/lib/adminSettings.ts` to add:
+- `generateGoogleTTS()` function
+- `testGoogleTTSConnection()` function
 
-```sql
--- Allow users to update their own messages
-CREATE POLICY "Users can update own messages" 
-ON public.chat_messages
-FOR UPDATE 
-TO authenticated
-USING (
-  EXISTS (
-    SELECT 1 FROM public.chat_conversations
-    WHERE id = conversation_id AND user_id = auth.uid()
-  )
-)
-WITH CHECK (
-  EXISTS (
-    SELECT 1 FROM public.chat_conversations
-    WHERE id = conversation_id AND user_id = auth.uid()
-  )
-);
+### 5. Update Admin Settings UI (Optional)
 
--- Allow users to delete their own messages
-CREATE POLICY "Users can delete own messages" 
-ON public.chat_messages
-FOR DELETE 
-TO authenticated
-USING (
-  EXISTS (
-    SELECT 1 FROM public.chat_conversations
-    WHERE id = conversation_id AND user_id = auth.uid()
-  )
-);
-```
+Add Google TTS configuration section in `src/pages/admin/AdminSettings.tsx` for:
+- Voice selection
+- Provider toggle (Google vs ElevenLabs)
 
 ---
 
-### 3. Fix React Ref Warnings
+## Technical Details
 
-**Issue**: Console shows "Function components cannot be given refs" for:
-- `Footer` component in `Layout`
-- `Badge` component in `ProblemCategories`
+### Google TTS API Request
 
-**Root cause**: React.forwardRef is missing from these components
-
-**Files to modify:**
-- `src/components/layout/Footer.tsx` - Wrap with forwardRef
-- `src/components/ui/badge.tsx` - Wrap with forwardRef
-
-**Changes:**
-
-Footer.tsx:
 ```typescript
-import { forwardRef } from 'react';
-
-export const Footer = forwardRef<HTMLElement, object>((props, ref) => {
-  // ... existing component code
-  return (
-    <footer ref={ref} className="...">
-      {/* ... */}
-    </footer>
-  );
-});
-
-Footer.displayName = 'Footer';
-```
-
-Badge.tsx:
-```typescript
-const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
-  ({ className, variant, ...props }, ref) => {
-    return <div ref={ref} className={cn(badgeVariants({ variant }), className)} {...props} />;
+const response = await fetch(
+  `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_API_KEY}`,
+  {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      input: { text: "Your text here" },
+      voice: {
+        languageCode: 'en-US',
+        name: 'en-US-Neural2-D'
+      },
+      audioConfig: {
+        audioEncoding: 'MP3',
+        speakingRate: 1.0
+      }
+    })
   }
 );
-Badge.displayName = 'Badge';
+// Returns: { audioContent: "base64-encoded-audio" }
+```
+
+### Recommended Voices
+
+| Language | Voice | Description |
+|----------|-------|-------------|
+| English | `en-US-Neural2-D` | Male, warm narrator |
+| English | `en-US-Neural2-F` | Female, clear |
+| Hindi | `hi-IN-Neural2-B` | Male, good for Sanskrit |
+| Hindi | `hi-IN-Wavenet-A` | Female, high quality |
+
+### Database Migration
+
+```sql
+INSERT INTO admin_settings (key, value, description, is_secret) VALUES
+  ('google_tts_api_key', 'AIzaSyAiNQVwsZy6CRTCXEppljE7qT2TzvKfouA', 'Google Cloud TTS API key', true),
+  ('google_tts_voice_en', 'en-US-Neural2-D', 'Default English voice', false),
+  ('google_tts_voice_hi', 'hi-IN-Neural2-B', 'Default Hindi/Sanskrit voice', false),
+  ('tts_provider', 'google', 'Active TTS provider (google or elevenlabs)', false)
+ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 ```
 
 ---
 
-### 4. Admin Login Instructions
+## Files to Create/Modify
 
-The admin account is already set up and working:
-
-| Field | Value |
-|-------|-------|
-| Login URL | `/admin/login` |
-| Email | `cadbull2014@gmail.com` |
-| Password | `12345678` (as provided) |
-
-The authentication flow:
-1. User enters credentials at `/admin/login`
-2. System verifies via Supabase Auth
-3. Hook checks `user_roles` table for admin role
-4. If admin → redirects to `/admin` dashboard
-5. If not admin → shows "Access Denied"
+| File | Action | Purpose |
+|------|--------|---------|
+| `supabase/functions/google-tts/index.ts` | **Create** | New edge function for Google TTS |
+| `src/components/shlok/ModernStory.tsx` | **Modify** | Switch to Google TTS endpoint |
+| `src/lib/adminSettings.ts` | **Modify** | Add Google TTS helper functions |
+| Database migration | **Create** | Add Google TTS settings |
 
 ---
 
-## Files to Modify
+## Benefits
 
-| File | Change |
-|------|--------|
-| `src/lib/api.ts` | Add `sanitizeSearchQuery()` function, apply to `searchShloks()` |
-| `src/lib/adminApi.ts` | Add sanitization to `getAdminShloks()` search filter |
-| `src/components/layout/Footer.tsx` | Wrap with `forwardRef` |
-| `src/components/ui/badge.tsx` | Wrap with `forwardRef` |
+1. **Immediate Fix**: Bypasses ElevenLabs quota/block issue
+2. **Good Quality**: Google Neural2 voices are high quality
+3. **Hindi Support**: Native Hindi voices for better Sanskrit pronunciation
+4. **Same API Key**: Uses your existing Gemini API key
+5. **Cost-Effective**: Generally more affordable than ElevenLabs
 
-## Database Migration
-
-| Table | Policy Added |
-|-------|--------------|
-| `chat_messages` | UPDATE policy for message owners |
-| `chat_messages` | DELETE policy for message owners |
-
----
-
-## Verification After Implementation
-
-1. **App Loading**: Console should show no React ref warnings
-2. **Search**: Test search with special characters like `%` or `_` - should not break
-3. **Admin Login**: Go to `/admin/login`, enter `cadbull2014@gmail.com` / `12345678`, should access dashboard
-4. **Chat Policies**: Users can now edit/delete their own chat messages
