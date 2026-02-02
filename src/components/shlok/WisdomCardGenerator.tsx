@@ -14,11 +14,18 @@ interface WisdomCardGeneratorProps {
 type Theme = 'earth' | 'ocean' | 'forest' | 'sunset';
 type AspectRatio = '1:1' | '4:5' | '16:9';
 
-const themes: Record<Theme, { bg: string; accent: string; text: string; name: string }> = {
-  earth: { bg: '#F5F0E8', accent: '#8B4513', text: '#2D1810', name: 'Warm Earth' },
-  ocean: { bg: '#1a365d', accent: '#63b3ed', text: '#ffffff', name: 'Deep Ocean' },
-  forest: { bg: '#1a4731', accent: '#68d391', text: '#ffffff', name: 'Forest Calm' },
-  sunset: { bg: '#744210', accent: '#f6ad55', text: '#ffffff', name: 'Sunset Glow' },
+// Helper to truncate text to a maximum number of words
+function truncateToWords(text: string, maxWords: number): string {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length <= maxWords) return text;
+  return words.slice(0, maxWords).join(' ') + '...';
+}
+
+const themes: Record<Theme, { bg: string; accent: string; text: string; name: string; decorative: string }> = {
+  earth: { bg: '#F5F0E8', accent: '#8B4513', text: '#2D1810', name: 'Warm Earth', decorative: 'rgba(139, 69, 19, 0.1)' },
+  ocean: { bg: '#1a365d', accent: '#63b3ed', text: '#ffffff', name: 'Deep Ocean', decorative: 'rgba(99, 179, 237, 0.15)' },
+  forest: { bg: '#1a4731', accent: '#68d391', text: '#ffffff', name: 'Forest Calm', decorative: 'rgba(104, 211, 145, 0.15)' },
+  sunset: { bg: '#744210', accent: '#f6ad55', text: '#ffffff', name: 'Sunset Glow', decorative: 'rgba(246, 173, 85, 0.15)' },
 };
 
 const aspectRatios: Record<AspectRatio, { width: number; height: number; label: string }> = {
@@ -234,75 +241,156 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
                 height: ratio.height,
                 backgroundColor: theme.bg,
                 color: theme.text,
-                fontFamily: 'system-ui, -apple-system, sans-serif',
+                fontFamily: 'Georgia, "Times New Roman", serif',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
                 padding: selectedRatio === '16:9' ? '60px 120px' : '80px 60px',
                 boxSizing: 'border-box',
+                position: 'relative',
+                overflow: 'hidden',
               }}
             >
+              {/* Decorative Background Elements */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: -100,
+                  right: -100,
+                  width: 400,
+                  height: 400,
+                  borderRadius: '50%',
+                  background: `radial-gradient(circle, ${theme.decorative} 0%, transparent 70%)`,
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: -80,
+                  left: -80,
+                  width: 300,
+                  height: 300,
+                  borderRadius: '50%',
+                  background: `radial-gradient(circle, ${theme.decorative} 0%, transparent 70%)`,
+                }}
+              />
+
+              {/* Top Decorative Border */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 20,
+                  left: 20,
+                  right: 20,
+                  height: 3,
+                  background: `linear-gradient(90deg, transparent, ${theme.accent}, transparent)`,
+                  opacity: 0.5,
+                }}
+              />
+
               {/* Logo / Brand */}
               <div
                 style={{
                   position: 'absolute',
-                  top: selectedRatio === '16:9' ? 40 : 50,
+                  top: selectedRatio === '16:9' ? 50 : 60,
                   left: 0,
                   right: 0,
                   textAlign: 'center',
-                  fontSize: 24,
-                  fontWeight: 600,
+                  fontSize: 20,
+                  fontWeight: 700,
                   color: theme.accent,
-                  letterSpacing: '2px',
+                  letterSpacing: '4px',
+                  textTransform: 'uppercase',
                 }}
               >
-                ॐ BHAGAVAD GITA GYAN
+                ॐ Bhagavad Gita Gyan
               </div>
 
               {/* Main Quote */}
               <div
                 style={{
                   textAlign: 'center',
-                  maxWidth: selectedRatio === '16:9' ? '80%' : '90%',
+                  maxWidth: selectedRatio === '16:9' ? '75%' : '85%',
+                  position: 'relative',
+                  zIndex: 1,
                 }}
               >
+                {/* Opening Quote Mark */}
                 <div
                   style={{
-                    fontSize: selectedRatio === '1:1' ? 42 : selectedRatio === '4:5' ? 38 : 48,
-                    fontWeight: 500,
-                    lineHeight: 1.5,
-                    marginBottom: 40,
+                    fontSize: 80,
+                    color: theme.accent,
+                    opacity: 0.3,
+                    lineHeight: 0.5,
+                    marginBottom: 20,
                   }}
                 >
-                  "{shlok.life_application || shlok.english_meaning}"
+                  "
                 </div>
+                <div
+                  style={{
+                    fontSize: selectedRatio === '1:1' ? 36 : selectedRatio === '4:5' ? 32 : 42,
+                    fontWeight: 400,
+                    fontStyle: 'italic',
+                    lineHeight: 1.6,
+                    marginBottom: 30,
+                  }}
+                >
+                  {truncateToWords(shlok.life_application || shlok.english_meaning, 40)}
+                </div>
+
+                {/* Decorative Divider */}
+                <div
+                  style={{
+                    width: 60,
+                    height: 3,
+                    background: theme.accent,
+                    margin: '0 auto 20px',
+                    borderRadius: 2,
+                  }}
+                />
 
                 {/* Reference */}
                 <div
                   style={{
-                    fontSize: 22,
+                    fontSize: 18,
                     color: theme.accent,
                     fontWeight: 600,
+                    letterSpacing: '1px',
                   }}
                 >
-                  — Bhagavad Gita, Chapter {chapterNumber}, Verse {shlok.verse_number}
+                  Chapter {chapterNumber}, Verse {shlok.verse_number}
                 </div>
               </div>
+
+              {/* Bottom Decorative Border */}
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: 20,
+                  left: 20,
+                  right: 20,
+                  height: 3,
+                  background: `linear-gradient(90deg, transparent, ${theme.accent}, transparent)`,
+                  opacity: 0.5,
+                }}
+              />
 
               {/* Footer */}
               <div
                 style={{
                   position: 'absolute',
-                  bottom: selectedRatio === '16:9' ? 40 : 50,
+                  bottom: selectedRatio === '16:9' ? 50 : 55,
                   left: 0,
                   right: 0,
                   textAlign: 'center',
-                  fontSize: 18,
-                  opacity: 0.7,
+                  fontSize: 14,
+                  opacity: 0.6,
+                  letterSpacing: '1px',
                 }}
               >
-                www.bhagavadgitagyan.com
+                bhagavadgitagyan.com
               </div>
             </div>
           </div>
