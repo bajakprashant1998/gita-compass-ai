@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AdminLayout } from '@/components/admin/AdminLayout';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -148,120 +148,124 @@ export default function AdminChapterForm() {
 
   if (isLoading) {
     return (
-      <AdminLayout title="Edit Chapter">
-        <div className="flex items-center justify-center h-64">
+      <div className="space-y-6">
+        <AdminHeader title="Edit Chapter" />
+        <div className="container flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
-      </AdminLayout>
+      </div>
     );
   }
 
   return (
-    <AdminLayout
-      title={`Edit Chapter ${formData.chapter_number}`}
-      subtitle={formData.title_english}
-    >
-      <div className="max-w-3xl">
-        <Button variant="ghost" onClick={() => navigate('/admin/chapters')} className="mb-6">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Chapters
-        </Button>
+    <div className="space-y-6">
+      <AdminHeader
+        title={`Edit Chapter ${formData.chapter_number}`}
+        subtitle={formData.title_english}
+      />
+      <div className="container">
+        <div className="max-w-3xl">
+          <Button variant="ghost" onClick={() => navigate('/admin/chapters')} className="mb-6">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Chapters
+          </Button>
 
-        <form onSubmit={handleSubmit}>
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Chapter Titles</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title_english">English Title *</Label>
-                <Input
-                  id="title_english"
-                  value={formData.title_english}
-                  onChange={(e) => handleChange('title_english', e.target.value)}
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit}>
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Chapter Titles</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title_hindi">Hindi Title</Label>
+                  <Label htmlFor="title_english">English Title *</Label>
                   <Input
-                    id="title_hindi"
-                    value={formData.title_hindi || ''}
-                    onChange={(e) => handleChange('title_hindi', e.target.value)}
+                    id="title_english"
+                    value={formData.title_english}
+                    onChange={(e) => handleChange('title_english', e.target.value)}
                   />
                 </div>
 
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title_hindi">Hindi Title</Label>
+                    <Input
+                      id="title_hindi"
+                      value={formData.title_hindi || ''}
+                      onChange={(e) => handleChange('title_hindi', e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="title_sanskrit">Sanskrit Title</Label>
+                    <Input
+                      id="title_sanskrit"
+                      className="font-serif"
+                      value={formData.title_sanskrit || ''}
+                      onChange={(e) => handleChange('title_sanskrit', e.target.value)}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="mb-6">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Theme & Descriptions</CardTitle>
+                  <AIGenerateButton
+                    label="Generate Both"
+                    disabled={!formData.title_english || !formData.theme}
+                    onGenerate={handleGenerateDescriptions}
+                    onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
+                  />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title_sanskrit">Sanskrit Title</Label>
+                  <Label htmlFor="theme">Theme *</Label>
                   <Input
-                    id="title_sanskrit"
-                    className="font-serif"
-                    value={formData.title_sanskrit || ''}
-                    onChange={(e) => handleChange('title_sanskrit', e.target.value)}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="mb-6">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Theme & Descriptions</CardTitle>
-                <AIGenerateButton
-                  label="Generate Both"
-                  disabled={!formData.title_english || !formData.theme}
-                  onGenerate={handleGenerateDescriptions}
-                  onError={(err) => toast({ title: 'Error', description: err, variant: 'destructive' })}
-                />
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="theme">Theme *</Label>
-                <Input
-                  id="theme"
-                  placeholder="e.g., The Yoga of Despondency"
-                  value={formData.theme}
-                  onChange={(e) => handleChange('theme', e.target.value)}
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="desc_en">Description (English)</Label>
-                  <Textarea
-                    id="desc_en"
-                    className="min-h-[150px]"
-                    placeholder="English description of the chapter..."
-                    value={formData.description_english || ''}
-                    onChange={(e) => handleChange('description_english', e.target.value)}
+                    id="theme"
+                    placeholder="e.g., The Yoga of Despondency"
+                    value={formData.theme}
+                    onChange={(e) => handleChange('theme', e.target.value)}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="desc_hi">Description (Hindi)</Label>
-                  <Textarea
-                    id="desc_hi"
-                    className="min-h-[150px]"
-                    placeholder="अध्याय का हिंदी विवरण..."
-                    value={formData.description_hindi || ''}
-                    onChange={(e) => handleChange('description_hindi', e.target.value)}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="desc_en">Description (English)</Label>
+                    <Textarea
+                      id="desc_en"
+                      className="min-h-[150px]"
+                      placeholder="English description of the chapter..."
+                      value={formData.description_english || ''}
+                      onChange={(e) => handleChange('description_english', e.target.value)}
+                    />
+                  </div>
 
-          <div className="flex items-center gap-4">
-            <Button type="submit" disabled={isSaving}>
-              {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-              Update Chapter
-            </Button>
-          </div>
-        </form>
+                  <div className="space-y-2">
+                    <Label htmlFor="desc_hi">Description (Hindi)</Label>
+                    <Textarea
+                      id="desc_hi"
+                      className="min-h-[150px]"
+                      placeholder="अध्याय का हिंदी विवरण..."
+                      value={formData.description_hindi || ''}
+                      onChange={(e) => handleChange('description_hindi', e.target.value)}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex items-center gap-4">
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                Update Chapter
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
-    </AdminLayout>
+    </div>
   );
 }

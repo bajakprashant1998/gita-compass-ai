@@ -26,43 +26,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // console.log('useAuth: onAuthStateChange', { event, userId: session?.user?.id });
         setSession(session);
         setUser(session?.user ?? null);
-        
+        setLoading(false); // Unblock app immediately
+
         if (session?.user) {
-          // Fetch profile
-          const { data } = await supabase
+          // Fetch profile asynchronously
+          const { data, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('user_id', session.user.id)
             .single();
-          
-          setProfile(data as Profile | null);
+
+          if (!error && data) {
+            setProfile(data as Profile | null);
+          }
         } else {
           setProfile(null);
         }
-        
-        setLoading(false);
       }
     );
 
     // Then check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      // console.log('useAuth: getSession', { userId: session?.user?.id });
       setSession(session);
       setUser(session?.user ?? null);
-      
+      setLoading(false); // Unblock app immediately
+
       if (session?.user) {
         supabase
           .from('profiles')
           .select('*')
           .eq('user_id', session.user.id)
           .single()
-          .then(({ data }) => {
-            setProfile(data as Profile | null);
-            setLoading(false);
+          .then(({ data, error }) => {
+            if (!error && data) {
+              setProfile(data as Profile | null);
+            }
           });
-      } else {
-        setLoading(false);
       }
     });
 
@@ -100,14 +103,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) throw new Error('Not authenticated');
-    
+
     const { error } = await supabase
       .from('profiles')
       .update(updates)
       .eq('user_id', user.id);
-    
+
     if (error) throw error;
-    
+
     setProfile(prev => prev ? { ...prev, ...updates } : null);
   };
 

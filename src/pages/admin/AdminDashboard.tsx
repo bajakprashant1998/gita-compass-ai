@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AdminLayout } from '@/components/admin/AdminLayout';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 import { AdminStatsCard } from '@/components/admin/AdminStatsCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +38,12 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <AdminLayout title="Dashboard" subtitle="Overview of your Bhagavad Gita Gyan content">
+    <div className="p-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground mt-2">Overview of your Bhagavad Gita Gyan content</p>
+      </div>
+
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-8">
         {isLoading ? (
@@ -222,6 +227,6 @@ export default function AdminDashboard() {
           </p>
         </Link>
       </div>
-    </AdminLayout>
+    </div>
   );
 }

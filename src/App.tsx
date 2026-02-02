@@ -32,6 +32,8 @@ import AdminActivityLog from "./pages/admin/AdminActivityLog";
 import AdminSettings from "./pages/admin/AdminSettings";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
+import AdminLayout from "@/components/admin/AdminLayout";
+import AdminLoginPage from "./pages/admin/AdminLoginPage";
 
 const queryClient = new QueryClient();
 
@@ -60,21 +62,25 @@ const App = () => (
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/donate" element={<DonatePage />} />
 
-              {/* Admin Routes - No Auth */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/shloks" element={<AdminShlokList />} />
-              <Route path="/admin/shloks/create" element={<AdminShlokForm />} />
-              <Route path="/admin/shloks/edit/:id" element={<AdminShlokForm />} />
-              <Route path="/admin/problems" element={<AdminProblemList />} />
-              <Route path="/admin/problems/create" element={<AdminProblemForm />} />
-              <Route path="/admin/problems/edit/:id" element={<AdminProblemForm />} />
-              <Route path="/admin/chapters" element={<AdminChapterList />} />
-              <Route path="/admin/chapters/edit/:id" element={<AdminChapterForm />} />
-              <Route path="/admin/languages" element={<AdminLanguages />} />
-              <Route path="/admin/ai-rules" element={<AdminAIRules />} />
-              <Route path="/admin/activity" element={<AdminActivityLog />} />
-              <Route path="/admin/settings" element={<AdminSettings />} />
+              {/* Admin Auth Route */}
+              <Route path="/admin/login" element={<AdminLoginPage />} />
 
+              {/* Protected Admin Routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="shloks" element={<AdminShlokList />} />
+                <Route path="shloks/create" element={<AdminShlokForm />} />
+                <Route path="shloks/edit/:id" element={<AdminShlokForm />} />
+                <Route path="problems" element={<AdminProblemList />} />
+                <Route path="problems/create" element={<AdminProblemForm />} />
+                <Route path="problems/edit/:id" element={<AdminProblemForm />} />
+                <Route path="chapters" element={<AdminChapterList />} />
+                <Route path="chapters/edit/:id" element={<AdminChapterForm />} />
+                <Route path="languages" element={<AdminLanguages />} />
+                <Route path="ai-rules" element={<AdminAIRules />} />
+                <Route path="activity" element={<AdminActivityLog />} />
+                <Route path="settings" element={<AdminSettings />} />
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

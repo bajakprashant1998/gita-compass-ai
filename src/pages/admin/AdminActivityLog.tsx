@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AdminLayout } from '@/components/admin/AdminLayout';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 import {
   Select,
   SelectContent,
@@ -55,87 +55,90 @@ export default function AdminActivityLog() {
   }, [filters]);
 
   return (
-    <AdminLayout title="Activity Log" subtitle="Track all admin actions">
-      {/* Filters */}
-      <div className="flex gap-4 mb-6">
-        <Select
-          value={filters.entity_type || 'all'}
-          onValueChange={(value) => setFilters(prev => ({
-            ...prev,
-            entity_type: value === 'all' ? undefined : value,
-            page: 1,
-          }))}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Types" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="shlok">Shloks</SelectItem>
-            <SelectItem value="problem">Problems</SelectItem>
-            <SelectItem value="chapter">Chapters</SelectItem>
-            <SelectItem value="ai_rule">AI Rules</SelectItem>
-            <SelectItem value="language">Languages</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+    <div className="space-y-6">
+      <AdminHeader title="Activity Log" subtitle="Track all admin actions" />
+      <div className="container">
+        {/* Filters */}
+        <div className="flex gap-4 mb-6">
+          <Select
+            value={filters.entity_type || 'all'}
+            onValueChange={(value) => setFilters(prev => ({
+              ...prev,
+              entity_type: value === 'all' ? undefined : value,
+              page: 1,
+            }))}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All Types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="shlok">Shloks</SelectItem>
+              <SelectItem value="problem">Problems</SelectItem>
+              <SelectItem value="chapter">Chapters</SelectItem>
+              <SelectItem value="ai_rule">AI Rules</SelectItem>
+              <SelectItem value="language">Languages</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-      {/* Timeline */}
-      <div className="space-y-4">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin" />
-          </div>
-        ) : logs.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No activity logs found
-          </div>
-        ) : (
-          logs.map((log) => {
-            const Icon = entityIcons[log.entity_type as keyof typeof entityIcons] || FileText;
-            const actionClass = actionColors[log.action as keyof typeof actionColors] || actionColors.update;
+        {/* Timeline */}
+        <div className="space-y-4">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          ) : logs.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No activity logs found
+            </div>
+          ) : (
+            logs.map((log) => {
+              const Icon = entityIcons[log.entity_type as keyof typeof entityIcons] || FileText;
+              const actionClass = actionColors[log.action as keyof typeof actionColors] || actionColors.update;
 
-            return (
-              <div
-                key={log.id}
-                className="flex items-start gap-4 p-4 bg-card border rounded-lg"
-              >
-                <div className="p-2 bg-muted rounded-lg">
-                  <Icon className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="outline" className={actionClass}>
-                      {log.action}
-                    </Badge>
-                    <span className="font-medium capitalize">{log.entity_type}</span>
-                    {log.entity_id && (
-                      <span className="text-xs text-muted-foreground font-mono">
-                        {log.entity_id.slice(0, 8)}...
-                      </span>
-                    )}
+              return (
+                <div
+                  key={log.id}
+                  className="flex items-start gap-4 p-4 bg-card border rounded-lg"
+                >
+                  <div className="p-2 bg-muted rounded-lg">
+                    <Icon className="h-5 w-5 text-muted-foreground" />
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {log.created_at && format(new Date(log.created_at), 'PPp')}
-                  </p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="outline" className={actionClass}>
+                        {log.action}
+                      </Badge>
+                      <span className="font-medium capitalize">{log.entity_type}</span>
+                      {log.entity_id && (
+                        <span className="text-xs text-muted-foreground font-mono">
+                          {log.entity_id.slice(0, 8)}...
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {log.created_at && format(new Date(log.created_at), 'PPp')}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            );
-          })
+              );
+            })
+          )}
+        </div>
+
+        {/* Load More */}
+        {logs.length < totalCount && (
+          <div className="text-center mt-6">
+            <button
+              className="text-primary hover:underline"
+              onClick={() => setFilters(prev => ({ ...prev, perPage: prev.perPage + 50 }))}
+            >
+              Load more ({totalCount - logs.length} remaining)
+            </button>
+          </div>
         )}
       </div>
-
-      {/* Load More */}
-      {logs.length < totalCount && (
-        <div className="text-center mt-6">
-          <button
-            className="text-primary hover:underline"
-            onClick={() => setFilters(prev => ({ ...prev, perPage: prev.perPage + 50 }))}
-          >
-            Load more ({totalCount - logs.length} remaining)
-          </button>
-        </div>
-      )}
-    </AdminLayout>
+    </div>
   );
 }
