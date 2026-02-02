@@ -4,7 +4,8 @@ import { Layout } from '@/components/layout/Layout';
 import { getChapter, getShloksByChapter } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, BookOpen, ArrowRight, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, Sparkles } from 'lucide-react';
+import { VerseCard } from '@/components/chapters/VerseCard';
 
 export default function ChapterDetailPage() {
   const { chapterNumber } = useParams<{ chapterNumber: string }>();
@@ -141,52 +142,14 @@ export default function ChapterDetailPage() {
               ))}
             </div>
           ) : shloks && shloks.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {shloks.map((shlok, index) => (
-                <Link 
-                  key={shlok.id} 
-                  to={`/chapters/${chapterNum}/verse/${shlok.verse_number}`}
-                  className="block animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <div className="group relative rounded-2xl border border-border/50 bg-card overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
-                    {/* Gradient Top Border */}
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-amber-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    
-                    <div className="p-6">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <span className="text-2xl font-bold text-gradient">
-                              {shlok.verse_number}
-                            </span>
-                            <span className="text-sm text-muted-foreground">Verse</span>
-                          </div>
-                          <p className="text-muted-foreground line-clamp-2 mb-3">
-                            {shlok.english_meaning}
-                          </p>
-                          {shlok.modern_story && (
-                            <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
-                              <span className="text-lg">📖</span>
-                              <span className="line-clamp-1">{shlok.modern_story.slice(0, 80)}...</span>
-                            </div>
-                          )}
-                          {shlok.life_application && !shlok.modern_story && (
-                            <div className="flex items-center gap-2 text-sm text-primary">
-                              <span className="text-lg">💡</span>
-                              <span className="line-clamp-1">{shlok.life_application.slice(0, 80)}...</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex items-center text-primary font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
-                          <span className="text-sm mr-2 hidden sm:block">Read Now</span>
-                          <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                <VerseCard 
+                  key={shlok.id}
+                  shlok={shlok}
+                  chapterNumber={chapterNum}
+                  animationDelay={index * 50}
+                />
               ))}
             </div>
           ) : (
