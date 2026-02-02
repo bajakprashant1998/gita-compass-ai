@@ -209,7 +209,7 @@ export default function AdminShlokForm() {
 
       toast({
         title: 'Success',
-        description: isEdit ? 'Shlok updated successfully' : 'Shlok created successfully',
+        description: 'Shlok saved successfully',
       });
 
       navigate('/admin/shloks');

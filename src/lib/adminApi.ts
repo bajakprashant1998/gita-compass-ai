@@ -29,7 +29,7 @@ type TableName =
   | 'shlok_problems'
   | 'admin_activity_log';
 
-type Operation = 'create' | 'update' | 'delete' | 'bulk_update';
+type Operation = 'create' | 'update' | 'delete' | 'bulk_update' | 'upsert';
 
 async function adminCrud<T>(
   table: TableName,
@@ -38,6 +38,7 @@ async function adminCrud<T>(
     data?: Record<string, unknown>;
     id?: string;
     ids?: string[];
+    conflictColumns?: string;
   } = {}
 ): Promise<T> {
   const { data, error } = await supabase.functions.invoke('admin-crud', {
@@ -205,7 +206,11 @@ export async function createShlok(data: Partial<AdminShlok>): Promise<AdminShlok
     published_at: data.status === 'published' ? new Date().toISOString() : null,
   };
 
-  return adminCrud<AdminShlok>('shloks', 'create', { data: insertData });
+  // Use upsert to auto-update if chapter_id + verse_number already exists
+  return adminCrud<AdminShlok>('shloks', 'upsert', { 
+    data: insertData,
+    conflictColumns: 'chapter_id,verse_number'
+  });
 }
 
 export async function updateShlok(id: string, data: Partial<AdminShlok>): Promise<AdminShlok> {
