@@ -90,24 +90,17 @@ const colorMap: Record<string, { bg: string; icon: string; gradient: string; glo
 };
 
 async function getProblemsWithCounts() {
-  // Optimized: fetch both in parallel
-  const [problemsResult, countsResult] = await Promise.all([
-    supabase.from('problems').select('*').order('display_order'),
-    supabase.from('shlok_problems').select('problem_id')
-  ]);
-  
-  if (problemsResult.error) throw problemsResult.error;
-  if (countsResult.error) throw countsResult.error;
-  
-  // Count occurrences per problem_id
-  const countMap = (countsResult.data || []).reduce((acc, item) => {
-    acc[item.problem_id] = (acc[item.problem_id] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  
-  return (problemsResult.data || []).map(p => ({
+  // Use server-side aggregation to avoid the 1000-row limit on shlok_problems
+  const { data, error } = await supabase
+    .from('problems')
+    .select('*, shlok_problems(count)')
+    .order('display_order');
+
+  if (error) throw error;
+
+  return (data || []).map((p: any) => ({
     ...p,
-    verseCount: countMap[p.id] || 0,
+    verseCount: Array.isArray(p.shlok_problems) ? (p.shlok_problems[0]?.count ?? 0) : 0,
   }));
 }
 
