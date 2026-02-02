@@ -24,11 +24,22 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const loadStats = async () => {
+      console.log('AdminDashboard: Loading stats...');
       try {
-        const data = await getAdminStats();
-        setStats(data);
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timed out')), 10000)
+        );
+
+        const statsData = await Promise.race([
+          getAdminStats(),
+          timeoutPromise
+        ]) as AdminStats;
+
+        console.log('AdminDashboard: Stats loaded', statsData);
+        setStats(statsData);
       } catch (error) {
-        console.error('Failed to load stats:', error);
+        console.error('Failed to load admin stats:', error);
+        // Toast is handled by the fetcher or we can add here
       } finally {
         setIsLoading(false);
       }

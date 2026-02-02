@@ -19,19 +19,7 @@ import DonatePage from "./pages/DonatePage";
 import NotFound from "./pages/NotFound";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
-import AdminLayout from "@/components/admin/AdminLayout";
-import AdminLoginPage from "./pages/admin/AdminLoginPage";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminShlokList from "./pages/admin/AdminShlokList";
-import AdminShlokForm from "./pages/admin/AdminShlokForm";
-import AdminProblemList from "./pages/admin/AdminProblemList";
-import AdminProblemForm from "./pages/admin/AdminProblemForm";
-import AdminChapterList from "./pages/admin/AdminChapterList";
-import AdminChapterForm from "./pages/admin/AdminChapterForm";
-import AdminLanguages from "./pages/admin/AdminLanguages";
-import AdminAIRules from "./pages/admin/AdminAIRules";
-import AdminActivityLog from "./pages/admin/AdminActivityLog";
-import AdminSettings from "./pages/admin/AdminSettings";
+import { AdminRoutes } from "@/components/admin/AdminRoutes";
 
 const queryClient = new QueryClient();
 
@@ -60,25 +48,9 @@ const App = () => (
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/donate" element={<DonatePage />} />
 
-              {/* Admin Auth Route */}
-              <Route path="/admin/login" element={<AdminLoginPage />} />
+              {/* Admin Routes - handles its own layout and protection */}
+              <Route path="/admin/*" element={<AdminRoutes />} />
 
-              {/* Protected Admin Routes */}
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="shloks" element={<AdminShlokList />} />
-                <Route path="shloks/create" element={<AdminShlokForm />} />
-                <Route path="shloks/edit/:id" element={<AdminShlokForm />} />
-                <Route path="problems" element={<AdminProblemList />} />
-                <Route path="problems/create" element={<AdminProblemForm />} />
-                <Route path="problems/edit/:id" element={<AdminProblemForm />} />
-                <Route path="chapters" element={<AdminChapterList />} />
-                <Route path="chapters/edit/:id" element={<AdminChapterForm />} />
-                <Route path="languages" element={<AdminLanguages />} />
-                <Route path="ai-rules" element={<AdminAIRules />} />
-                <Route path="activity" element={<AdminActivityLog />} />
-                <Route path="settings" element={<AdminSettings />} />
-              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

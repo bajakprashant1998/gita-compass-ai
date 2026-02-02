@@ -1,10 +1,8 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Bell, ExternalLink, LogOut } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { clearAdminCache } from '@/lib/adminAuth';
-import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 
 interface AdminHeaderProps {
   title: string;
@@ -12,22 +10,9 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ title, subtitle }: AdminHeaderProps) {
-  const navigate = useNavigate();
-  const [userEmail, setUserEmail] = useState('');
+  const { user, signOut } = useAdminAuthContext();
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user?.email) setUserEmail(session.user.email);
-    });
-  }, []);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    clearAdminCache();
-    navigate('/admin/login');
-  };
-
-  const initials = userEmail?.substring(0, 2).toUpperCase() || 'AD';
+  const initials = user?.email?.substring(0, 2).toUpperCase() || 'AD';
 
   return (
     <header className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -60,7 +45,7 @@ export function AdminHeader({ title, subtitle }: AdminHeaderProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleLogout}
+            onClick={signOut}
             className="gap-2 text-muted-foreground hover:text-destructive"
           >
             <LogOut className="h-4 w-4" />

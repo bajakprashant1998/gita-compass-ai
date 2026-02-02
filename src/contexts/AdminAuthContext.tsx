@@ -1,211 +1,188 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import type { User } from '@supabase/supabase-js';
+import { createContext, useContext, useEffect, useState } from "react";
+import { User, Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { getAdminCache, setAdminCache, clearAdminCache } from "@/lib/adminAuth";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
-interface AdminAuthState {
-  user: User | null;
-  isAdmin: boolean;
-  isLoading: boolean;
-  error: string | null;
+interface AdminAuthContextType {
+    user: User | null;
+    isAdmin: boolean;
+    isLoading: boolean;
+    error: string | null;
+    signOut: () => Promise<void>;
 }
 
-interface AdminAuthContextType extends AdminAuthState {
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error: string | null }>;
-  signOut: () => Promise<void>;
-}
+const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
-const AdminAuthContext = createContext<AdminAuthContextType | null>(null);
+export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
+    const [user, setUser] = useState<User | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
-export function useAdminAuthContext() {
-  const context = useContext(AdminAuthContext);
-  if (!context) {
-    throw new Error('useAdminAuthContext must be used within an AdminAuthProvider');
-  }
-  return context;
-}
+    // Check admin role using secure RPC function or table query
+    const checkAdminRole = async (userId: string) => {
+        try {
+            // First check cache
+            const cache = getAdminCache();
+            if (cache && cache.userId === userId && cache.verified) {
+                console.log('AdminAuthContext: Cache hit');
+                return true;
+            }
 
-interface AdminAuthProviderProps {
-  children: ReactNode;
-}
+            // Query database
+            const { data, error } = await supabase
+                .from("user_roles")
+                .select("role")
+                .eq("user_id", userId)
+                .eq("role", "admin")
+                .maybeSingle();
 
-export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
-  const [state, setState] = useState<AdminAuthState>({
-    user: null,
-    isAdmin: false,
-    isLoading: true,
-    error: null,
-  });
-  const navigate = useNavigate();
+            if (error) throw error;
 
-  const checkAdminRole = useCallback(async (userId: string): Promise<boolean> => {
-    try {
-      const { data, error } = await supabase.rpc('has_role', {
-        _user_id: userId,
-        _role: 'admin',
-      });
-      
-      if (error) {
-        console.error('Error checking admin role:', error);
-        return false;
-      }
-      
-      return data === true;
-    } catch (err) {
-      console.error('Exception checking admin role:', err);
-      return false;
-    }
-  }, []);
+            const verified = !!data;
 
-  useEffect(() => {
-    let mounted = true;
+            if (verified) {
+                setAdminCache(userId);
+            } else {
+                clearAdminCache();
+            }
 
-    const initAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          if (mounted) {
-            setState({ user: null, isAdmin: false, isLoading: false, error: error.message });
-          }
-          return;
+            return verified;
+        } catch (err) {
+            console.error('AdminAuthContext: Role verification error', err);
+            // If network error but we have cache, might be worth handling?
+            // For now, fail safe
+            return false;
         }
-
-        if (session?.user) {
-          const isAdmin = await checkAdminRole(session.user.id);
-          if (mounted) {
-            setState({
-              user: session.user,
-              isAdmin,
-              isLoading: false,
-              error: null,
-            });
-          }
-        } else {
-          if (mounted) {
-            setState({ user: null, isAdmin: false, isLoading: false, error: null });
-          }
-        }
-      } catch (err) {
-        if (mounted) {
-          setState({
-            user: null,
-            isAdmin: false,
-            isLoading: false,
-            error: 'Failed to initialize authentication',
-          });
-        }
-      }
     };
 
-    initAuth();
+    useEffect(() => {
+        let mounted = true;
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
+        // Initial session check
+        const initAuth = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
 
-      if (event === 'SIGNED_OUT') {
-        setState({ user: null, isAdmin: false, isLoading: false, error: null });
-        return;
-      }
+                if (!mounted) return;
 
-      if (session?.user) {
-        setState(prev => ({ ...prev, isLoading: true }));
-        const isAdmin = await checkAdminRole(session.user.id);
-        if (mounted) {
-          setState({
-            user: session.user,
-            isAdmin,
-            isLoading: false,
-            error: null,
-          });
-        }
-      } else {
-        setState({ user: null, isAdmin: false, isLoading: false, error: null });
-      }
-    });
+                if (session?.user) {
+                    // Force refresh session to ensure token is valid for DB calls
+                    // This fixes issues where stale tokens cause DB queries to hang
+                    const { error: refreshError } = await supabase.auth.refreshSession();
+                    if (refreshError) console.warn('AdminAuthContext: Session refresh warning', refreshError);
 
-    // Handle visibility change to refresh session when tab regains focus
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible' && mounted) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user && mounted) {
-          const isAdmin = await checkAdminRole(session.user.id);
-          setState(prev => ({
-            ...prev,
-            user: session.user,
-            isAdmin,
-            isLoading: false,
-          }));
-        }
-      }
-    };
+                    const verified = await checkAdminRole(session.user.id);
+                    if (mounted) {
+                        setUser(session.user);
+                        setIsAdmin(verified);
+                        if (!verified) setError("You don't have admin privileges.");
+                    }
+                } else {
+                    if (mounted) {
+                        setUser(null);
+                        setIsAdmin(false);
+                    }
+                }
+            } catch (err: any) {
+                console.error("AdminAuthContext: Init error", err);
+                if (mounted) setError(err.message);
+            } finally {
+                if (mounted) setIsLoading(false);
+            }
+        };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+        initAuth();
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [checkAdminRole]);
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            if (!mounted) return;
 
-  const signIn = async (email: string, password: string) => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        setState(prev => ({ ...prev, isLoading: false, error: error.message }));
-        return { success: false, error: error.message };
-      }
-
-      if (!data.user) {
-        setState(prev => ({ ...prev, isLoading: false, error: 'Sign in failed' }));
-        return { success: false, error: 'Sign in failed' };
-      }
-
-      const isAdmin = await checkAdminRole(data.user.id);
-
-      if (!isAdmin) {
-        await supabase.auth.signOut();
-        setState({
-          user: null,
-          isAdmin: false,
-          isLoading: false,
-          error: 'You do not have admin access',
+            if (session?.user) {
+                // Only re-verify if user changed or we weren't admin
+                if (session.user.id !== user?.id) {
+                    setIsLoading(true);
+                    const verified = await checkAdminRole(session.user.id);
+                    if (mounted) {
+                        setUser(session.user);
+                        setIsAdmin(verified);
+                        setIsLoading(false);
+                    }
+                }
+            } else {
+                setUser(null);
+                setIsAdmin(false);
+                setIsLoading(false);
+                clearAdminCache();
+            }
         });
-        return { success: false, error: 'You do not have admin access' };
-      }
 
-      setState({
-        user: data.user,
-        isAdmin: true,
-        isLoading: false,
-        error: null,
-      });
+        // Visibility change handler for tab switching to ensure auth is fresh
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && !user) {
+                supabase.auth.getSession().then(({ data: { session } }) => {
+                    if (session?.user && session.user.id !== user?.id) {
+                        // Trigger re-verification via the existing logic or just reload
+                        // Simpler to just let the user refresh if stuck, but let's try to update
+                        initAuth();
+                    }
+                });
+            }
+        };
 
-      return { success: true, error: null };
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Sign in failed';
-      setState(prev => ({ ...prev, isLoading: false, error: message }));
-      return { success: false, error: message };
-    }
-  };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setState({ user: null, isAdmin: false, isLoading: false, error: null });
-    navigate('/admin/login');
-  };
+        return () => {
+            mounted = false;
+            subscription.unsubscribe();
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, []);
 
-  return (
-    <AdminAuthContext.Provider value={{ ...state, signIn, signOut }}>
-      {children}
-    </AdminAuthContext.Provider>
-  );
+    const signOut = async () => {
+        setIsLoading(true);
+        try {
+            // Attempt sign out but don't wait forever
+            const { error } = await Promise.race([
+                supabase.auth.signOut(),
+                new Promise<{ error: null }>((resolve) => setTimeout(() => resolve({ error: null }), 2000))
+            ]);
+            if (error) console.error("AdminAuthContext: SignOut error", error);
+        } catch (e) {
+            console.error("AdminAuthContext: SignOut exception", e);
+        } finally {
+            // Always clear local state
+            clearAdminCache();
+
+            // Force clear Supabase tokens from localStorage to prevent stale sessions
+            // Supabase default keys start with 'sb-'
+            Object.keys(localStorage).forEach((key) => {
+                if (key.startsWith('sb-')) {
+                    localStorage.removeItem(key);
+                }
+            });
+
+            setUser(null);
+            setIsAdmin(false);
+            setIsLoading(false);
+            navigate("/admin/login");
+        }
+    };
+
+    return (
+        <AdminAuthContext.Provider value={{ user, isAdmin, isLoading, error, signOut }}>
+            {children}
+        </AdminAuthContext.Provider>
+    );
 }
+
+export const useAdminAuthContext = () => {
+    const context = useContext(AdminAuthContext);
+    if (context === undefined) {
+        throw new Error("useAdminAuthContext must be used within an AdminAuthProvider");
+    }
+    return context;
+};

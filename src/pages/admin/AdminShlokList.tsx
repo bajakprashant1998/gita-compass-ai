@@ -83,19 +83,29 @@ export default function AdminShlokList() {
 
   const loadData = async () => {
     setIsLoading(true);
+    console.log('AdminShlokList: Starting data load...');
     try {
-      const [shloksData, chaptersData] = await Promise.all([
-        getAdminShloks(filters),
-        getChapters(),
-      ]);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out')), 10000)
+      );
+
+      const [shloksData, chaptersData] = await Promise.race([
+        Promise.all([
+          getAdminShloks(filters),
+          getChapters(),
+        ]),
+        timeoutPromise
+      ]) as [any, any];
+
+      console.log('AdminShlokList: Data loaded', { count: shloksData.count });
       setShloks(shloksData.data);
-      setTotalCount(shloksData.count);
+      setTotalCount(shloksData.count || 0);
       setChapters(chaptersData);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load shloks:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load shloks',
+        title: 'Connection Issue',
+        description: 'Failed to load data. Please try logging out and back in.',
         variant: 'destructive',
       });
     } finally {

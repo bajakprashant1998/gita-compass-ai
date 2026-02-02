@@ -1,47 +1,35 @@
-import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
-import { Loader2, ShieldAlert } from 'lucide-react';
+import { useAdminAuthContext } from "@/contexts/AdminAuthContext";
+import { Navigate } from "react-router-dom";
+import { Loader2, ShieldAlert } from "lucide-react";
 
-interface AdminProtectedRouteProps {
-  children: ReactNode;
-}
+export function AdminProtectedRoute({ children }: { children: React.ReactNode }) {
+    const { isAdmin, isLoading, user, error } = useAdminAuthContext();
 
-export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
-  const { user, isAdmin, isLoading, error } = useAdminAuthContext();
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-muted-foreground">Verifying access...</p>
+            </div>
+        );
+    }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Verifying access...</p>
-        </div>
-      </div>
-    );
-  }
+    if (!user || !isAdmin) {
+        if (error) {
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background px-4">
+                    <ShieldAlert className="h-16 w-16 text-destructive" />
+                    <h1 className="text-2xl font-bold">Access Denied</h1>
+                    <p className="text-muted-foreground">{error}</p>
+                    <div className="flex gap-4">
+                        <button onClick={() => window.location.reload()} className="text-primary hover:underline">Retry</button>
+                        <a href="/admin/login" className="text-primary hover:underline">Sign in with different account</a>
+                    </div>
+                </div>
+            );
+        }
+        return <Navigate to="/admin/login" replace />;
+    }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-4 max-w-md p-6">
-          <ShieldAlert className="h-12 w-12 mx-auto text-destructive" />
-          <h2 className="text-xl font-semibold">Authentication Error</h2>
-          <p className="text-muted-foreground">{error}</p>
-          <a 
-            href="/admin/login" 
-            className="inline-block mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-          >
-            Go to Login
-          </a>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user || !isAdmin) {
-    return <Navigate to="/admin/login" replace />;
-  }
-
-  return <>{children}</>;
+    return <>{children}</>;
 }
