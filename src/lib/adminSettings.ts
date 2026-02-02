@@ -114,14 +114,14 @@ export async function testElevenLabsConnection(apiKey: string): Promise<{ succes
   }
 }
 
-// Generate TTS audio
+// Generate TTS audio using Google Cloud TTS
 export async function generateTTS(
   text: string,
   language: 'sanskrit' | 'hindi' | 'english' = 'english',
-  voiceId?: string
+  voiceName?: string
 ): Promise<{ audioContent: string; format: string }> {
   const response = await fetch(
-    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-tts`,
     {
       method: 'POST',
       headers: {
@@ -129,7 +129,7 @@ export async function generateTTS(
         apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
       },
-      body: JSON.stringify({ text, language, voice_id: voiceId }),
+      body: JSON.stringify({ text, language, voice_name: voiceName }),
     }
   );
 
@@ -139,6 +139,38 @@ export async function generateTTS(
   }
 
   return response.json();
+}
+
+// Test Google TTS connection
+export async function testGoogleTTSConnection(apiKey: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const response = await fetch(
+      `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input: { text: 'Hello' },
+          voice: { languageCode: 'en-US', name: 'en-US-Neural2-D' },
+          audioConfig: { audioEncoding: 'MP3' },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      return { success: false, error: `API error: ${response.status}` };
+    }
+
+    const data = await response.json();
+    if (data.audioContent) {
+      return { success: true };
+    }
+
+    return { success: false, error: 'Invalid response from API' };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Connection failed' };
+  }
 }
 
 // Play base64 audio
