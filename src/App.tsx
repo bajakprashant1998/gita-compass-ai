@@ -19,7 +19,6 @@ import DonatePage from "./pages/DonatePage";
 import NotFound from "./pages/NotFound";
 
 // Admin Pages
-import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminShlokList from "./pages/admin/AdminShlokList";
 import AdminShlokForm from "./pages/admin/AdminShlokForm";
@@ -31,9 +30,7 @@ import AdminLanguages from "./pages/admin/AdminLanguages";
 import AdminAIRules from "./pages/admin/AdminAIRules";
 import AdminActivityLog from "./pages/admin/AdminActivityLog";
 import AdminSettings from "./pages/admin/AdminSettings";
-import { AdminAuthProvider } from "./contexts/AdminAuthContext";
-import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
@@ -61,25 +58,20 @@ const App = () => (
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/donate" element={<DonatePage />} />
 
-
-              {/* Admin Routes */}
-              <Route element={<AdminAuthProvider><Outlet /></AdminAuthProvider>}>
-                <Route path="/admin/login" element={<AdminLoginPage />} />
-                <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
-
-                <Route path="/admin/shloks" element={<AdminProtectedRoute><AdminShlokList /></AdminProtectedRoute>} />
-                <Route path="/admin/shloks/create" element={<AdminProtectedRoute><AdminShlokForm /></AdminProtectedRoute>} />
-                <Route path="/admin/shloks/edit/:id" element={<AdminProtectedRoute><AdminShlokForm /></AdminProtectedRoute>} />
-                <Route path="/admin/problems" element={<AdminProtectedRoute><AdminProblemList /></AdminProtectedRoute>} />
-                <Route path="/admin/problems/create" element={<AdminProtectedRoute><AdminProblemForm /></AdminProtectedRoute>} />
-                <Route path="/admin/problems/edit/:id" element={<AdminProtectedRoute><AdminProblemForm /></AdminProtectedRoute>} />
-                <Route path="/admin/chapters" element={<AdminProtectedRoute><AdminChapterList /></AdminProtectedRoute>} />
-                <Route path="/admin/chapters/edit/:id" element={<AdminProtectedRoute><AdminChapterForm /></AdminProtectedRoute>} />
-                <Route path="/admin/languages" element={<AdminProtectedRoute><AdminLanguages /></AdminProtectedRoute>} />
-                <Route path="/admin/ai-rules" element={<AdminProtectedRoute><AdminAIRules /></AdminProtectedRoute>} />
-                <Route path="/admin/activity" element={<AdminProtectedRoute><AdminActivityLog /></AdminProtectedRoute>} />
-                <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
-              </Route>
+              {/* Admin Routes - No Auth */}
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/shloks" element={<AdminShlokList />} />
+              <Route path="/admin/shloks/create" element={<AdminShlokForm />} />
+              <Route path="/admin/shloks/edit/:id" element={<AdminShlokForm />} />
+              <Route path="/admin/problems" element={<AdminProblemList />} />
+              <Route path="/admin/problems/create" element={<AdminProblemForm />} />
+              <Route path="/admin/problems/edit/:id" element={<AdminProblemForm />} />
+              <Route path="/admin/chapters" element={<AdminChapterList />} />
+              <Route path="/admin/chapters/edit/:id" element={<AdminChapterForm />} />
+              <Route path="/admin/languages" element={<AdminLanguages />} />
+              <Route path="/admin/ai-rules" element={<AdminAIRules />} />
+              <Route path="/admin/activity" element={<AdminActivityLog />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
