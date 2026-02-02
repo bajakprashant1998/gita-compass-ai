@@ -88,80 +88,25 @@ export async function generateAIContentWithMeta(
 // ============================================
 
 export async function getAdminStats(): Promise<AdminStats> {
-  try {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Supabase Client Timeout')), 5000)
-    );
+  const [chaptersRes, shloksRes, problemsRes, languagesRes] = await Promise.all([
+    supabase.from('chapters').select('id', { count: 'exact', head: true }),
+    supabase.from('shloks').select('id, status'),
+    supabase.from('problems').select('id', { count: 'exact', head: true }),
+    supabase.from('languages').select('id', { count: 'exact', head: true }).eq('enabled', true),
+  ]);
 
-    const { data: shloksCount } = await Promise.race([
-      supabase.from('shloks').select('*', { count: 'exact', head: true }),
-      timeoutPromise
-    ]) as any;
+  const shloks = shloksRes.data || [];
+  const publishedCount = shloks.filter(s => s.status === 'published').length;
+  const draftCount = shloks.filter(s => s.status === 'draft').length;
 
-    // If first query works, assume client is fine for rest (simplification, but risky if mixed)
-    // Actually, safer to just use promise.all with timeouts or just raw fetch everything if strict.
-    // Let's implement full fallback block for safety.
-
-    const [
-      { count: totalShloks },
-      { count: publishedShloks },
-      { count: draftShloks },
-      { count: totalChapters },
-      { count: totalProblems },
-      { count: activeLanguages }
-    ] = await Promise.all([
-      supabase.from('shloks').select('*', { count: 'exact', head: true }),
-      supabase.from('shloks').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-      supabase.from('shloks').select('*', { count: 'exact', head: true }).eq('status', 'draft'),
-      supabase.from('chapters').select('*', { count: 'exact', head: true }),
-      supabase.from('problems').select('*', { count: 'exact', head: true }),
-      supabase.from('languages').select('*', { count: 'exact', head: true }).eq('is_active', true)
-    ]);
-
-    return {
-      totalShloks: totalShloks || 0,
-      publishedShloks: publishedShloks || 0,
-      draftShloks: draftShloks || 0,
-      totalChapters: totalChapters || 0,
-      totalProblems: totalProblems || 0,
-      activeLanguages: activeLanguages || 0,
-    };
-  } catch (err) {
-    console.warn('getAdminStats: Supabase client failed, trying raw fetch...', err);
-
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-    if (!token) throw new Error('No auth token');
-
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-    const headers = { 'apikey': supabaseKey, 'Authorization': `Bearer ${token}`, 'Prefer': 'count=exact' }; // HEAD request implies count
-
-    // We need parallel HEAD requests.
-    const getCount = async (table: string, query: string = '') => {
-      const res = await fetch(`${supabaseUrl}/rest/v1/${table}?limit=1${query}`, { method: 'HEAD', headers });
-      const cr = res.headers.get('content-range');
-      return cr ? parseInt(cr.split('/')[1]) : 0;
-    };
-
-    const [totalShloks, publishedShloks, draftShloks, totalChapters, totalProblems, activeLanguages] = await Promise.all([
-      getCount('shloks'),
-      getCount('shloks', '&status=eq.published'),
-      getCount('shloks', '&status=eq.draft'),
-      getCount('chapters'),
-      getCount('problems'),
-      getCount('languages', '&is_active=eq.true')
-    ]);
-
-    return {
-      totalShloks,
-      publishedShloks,
-      draftShloks,
-      totalChapters,
-      totalProblems,
-      activeLanguages,
-    };
-  }
+  return {
+    totalChapters: chaptersRes.count || 0,
+    totalShloks: shloks.length,
+    publishedShloks: publishedCount,
+    draftShloks: draftCount,
+    totalProblems: problemsRes.count || 0,
+    activeLanguages: languagesRes.count || 0,
+  };
 }
 
 // ============================================
@@ -172,105 +117,41 @@ export async function getAdminShloks(filters: ShlokFilters): Promise<{
   data: AdminShlok[];
   count: number;
 }> {
-  // Attempt standard client first with a short timeout
-  try {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Supabase Client Timeout')), 5000)
-    );
+  let query = supabase
+    .from('shloks')
+    .select(`
+      *,
+      chapter:chapters(id, chapter_number, title_english)
+    `, { count: 'exact' });
 
-    // Original Query Construction
-    let query = supabase
-      .from('shloks')
-      .select(`
-        *,
-        chapter:chapters(id, chapter_number, title_english)
-      `, { count: 'exact' });
-
-    if (filters.chapter) {
-      query = query.eq('chapter_id', filters.chapter);
-    }
-
-    if (filters.status) {
-      query = query.eq('status', filters.status);
-    }
-
-    if (filters.search) {
-      const sanitizedSearch = filters.search.replace(/[%_(),.*]/g, '');
-      query = query.or(`sanskrit_text.ilike.%${sanitizedSearch}%,english_meaning.ilike.%${sanitizedSearch}%`);
-    }
-
-    const from = (filters.page - 1) * filters.perPage;
-    const to = from + filters.perPage - 1;
-    query = query.order('verse_number', { ascending: true }).range(from, to);
-
-    const { data, error, count } = await Promise.race([
-      query,
-      timeoutPromise
-    ]) as any;
-
-    if (error) throw error;
-
-    return {
-      data: (data || []) as unknown as AdminShlok[],
-      count: count || 0,
-    };
-
-  } catch (err: any) {
-    console.warn('getAdminShloks: Supabase client failed, trying raw fetch...', err);
-
-    // Fallback to Raw REST API
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-
-    if (!token) throw new Error('No auth token available for raw fetch');
-
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-    if (!supabaseUrl || !supabaseKey) throw new Error('Missing Supabase Config');
-
-    // Construct URL Params manually
-    const params = new URLSearchParams();
-    params.append('select', '*,chapter:chapters(id,chapter_number,title_english)');
-    params.append('limit', String(filters.perPage));
-    params.append('offset', String((filters.page - 1) * filters.perPage));
-    params.append('order', 'verse_number.asc');
-
-    if (filters.chapter) params.append('chapter_id', `eq.${filters.chapter}`);
-    if (filters.status) params.append('status', `eq.${filters.status}`);
-    // Note: Search complex filter is hard to replicate exactly in raw params easily without RQL parsing, 
-    // but we can try simple case or skip. For now skipping complex search in fallback to keep it simple.
-    // If needed: params.append('or', `(sanskrit_text.ilike.*${sanitized}*,...)`)
-
-    // Use "count=exact" in Prefer header
-    const response = await fetch(`${supabaseUrl}/rest/v1/shloks?${params.toString()}`, {
-      method: 'GET',
-      headers: {
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${token}`,
-        'Prefer': 'count=exact'
-      }
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Raw Fetch Failed: ${response.status} ${errorText}`);
-    }
-
-    const data = await response.json();
-
-    // Parse content-range for count if available, or just use length
-    // Supabase returns count in content-range header if Prefer: count=exact
-    const contentRange = response.headers.get('content-range');
-    const totalCount = contentRange ? parseInt(contentRange.split('/')[1]) : data.length;
-
-    return {
-      data: data as AdminShlok[],
-      count: totalCount || 0
-    };
+  if (filters.chapter) {
+    query = query.eq('chapter_id', filters.chapter);
   }
-}
 
+  if (filters.status) {
+    query = query.eq('status', filters.status);
+  }
+
+  if (filters.search) {
+    // Sanitize special characters that could break PostgREST queries
+    const sanitizedSearch = filters.search.replace(/[%_(),.*]/g, '');
+    query = query.or(`sanskrit_text.ilike.%${sanitizedSearch}%,english_meaning.ilike.%${sanitizedSearch}%`);
+  }
+
+  const from = (filters.page - 1) * filters.perPage;
+  const to = from + filters.perPage - 1;
+
+  query = query.order('verse_number', { ascending: true }).range(from, to);
+
+  const { data, error, count } = await query;
+
+  if (error) throw error;
+
+  return {
+    data: (data || []) as unknown as AdminShlok[],
+    count: count || 0,
+  };
+}
 
 export async function getShlokById(id: string): Promise<AdminShlok | null> {
   const { data, error } = await supabase
@@ -420,43 +301,13 @@ export async function deleteProblem(id: string): Promise<void> {
 // ============================================
 
 export async function getChapters() {
-  try {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Supabase Client Timeout')), 5000)
-    );
+  const { data, error } = await supabase
+    .from('chapters')
+    .select('*')
+    .order('chapter_number', { ascending: true });
 
-    const { data, error } = await Promise.race([
-      supabase
-        .from('chapters')
-        .select('*')
-        .order('chapter_number', { ascending: true }),
-      timeoutPromise
-    ]) as any;
-
-    if (error) throw error;
-    return data;
-  } catch (err) {
-    console.warn('getChapters: Supabase client failed, trying raw fetch...', err);
-
-    // Fallback
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-    if (!token) throw new Error('No auth token');
-
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-    const response = await fetch(`${supabaseUrl}/rest/v1/chapters?select=*&order=chapter_number.asc`, {
-      method: 'GET',
-      headers: {
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) throw new Error('Raw fetch failed');
-    return await response.json();
-  }
+  if (error) throw error;
+  return data || [];
 }
 
 export async function updateChapter(id: string, data: Partial<{
@@ -471,93 +322,17 @@ export async function updateChapter(id: string, data: Partial<{
 }
 
 // ============================================
-// Problems
-// ============================================
-
-export async function getProblems() {
-  try {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Supabase Client Timeout')), 5000)
-    );
-
-    const { data, error } = await Promise.race([
-      supabase
-        .from('problems')
-        .select('*')
-        .order('name', { ascending: true }),
-      timeoutPromise
-    ]) as any;
-
-    if (error) throw error;
-    return data;
-  } catch (err) {
-    console.warn('getProblems: Supabase client failed, trying raw fetch...', err);
-
-    // Fallback
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-    if (!token) throw new Error('No auth token');
-
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-    const response = await fetch(`${supabaseUrl}/rest/v1/problems?select=*&order=name.asc`, {
-      method: 'GET',
-      headers: {
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) throw new Error('Raw fetch failed');
-    return await response.json();
-  }
-}
-
-
-
-// ============================================
 // LANGUAGE MANAGEMENT
 // ============================================
 
-export async function getLanguages() {
-  try {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Supabase Client Timeout')), 5000)
-    );
+export async function getLanguages(): Promise<Language[]> {
+  const { data, error } = await supabase
+    .from('languages')
+    .select('*')
+    .order('display_order', { ascending: true });
 
-    const { data, error } = await Promise.race([
-      supabase
-        .from('languages')
-        .select('*')
-        .order('name', { ascending: true }),
-      timeoutPromise
-    ]) as any;
-
-    if (error) throw error;
-    return data;
-  } catch (err) {
-    console.warn('getLanguages: Supabase client failed, trying raw fetch...', err);
-
-    // Fallback
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-    if (!token) throw new Error('No auth token');
-
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-    const response = await fetch(`${supabaseUrl}/rest/v1/languages?select=*&order=name.asc`, {
-      method: 'GET',
-      headers: {
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) throw new Error('Raw fetch failed');
-    return await response.json();
-  }
+  if (error) throw error;
+  return (data || []) as Language[];
 }
 
 export async function toggleLanguage(id: string, enabled: boolean): Promise<void> {
