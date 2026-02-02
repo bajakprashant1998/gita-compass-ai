@@ -9,6 +9,7 @@ interface AdminAuthContextType {
     user: User | null;
     isAdmin: boolean;
     isLoading: boolean;
+    isReady: boolean;
     error: string | null;
     signOut: () => Promise<void>;
 }
@@ -19,6 +20,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isReady, setIsReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -70,15 +72,22 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
                 if (!mounted) return;
 
                 if (session?.user) {
-                    // Force refresh session to ensure token is valid for DB calls
+                    // Force refresh session and GET the new session data
                     // This fixes issues where stale tokens cause DB queries to hang
-                    const { error: refreshError } = await supabase.auth.refreshSession();
+                    const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
                     if (refreshError) console.warn('AdminAuthContext: Session refresh warning', refreshError);
 
-                    const verified = await checkAdminRole(session.user.id);
+                    // Use the refreshed session if available, fallback to original
+                    const activeSession = refreshData?.session || session;
+                    
+                    // Small delay to ensure token propagation to Supabase client
+                    await new Promise(resolve => setTimeout(resolve, 100));
+
+                    const verified = await checkAdminRole(activeSession.user.id);
                     if (mounted) {
-                        setUser(session.user);
+                        setUser(activeSession.user);
                         setIsAdmin(verified);
+                        setIsReady(true);
                         if (!verified) setError("You don't have admin privileges.");
                     }
                 } else {
@@ -173,7 +182,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <AdminAuthContext.Provider value={{ user, isAdmin, isLoading, error, signOut }}>
+        <AdminAuthContext.Provider value={{ user, isAdmin, isLoading, isReady, error, signOut }}>
             {children}
         </AdminAuthContext.Provider>
     );
