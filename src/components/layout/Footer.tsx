@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { Sparkles, Heart, Twitter, Github, Mail, Send, BookOpen, MessageCircle, ArrowRight } from 'lucide-react';
+import { Heart, Twitter, Github, Mail, Send, BookOpen, MessageCircle, ArrowRight, Phone } from 'lucide-react';
+import { BhagwaFlag } from '@/components/ui/bhagwa-flag';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -34,7 +35,7 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2.5 mb-6 group">
               <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-amber-500 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-primary/30">
-                <Sparkles className="h-6 w-6 text-white" />
+                <BhagwaFlag className="h-6 w-6 text-white" />
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary to-amber-500 opacity-0 blur-md transition-opacity group-hover:opacity-50" />
               </div>
               <span className="text-2xl font-semibold tracking-tight">
@@ -124,6 +125,12 @@ export function Footer() {
                 <Link to="/chat" className="group flex items-center text-foreground hover:text-primary transition-colors">
                   <span>AI Gita Coach</span>
                   <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold rounded bg-gradient-to-r from-primary to-amber-500 text-white">NEW</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="group flex items-center text-foreground hover:text-primary transition-colors">
+                  <span>Contact Us</span>
+                  <ArrowRight className="h-4 w-4 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                 </Link>
               </li>
             </ul>
