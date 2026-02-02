@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
@@ -10,18 +9,20 @@ interface AdminAuthState {
   error: string | null;
 }
 
-/**
- * Hook for admin authentication - can be used standalone (e.g., login page)
- * or within AdminAuthProvider context (protected routes).
- */
-export function useAdminAuth() {
+interface AdminAuthContextValue extends AdminAuthState {
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error: string | null }>;
+  signOut: () => Promise<void>;
+}
+
+const AdminAuthContext = createContext<AdminAuthContextValue | undefined>(undefined);
+
+export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AdminAuthState>({
     user: null,
     isAdmin: false,
     isLoading: true,
     error: null,
   });
-  const navigate = useNavigate();
 
   const checkAdminRole = useCallback(async (userId: string): Promise<boolean> => {
     try {
@@ -29,12 +30,12 @@ export function useAdminAuth() {
         _user_id: userId,
         _role: 'admin',
       });
-      
+
       if (error) {
         console.error('Error checking admin role:', error);
         return false;
       }
-      
+
       return data === true;
     } catch (err) {
       console.error('Exception checking admin role:', err);
@@ -42,19 +43,47 @@ export function useAdminAuth() {
     }
   }, []);
 
+  // Handle visibility change - refresh session when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (session?.user) {
+            const isAdmin = await checkAdminRole(session.user.id);
+            setState({
+              user: session.user,
+              isAdmin,
+              isLoading: false,
+              error: null,
+            });
+          } else {
+            setState({
+              user: null,
+              isAdmin: false,
+              isLoading: false,
+              error: null,
+            });
+          }
+        } catch (error) {
+          console.error('Visibility change auth check failed:', error);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [checkAdminRole]);
+
+  // Main auth initialization and subscription
   useEffect(() => {
     let mounted = true;
 
-    const initAuth = async () => {
+    const initializeAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          if (mounted) {
-            setState({ user: null, isAdmin: false, isLoading: false, error: error.message });
-          }
-          return;
-        }
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!mounted) return;
 
         if (session?.user) {
           const isAdmin = await checkAdminRole(session.user.id);
@@ -71,43 +100,33 @@ export function useAdminAuth() {
             setState({ user: null, isAdmin: false, isLoading: false, error: null });
           }
         }
-      } catch (err) {
+      } catch (error) {
+        console.error('Auth initialization failed:', error);
         if (mounted) {
-          setState({
-            user: null,
-            isAdmin: false,
-            isLoading: false,
-            error: 'Failed to initialize authentication',
-          });
+          setState({ user: null, isAdmin: false, isLoading: false, error: 'Init failed' });
         }
       }
     };
 
-    initAuth();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!mounted) return;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-
-      if (event === 'SIGNED_OUT') {
-        setState({ user: null, isAdmin: false, isLoading: false, error: null });
-        return;
-      }
-
-      if (session?.user) {
-        setState(prev => ({ ...prev, isLoading: true }));
-        const isAdmin = await checkAdminRole(session.user.id);
-        if (mounted) {
-          setState({
-            user: session.user,
-            isAdmin,
-            isLoading: false,
-            error: null,
-          });
+        if (event === 'SIGNED_OUT') {
+          setState({ user: null, isAdmin: false, isLoading: false, error: null });
+          return;
         }
-      } else {
-        setState({ user: null, isAdmin: false, isLoading: false, error: null });
+
+        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
+          const isAdmin = await checkAdminRole(session.user.id);
+          if (mounted) {
+            setState({ user: session.user, isAdmin, isLoading: false, error: null });
+          }
+        }
       }
-    });
+    );
+
+    initializeAuth();
 
     return () => {
       mounted = false;
@@ -165,12 +184,19 @@ export function useAdminAuth() {
   const signOut = async () => {
     await supabase.auth.signOut();
     setState({ user: null, isAdmin: false, isLoading: false, error: null });
-    navigate('/admin/login');
   };
 
-  return {
-    ...state,
-    signIn,
-    signOut,
-  };
+  return (
+    <AdminAuthContext.Provider value={{ ...state, signIn, signOut }}>
+      {children}
+    </AdminAuthContext.Provider>
+  );
+}
+
+export function useAdminAuthContext() {
+  const context = useContext(AdminAuthContext);
+  if (!context) {
+    throw new Error('useAdminAuthContext must be used within AdminAuthProvider');
+  }
+  return context;
 }
