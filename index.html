@@ -2,7 +2,12 @@
 <html lang="en">
 
 <head>
-  <!-- Google Tag Manager -->
+  <!-- Preconnect to critical origins -->
+  <link rel="preconnect" href="https://glxupcdgtzqkaxcgezeu.supabase.co" crossorigin />
+  <link rel="dns-prefetch" href="https://glxupcdgtzqkaxcgezeu.supabase.co" />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+  
+  <!-- Google Tag Manager - defer non-critical -->
   <script>(function (w, d, s, l, i) {
       w[l] = w[l] || []; w[l].push({
         'gtm.start':
@@ -22,6 +27,7 @@
     gtag('config', 'G-DLJL71LG51');
   </script>
   <!-- End Google Analytics GA4 -->
+  
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -62,6 +68,28 @@
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="/logo.png?v=2" />
+  
+  <!-- Inline critical CSS for faster FCP -->
+  <style>
+    /* Critical CSS for initial render */
+    *,::after,::before{box-sizing:border-box}
+    html{line-height:1.5;-webkit-text-size-adjust:100%}
+    body{margin:0;font-family:system-ui,-apple-system,sans-serif;background-color:#0a0a0a;color:#fafafa}
+    #root{min-height:100vh}
+    .min-h-screen{min-height:100vh}
+    .flex{display:flex}
+    .items-center{align-items:center}
+    .justify-center{justify-content:center}
+    .bg-background{background-color:#0a0a0a}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .animate-spin{animation:spin 1s linear infinite}
+    .rounded-full{border-radius:9999px}
+    .border-2{border-width:2px}
+    .border-primary{border-color:#c2410c}
+    .border-t-transparent{border-top-color:transparent}
+    .w-8{width:2rem}
+    .h-8{height:2rem}
+  </style>
 </head>
 
 <body>
