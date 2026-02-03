@@ -95,6 +95,11 @@ export async function getAdminStats(): Promise<AdminStats> {
     supabase.from('languages').select('id', { count: 'exact', head: true }).eq('enabled', true),
   ]);
 
+  if (chaptersRes.error) throw new Error(`Chapters Error: ${chaptersRes.error.message}`);
+  if (shloksRes.error) throw new Error(`Shloks Error: ${shloksRes.error.message}`);
+  if (problemsRes.error) throw new Error(`Problems Error: ${problemsRes.error.message}`);
+  if (languagesRes.error) throw new Error(`Languages Error: ${languagesRes.error.message}`);
+
   const shloks = shloksRes.data || [];
   const publishedCount = shloks.filter(s => s.status === 'published').length;
   const draftCount = shloks.filter(s => s.status === 'draft').length;

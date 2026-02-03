@@ -23,9 +23,10 @@ export default function AdminDashboard() {
   const { isReady } = useAdminAuthContext();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!isReady) return; // Wait for auth to be ready
+    if (!isReady) return;
 
     const loadStats = async () => {
       console.log('AdminDashboard: Loading stats...');
@@ -41,9 +42,9 @@ export default function AdminDashboard() {
 
         console.log('AdminDashboard: Stats loaded', statsData);
         setStats(statsData);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to load admin stats:', error);
-        // Toast is handled by the fetcher or we can add here
+        setError(error);
       } finally {
         setIsLoading(false);
       }
@@ -61,7 +62,12 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-8">
-        {isLoading ? (
+        {error ? (
+          <div className="col-span-full p-6 border border-destructive/20 bg-destructive/10 rounded-lg text-destructive flex items-center gap-3">
+            <div className="h-5 w-5 border-2 border-destructive rounded-full flex items-center justify-center font-bold">!</div>
+            <p>Failed to load dashboard data: {error.message}</p>
+          </div>
+        ) : isLoading ? (
           Array.from({ length: 6 }).map((_, i) => (
             <Card key={i} className="p-6">
               <Skeleton className="h-4 w-20 mb-2" />

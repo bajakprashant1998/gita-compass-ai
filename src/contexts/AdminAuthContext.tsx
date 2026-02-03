@@ -79,7 +79,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
 
                     // Use the refreshed session if available, fallback to original
                     const activeSession = refreshData?.session || session;
-                    
+
                     // Small delay to ensure token propagation to Supabase client
                     await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -118,6 +118,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
                     if (mounted) {
                         setUser(session.user);
                         setIsAdmin(verified);
+                        setIsReady(true);
                         setIsLoading(false);
                     }
                 }
