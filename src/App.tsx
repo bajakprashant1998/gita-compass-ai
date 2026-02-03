@@ -1,27 +1,46 @@
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
-import Index from "./pages/Index";
-import ChaptersPage from "./pages/ChaptersPage";
-import ChapterDetailPage from "./pages/ChapterDetailPage";
-import ProblemsPage from "./pages/ProblemsPage";
-import ProblemDetailPage from "./pages/ProblemDetailPage";
-import ShlokDetailPage from "./pages/ShlokDetailPage";
-import ShlokByVerseRedirect from "./pages/ShlokByVerseRedirect";
-import ChatPage from "./pages/ChatPage";
-import AuthPage from "./pages/AuthPage";
-import DashboardPage from "./pages/DashboardPage";
-import ContactPage from "./pages/ContactPage";
-import DonatePage from "./pages/DonatePage";
-import NotFound from "./pages/NotFound";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
-import { AdminRoutes } from "@/components/admin/AdminRoutes";
 
-const queryClient = new QueryClient();
+// Eager load the index page for best LCP
+import Index from "./pages/Index";
+
+// Lazy load all other routes for code splitting
+const ChaptersPage = lazy(() => import("./pages/ChaptersPage"));
+const ChapterDetailPage = lazy(() => import("./pages/ChapterDetailPage"));
+const ProblemsPage = lazy(() => import("./pages/ProblemsPage"));
+const ProblemDetailPage = lazy(() => import("./pages/ProblemDetailPage"));
+const ShlokDetailPage = lazy(() => import("./pages/ShlokDetailPage"));
+const ShlokByVerseRedirect = lazy(() => import("./pages/ShlokByVerseRedirect"));
+const ChatPage = lazy(() => import("./pages/ChatPage"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const DonatePage = lazy(() => import("./pages/DonatePage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminRoutes = lazy(() => import("@/components/admin/AdminRoutes").then(m => ({ default: m.AdminRoutes })));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    },
+  },
+});
+
+// Minimal loading fallback
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const App = () => (
   <HelmetProvider>
@@ -32,27 +51,29 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/chapters" element={<ChaptersPage />} />
-              <Route path="/chapters/:chapterNumber" element={<ChapterDetailPage />} />
-              <Route path="/chapters/:chapterNumber/verse/:verseNumber" element={<ShlokDetailPage />} />
-              <Route path="/chapter/:chapterNumber/verse/:verseNumber" element={<ShlokByVerseRedirect />} />
-              <Route path="/shlok/:shlokId" element={<ShlokByVerseRedirect />} />
-              <Route path="/problems" element={<ProblemsPage />} />
-              <Route path="/problems/:slug" element={<ProblemDetailPage />} />
-              <Route path="/chat" element={<ChatPage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/donate" element={<DonatePage />} />
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/chapters" element={<ChaptersPage />} />
+                <Route path="/chapters/:chapterNumber" element={<ChapterDetailPage />} />
+                <Route path="/chapters/:chapterNumber/verse/:verseNumber" element={<ShlokDetailPage />} />
+                <Route path="/chapter/:chapterNumber/verse/:verseNumber" element={<ShlokByVerseRedirect />} />
+                <Route path="/shlok/:shlokId" element={<ShlokByVerseRedirect />} />
+                <Route path="/problems" element={<ProblemsPage />} />
+                <Route path="/problems/:slug" element={<ProblemDetailPage />} />
+                <Route path="/chat" element={<ChatPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/donate" element={<DonatePage />} />
 
-              {/* Admin Routes - handles its own layout and protection */}
-              <Route path="/admin/*" element={<AdminRoutes />} />
+                {/* Admin Routes - handles its own layout and protection */}
+                <Route path="/admin/*" element={<AdminRoutes />} />
 
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
