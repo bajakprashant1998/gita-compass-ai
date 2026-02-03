@@ -34,13 +34,19 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
                 return true;
             }
 
-            // Query database
-            const { data, error } = await supabase
-                .from("user_roles")
-                .select("role")
-                .eq("user_id", userId)
-                .eq("role", "admin")
-                .maybeSingle();
+            // Query database with timeout
+            // If the query hangs (network/stale token), we want to fail fast so UI shows error instead of infinite loader
+            const { data, error } = await Promise.race([
+                supabase
+                    .from("user_roles")
+                    .select("role")
+                    .eq("user_id", userId)
+                    .eq("role", "admin")
+                    .maybeSingle(),
+                new Promise<{ data: null, error: any }>((resolve) =>
+                    setTimeout(() => resolve({ data: null, error: new Error('Verification timed out') }), 5000)
+                )
+            ]);
 
             if (error) throw error;
 
@@ -67,18 +73,63 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         // Initial session check
         const initAuth = async () => {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                console.log('AdminAuthContext: Starting initAuth');
+                // Wrap getSession in timeout as it might be hanging too
+                const { data: { session }, error: sessionError } = await Promise.race([
+                    supabase.auth.getSession(),
+                    new Promise<{ data: { session: null }, error: any }>((resolve) =>
+                        setTimeout(() => resolve({ data: { session: null }, error: new Error('GetSession timed out') }), 2000)
+                    )
+                ]) as any; // Cast to bypass strict type check on the race result if needed
+
+                if (sessionError) {
+                    console.error("AdminAuthContext: getSession error", sessionError);
+                }
 
                 if (!mounted) return;
 
                 if (session?.user) {
                     // Force refresh session and GET the new session data
                     // This fixes issues where stale tokens cause DB queries to hang
-                    const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-                    if (refreshError) console.warn('AdminAuthContext: Session refresh warning', refreshError);
+                    // Add timeout to prevent hanging on refresh
+                    const { data: refreshData, error: refreshError } = await Promise.race([
+                        supabase.auth.refreshSession(),
+                        new Promise<{ data: { session: null, user: null }, error: any }>((resolve) =>
+                            setTimeout(() => resolve({ data: { session: null, user: null }, error: new Error('Refresh timed out') }), 2000)
+                        )
+                    ]);
 
-                    // Use the refreshed session if available, fallback to original
-                    const activeSession = refreshData?.session || session;
+                    if (refreshError) {
+                        console.warn('AdminAuthContext: Session refresh failed, forcing logout to prevented stale state', refreshError);
+                        // If refresh fails, the token is likely stale and will cause RLS issues (0 data).
+                        // Better to force re-login than show incorrect empty dashboard.
+                        clearAdminCache();
+                        // Fire and forget signout to clean up Supabase storage
+                        supabase.auth.signOut().catch(console.error);
+
+                        if (mounted) {
+                            setUser(null);
+                            setIsAdmin(false);
+                            setIsLoading(false);
+                            navigate("/admin/login");
+                        }
+                        return; // Stop init
+                    }
+
+                    // Use the refreshed session
+                    const activeSession = refreshData?.session;
+                    if (!activeSession) {
+                        // Should not happen if no error but strictly handle it
+                        if (mounted) {
+                            clearAdminCache();
+                            supabase.auth.signOut().catch(console.error);
+                            setUser(null);
+                            setIsAdmin(false);
+                            setIsLoading(false);
+                            navigate("/admin/login");
+                        }
+                        return;
+                    }
 
                     // Small delay to ensure token propagation to Supabase client
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -94,6 +145,18 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
                     if (mounted) {
                         setUser(null);
                         setIsAdmin(false);
+
+                        // Critical: If we found no session (or timed out), we MUST clear any potential garbage tokens
+                        // This prevents the "Login Hang" where a bad token blocks signInWithPassword
+                        clearAdminCache();
+                        // Clear in-memory Supabase client state
+                        supabase.auth.signOut().catch(console.error);
+
+                        Object.keys(localStorage).forEach(key => {
+                            if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
+                                localStorage.removeItem(key);
+                            }
+                        });
                     }
                 }
             } catch (err: any) {
@@ -166,6 +229,14 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         } finally {
             // Always clear local state
             clearAdminCache();
+
+            // Manual cleanup of Supabase token in localStorage to be safe
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
+                    localStorage.removeItem(key);
+                }
+            });
+
             setUser(null);
             setIsAdmin(false);
             setIsLoading(false);

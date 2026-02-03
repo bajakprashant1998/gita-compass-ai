@@ -2,6 +2,7 @@ import { useAdminAuthContext } from "@/contexts/AdminAuthContext";
 import { Navigate } from "react-router-dom";
 import { ShieldAlert } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 function AdminLoadingSkeleton() {
     return (
@@ -64,7 +65,7 @@ function AdminLoadingSkeleton() {
 }
 
 export function AdminProtectedRoute({ children }: { children: React.ReactNode }) {
-    const { isAdmin, isLoading, user, error } = useAdminAuthContext();
+    const { isAdmin, isLoading, user, error, signOut } = useAdminAuthContext();
 
     if (isLoading) {
         return <AdminLoadingSkeleton />;
@@ -77,9 +78,9 @@ export function AdminProtectedRoute({ children }: { children: React.ReactNode })
                     <ShieldAlert className="h-16 w-16 text-destructive" />
                     <h1 className="text-2xl font-bold">Access Denied</h1>
                     <p className="text-muted-foreground">{error}</p>
-                    <div className="flex gap-4">
-                        <button onClick={() => window.location.reload()} className="text-primary hover:underline">Retry</button>
-                        <a href="/admin/login" className="text-primary hover:underline">Sign in with different account</a>
+                    <div className="flex gap-4 items-center">
+                        <Button variant="outline" onClick={() => window.location.reload()}>Retry</Button>
+                        <Button variant="destructive" onClick={signOut}>Log Out</Button>
                     </div>
                 </div>
             );
