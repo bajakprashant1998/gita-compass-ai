@@ -40,35 +40,21 @@ export default function AdminLoginPage() {
     }
 
     try {
-      // Create a timeout promise
-      const timeoutPromise = new Promise<{ data: any, error: any }>((_, reject) =>
-        setTimeout(() => reject(new Error('Connection timed out. Please check your network.')), 15000)
-      );
-
-      const { data, error } = await Promise.race([
-        supabase.auth.signInWithPassword({
-          email,
-          password,
-        }),
-        timeoutPromise
-      ]) as { data: any, error: any };
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
       if (error) throw error;
 
       if (data.session) {
-        // Optimistically verify to allow redirect while background check runs in Context
-        setAdminCache(data.session.user.id);
+        // Verification will happen in AdminLayout
+        // But we can optimistically set cache if we want, or just let AdminLayout handle it
+        // Let's let AdminLayout handle the rigorous check to be safe.
         navigate('/admin', { replace: true });
       }
     } catch (err: any) {
-      console.error('Login error:', err);
-      // Clean up if it was a timeout but potentially succeeded in background (unlikely for REST)
       setError(err.message || 'Failed to sign in');
-
-      // If network error, maybe force clear everything again?
-      if (err.message?.includes('network') || err.message?.includes('time')) {
-        // Optionally clear cache
-      }
     } finally {
       setIsLoading(false);
     }

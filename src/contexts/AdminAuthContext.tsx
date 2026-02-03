@@ -165,15 +165,6 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         } finally {
             // Always clear local state
             clearAdminCache();
-
-            // Force clear Supabase tokens from localStorage to prevent stale sessions
-            // Supabase default keys start with 'sb-'
-            Object.keys(localStorage).forEach((key) => {
-                if (key.startsWith('sb-')) {
-                    localStorage.removeItem(key);
-                }
-            });
-
             setUser(null);
             setIsAdmin(false);
             setIsLoading(false);
