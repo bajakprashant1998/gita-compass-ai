@@ -231,7 +231,7 @@ export function ModernStory({ shlok }: ModernStoryProps) {
   const currentLang = SUPPORTED_LANGUAGES.find(l => l.code === selectedLanguage);
 
   return (
-    <Card className="mb-8 border-0 shadow-xl overflow-hidden animate-fade-in animation-delay-300">
+    <Card className="mb-8 border-0 shadow-xl overflow-hidden animate-fade-in animation-delay-300 relative">
       {/* Decorative gradient header */}
       <div className="h-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
 
@@ -253,9 +253,8 @@ export function ModernStory({ shlok }: ModernStoryProps) {
             </div>
           </div>
 
-          {/* Language & Audio Controls */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Language Selector */}
+          {/* Language Selector - Desktop only */}
+          <div className="hidden sm:flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -296,43 +295,6 @@ export function ModernStory({ shlok }: ModernStoryProps) {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {/* Play/Pause Button */}
-            <Button
-              variant={isPlaying ? "default" : "outline"}
-              size="sm"
-              onClick={handlePlayPause}
-              disabled={isLoading || isTranslating}
-              className="gap-2 min-w-[100px]"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Loading...</span>
-                </>
-              ) : isPlaying ? (
-                <>
-                  <Pause className="h-4 w-4" />
-                  <span>Pause</span>
-                </>
-              ) : (
-                <>
-                  <Volume2 className="h-4 w-4" />
-                  <span>Listen</span>
-                </>
-              )}
-            </Button>
-
-            {(isPlaying || progress > 0) && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleStop}
-                className="h-9 w-9"
-              >
-                <Square className="h-4 w-4" />
-              </Button>
-            )}
           </div>
         </div>
 
@@ -344,7 +306,7 @@ export function ModernStory({ shlok }: ModernStoryProps) {
         )}
 
         {/* Story content */}
-        <div className="p-6 pt-4">
+        <div className="p-6 pt-4 pb-24">
           <div className={`prose prose-lg max-w-none transition-all duration-500 ${isExpanded ? '' : 'max-h-48 overflow-hidden relative'}`}>
             {paragraphs.map((paragraph, index) => (
               <p
@@ -372,6 +334,105 @@ export function ModernStory({ shlok }: ModernStoryProps) {
               {isExpanded ? 'Show Less' : 'Read Full Story'}
             </Button>
           )}
+        </div>
+
+        {/* Floating Audio Control Bar */}
+        <div className="sticky bottom-0 left-0 right-0 bg-gradient-to-r from-secondary via-card to-secondary border-t border-primary/10 p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+          <div className="flex items-center justify-between gap-3 max-w-2xl mx-auto">
+            {/* Language Selector - Mobile & Desktop */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 border-2 border-primary/20 hover:border-primary/40 flex-shrink-0"
+                  disabled={isTranslating}
+                >
+                  {isTranslating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Globe className="h-4 w-4 text-primary" />
+                      <span className={`hidden xs:inline ${currentLang?.scriptClass || ''}`}>
+                        {currentLang?.native || 'English'}
+                      </span>
+                    </>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                {SUPPORTED_LANGUAGES.map((lang) => (
+                  <DropdownMenuItem
+                    key={lang.code}
+                    onClick={() => handleLanguageChange(lang.code)}
+                    className="flex items-center justify-between cursor-pointer"
+                  >
+                    <span className={`font-medium ${lang.scriptClass || ''}`}>
+                      {lang.native}
+                    </span>
+                    {selectedLanguage === lang.code && (
+                      <Check className="h-4 w-4 text-primary" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Progress indicator */}
+            <div className="flex-1 mx-2">
+              {(isPlaying || progress > 0) ? (
+                <div className="flex items-center gap-2">
+                  <Progress value={progress} className="h-2 flex-1" />
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {Math.round(progress)}%
+                  </span>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center">
+                  {isTranslating ? 'Translating story...' : 'Listen to the story'}
+                </p>
+              )}
+            </div>
+
+            {/* Audio Controls */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Button
+                variant={isPlaying ? "default" : "outline"}
+                size="sm"
+                onClick={handlePlayPause}
+                disabled={isLoading || isTranslating}
+                className="gap-2 min-w-[90px] bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 text-white border-0"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="hidden sm:inline">Loading</span>
+                  </>
+                ) : isPlaying ? (
+                  <>
+                    <Pause className="h-4 w-4" />
+                    <span className="hidden sm:inline">Pause</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="h-4 w-4" />
+                    <span className="hidden sm:inline">Listen</span>
+                  </>
+                )}
+              </Button>
+
+              {(isPlaying || progress > 0) && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleStop}
+                  className="h-9 w-9"
+                >
+                  <Square className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
