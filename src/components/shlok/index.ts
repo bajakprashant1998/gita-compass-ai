@@ -9,3 +9,5 @@ export { ShareWisdomCard } from './ShareWisdomCard';
 export { ShlokActions } from './ShlokActions';
 export { ReadingProgress } from './ReadingProgress';
 export { VerseNavigation } from './VerseNavigation';
+export { PageLanguageSelector, getScriptClass, isRTL } from './PageLanguageSelector';
+export { TranslatableContent } from './TranslatableContent';

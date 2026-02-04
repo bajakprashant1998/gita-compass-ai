@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { getShlokByChapterAndVerse } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,10 @@ import { ShlokActions } from '@/components/shlok/ShlokActions';
 import { WisdomCardGenerator } from '@/components/shlok/WisdomCardGenerator';
 import { ReadingProgress } from '@/components/shlok/ReadingProgress';
 import { VerseNavigation } from '@/components/shlok/VerseNavigation';
+import { PageLanguageSelector, getScriptClass, isRTL } from '@/components/shlok/PageLanguageSelector';
+import { TranslatableContent } from '@/components/shlok/TranslatableContent';
+import { Card, CardContent } from '@/components/ui/card';
+import { Target, ArrowRight } from 'lucide-react';
 
 // Section navigation items
 const sections = [
@@ -29,6 +33,15 @@ const sections = [
   { id: 'story', icon: Lightbulb, label: 'Story' },
   { id: 'application', icon: Heart, label: 'Apply' },
 ];
+
+interface TranslatedContent {
+  meaning?: string;
+  lifeApplication?: string;
+  practicalAction?: string;
+  modernStory?: string;
+  problemContext?: string;
+  solutionGita?: string;
+}
 
 export default function ShlokDetailPage() {
   const { chapterNumber, verseNumber } = useParams<{ chapterNumber: string; verseNumber: string }>();
@@ -40,6 +53,26 @@ export default function ShlokDetailPage() {
     queryFn: () => getShlokByChapterAndVerse(chapterNum, verseNum),
     enabled: !!chapterNum && !!verseNum,
   });
+
+  // Translation state
+  const [translatedContent, setTranslatedContent] = useState<TranslatedContent | null>(null);
+  const [currentLanguage, setCurrentLanguage] = useState('en');
+
+  // Reset translation when shlok changes
+  useEffect(() => {
+    setTranslatedContent(null);
+    setCurrentLanguage('en');
+  }, [shlok?.id]);
+
+  const handleTranslated = useCallback((content: TranslatedContent, langCode: string) => {
+    setTranslatedContent(content);
+    setCurrentLanguage(langCode);
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setTranslatedContent(null);
+    setCurrentLanguage('en');
+  }, []);
 
   // Keyboard navigation
   useEffect(() => {
@@ -90,6 +123,19 @@ export default function ShlokDetailPage() {
       </Layout>
     );
   }
+
+  // Get display content (translated or original)
+  const displayContent = {
+    meaning: translatedContent?.meaning || shlok.english_meaning,
+    lifeApplication: translatedContent?.lifeApplication || shlok.life_application,
+    practicalAction: translatedContent?.practicalAction || shlok.practical_action,
+    modernStory: translatedContent?.modernStory || shlok.modern_story,
+    problemContext: translatedContent?.problemContext || shlok.problem_context,
+    solutionGita: translatedContent?.solutionGita || shlok.solution_gita,
+  };
+
+  const scriptClass = getScriptClass(currentLanguage);
+  const rtl = isRTL(currentLanguage);
 
   // Generate structured data
   const articleSchema = generateArticleSchema({
@@ -157,13 +203,30 @@ export default function ShlokDetailPage() {
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-24 relative">
           <div className="max-w-4xl mx-auto">
-            {/* Back Navigation */}
-            <Link to={`/chapters/${chapterNum}`} className="inline-block mb-6">
-              <Button variant="ghost" className="gap-2 group hover:bg-primary/10 border border-transparent hover:border-primary/20">
-                <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                Back to Chapter {chapterNum}
-              </Button>
-            </Link>
+            {/* Back Navigation + Language Selector */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <Link to={`/chapters/${chapterNum}`}>
+                <Button variant="ghost" className="gap-2 group hover:bg-primary/10 border border-transparent hover:border-primary/20">
+                  <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                  Back to Chapter {chapterNum}
+                </Button>
+              </Link>
+
+              {/* Page-Level Language Translator */}
+              <PageLanguageSelector
+                originalContent={{
+                  meaning: shlok.english_meaning,
+                  hindiMeaning: shlok.hindi_meaning,
+                  lifeApplication: shlok.life_application,
+                  practicalAction: shlok.practical_action,
+                  modernStory: shlok.modern_story,
+                  problemContext: shlok.problem_context,
+                  solutionGita: shlok.solution_gita,
+                }}
+                onTranslated={handleTranslated}
+                onReset={handleReset}
+              />
+            </div>
 
             {/* Page Header with Breadcrumbs */}
             <ShlokHeader shlok={shlok} />
@@ -173,25 +236,147 @@ export default function ShlokDetailPage() {
               <SanskritVerse shlok={shlok} />
             </div>
 
-            {/* Actual Meaning with Language Switcher */}
+            {/* Actual Meaning - Using translated content if available */}
             <div id="meaning">
-              <MeaningSection shlok={shlok} />
+              <Card className="mb-8 border-0 shadow-lg animate-fade-in animation-delay-200 overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-secondary via-accent to-secondary" />
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-secondary to-accent text-secondary-foreground">
+                      <MessageSquare className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">Meaning & Interpretation</h3>
+                      <p className="text-xs text-muted-foreground">Understanding the verse</p>
+                    </div>
+                  </div>
+
+                  <div className="relative pl-6 border-l-4 border-primary/30">
+                    <TranslatableContent 
+                      languageCode={currentLanguage}
+                      className="text-lg md:text-xl leading-relaxed text-foreground"
+                    >
+                      {displayContent.meaning}
+                    </TranslatableContent>
+                    
+                    {currentLanguage !== 'en' && (
+                      <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className={`px-2 py-0.5 rounded-full bg-primary/10 text-primary ${scriptClass}`}>
+                          Translated
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Problem Tags (Clickable Navigation) */}
             <ProblemTags problems={shlok.problems || []} />
 
-            {/* Problem → Solution Flow */}
-            <ProblemSolutionFlow shlok={shlok} />
+            {/* Problem → Solution Flow - with translation support */}
+            {(displayContent.problemContext || displayContent.solutionGita) && (
+              <div className="mb-8 space-y-4">
+                {displayContent.problemContext && (
+                  <Card className="border-l-4 border-l-amber-500">
+                    <CardContent className="p-6">
+                      <h4 className="font-semibold mb-2 text-amber-700 dark:text-amber-400">The Problem</h4>
+                      <TranslatableContent languageCode={currentLanguage} className="text-foreground">
+                        {displayContent.problemContext}
+                      </TranslatableContent>
+                    </CardContent>
+                  </Card>
+                )}
+                {displayContent.solutionGita && (
+                  <Card className="border-l-4 border-l-green-500">
+                    <CardContent className="p-6">
+                      <h4 className="font-semibold mb-2 text-green-700 dark:text-green-400">Gita's Solution</h4>
+                      <TranslatableContent languageCode={currentLanguage} className="text-foreground">
+                        {displayContent.solutionGita}
+                      </TranslatableContent>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
 
-            {/* Modern Story / Example */}
-            <div id="story">
-              <ModernStory shlok={shlok} />
-            </div>
+            {/* Modern Story / Example - with translation support */}
+            {displayContent.modernStory && (
+              <div id="story">
+                <Card className="mb-8 border-0 shadow-xl overflow-hidden animate-fade-in animation-delay-300">
+                  <div className="h-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
+                        <BookOpen className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg">Modern Story</h3>
+                        <p className="text-sm text-muted-foreground">A contemporary example</p>
+                      </div>
+                    </div>
+                    <div className="prose prose-lg max-w-none">
+                      <TranslatableContent languageCode={currentLanguage} className="text-foreground leading-relaxed">
+                        {displayContent.modernStory}
+                      </TranslatableContent>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
-            {/* Life Application Box */}
-            <div id="application">
-              <LifeApplicationBox shlok={shlok} />
+            {/* Life Application Box - with translation support */}
+            <div id="application" className="space-y-6 mb-8 animate-fade-in animation-delay-400">
+              {displayContent.lifeApplication && (
+                <Card className="metric-card border-2 border-primary/20 hover:border-primary/40 transition-all duration-300">
+                  <CardContent className="p-8">
+                    <div className="flex items-start gap-5">
+                      <div className="shrink-0 p-4 rounded-2xl bg-gradient-to-br from-primary to-amber-500 text-white shadow-lg">
+                        <Lightbulb className="h-7 w-7" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-3">
+                          <h3 className="font-bold text-xl text-primary">Life Application</h3>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                          <span className="text-sm text-muted-foreground">Key Takeaway</span>
+                        </div>
+                        <TranslatableContent 
+                          languageCode={currentLanguage}
+                          className="text-lg md:text-xl leading-relaxed font-medium text-foreground"
+                        >
+                          {displayContent.lifeApplication}
+                        </TranslatableContent>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {displayContent.practicalAction && (
+                <Card className="metric-card bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-2 border-green-200 dark:border-green-800 hover:border-green-400 dark:hover:border-green-600 transition-all duration-300">
+                  <CardContent className="p-8">
+                    <div className="flex items-start gap-5">
+                      <div className="shrink-0 p-4 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg">
+                        <Target className="h-7 w-7" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-3">
+                          <h3 className="font-bold text-xl text-green-700 dark:text-green-400">Today's Action</h3>
+                          <span className="px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-xs font-semibold">
+                            DO THIS
+                          </span>
+                        </div>
+                        <TranslatableContent 
+                          languageCode={currentLanguage}
+                          className="text-lg md:text-xl leading-relaxed text-foreground"
+                        >
+                          {displayContent.practicalAction}
+                        </TranslatableContent>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Share as Wisdom Card */}
@@ -204,7 +389,7 @@ export default function ShlokDetailPage() {
             <ShlokActions shlokId={shlok.id} />
             
             {/* Chapter Progress Indicator */}
-            <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-primary/5 via-background to-amber-50/30 dark:from-primary/10 dark:via-background dark:to-amber-900/10 border border-border/50">
+            <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-primary/5 via-background to-accent/10 dark:from-primary/10 dark:via-background dark:to-accent/5 border border-border/50">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-muted-foreground">
                   Chapter {chapterNum} Progress
@@ -215,7 +400,7 @@ export default function ShlokDetailPage() {
               </div>
               <div className="h-2 rounded-full bg-muted overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-primary via-amber-500 to-orange-500 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-primary via-accent to-secondary rounded-full transition-all duration-500"
                   style={{ width: `${Math.min((verseNum / 47) * 100, 100)}%` }}
                 />
               </div>
