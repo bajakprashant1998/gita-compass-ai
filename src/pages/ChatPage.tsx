@@ -21,6 +21,7 @@ import ReactMarkdown from 'react-markdown';
 import { QuickActionsBar } from '@/components/chat/QuickActionsBar';
 import { MessageActions } from '@/components/chat/MessageActions';
 import { ConversationStarters } from '@/components/chat/ConversationStarters';
+import { LanguageSelector, INDIAN_LANGUAGES } from '@/components/chat/LanguageSelector';
 import { SEOHead } from '@/components/SEOHead';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -33,6 +34,7 @@ interface Message {
   content: string;
   timestamp?: Date;
   isCollapsed?: boolean;
+  detectedLanguage?: string;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gita-coach`;
@@ -43,7 +45,28 @@ const typingMessages = [
   "Consulting ancient wisdom...",
   "Finding relevant verses...",
   "Preparing guidance...",
+  "Translating response...",
 ];
+
+// Get font class based on script type
+function getScriptFontClass(langCode: string): string {
+  const scriptFonts: Record<string, string> = {
+    hi: 'font-devanagari',
+    mr: 'font-devanagari',
+    sa: 'font-devanagari',
+    ta: 'font-tamil',
+    te: 'font-telugu',
+    bn: 'font-bengali',
+    as: 'font-bengali',
+    gu: 'font-gujarati',
+    kn: 'font-kannada',
+    ml: 'font-malayalam',
+    pa: 'font-gurmukhi',
+    or: 'font-odia',
+    ur: 'font-urdu',
+  };
+  return scriptFonts[langCode] || '';
+}
 
 export default function ChatPage() {
   const [searchParams] = useSearchParams();
@@ -53,6 +76,7 @@ export default function ChatPage() {
   const [typingMessage, setTypingMessage] = useState(typingMessages[0]);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [collapsedMessages, setCollapsedMessages] = useState<Set<number>>(new Set());
+  const [preferredLanguage, setPreferredLanguage] = useState('auto');
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useAuth();
@@ -151,7 +175,8 @@ export default function ChatPage() {
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({ 
-          messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content }))
+          messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })),
+          preferredLanguage: preferredLanguage,
         }),
       });
 
@@ -289,17 +314,24 @@ export default function ChatPage() {
               </div>
             </div>
             
-            {messages.length > 0 && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleClearChat}
-                className="gap-2 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all"
-              >
-                <RotateCcw className="h-4 w-4" />
-                <span className="hidden sm:inline">New Chat</span>
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              <LanguageSelector
+                selectedLanguage={preferredLanguage}
+                onLanguageChange={setPreferredLanguage}
+                disabled={isLoading}
+              />
+              {messages.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleClearChat}
+                  className="gap-2 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  <span className="hidden sm:inline">New Chat</span>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </section>

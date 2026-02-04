@@ -220,10 +220,58 @@
   @apply bg-muted-foreground/30;
 }
 
-/* Sanskrit text styling */
-.sanskrit {
+/* Sanskrit/Devanagari text styling */
+.sanskrit,
+.font-devanagari {
   font-family: 'Noto Sans Devanagari', 'Poppins', sans-serif;
   line-height: 1.8;
+}
+
+/* Indian language font families */
+.font-tamil {
+  font-family: 'Noto Sans Tamil', 'Latha', sans-serif;
+  line-height: 1.8;
+}
+
+.font-telugu {
+  font-family: 'Noto Sans Telugu', 'Gautami', sans-serif;
+  line-height: 1.8;
+}
+
+.font-bengali {
+  font-family: 'Noto Sans Bengali', 'Vrinda', sans-serif;
+  line-height: 1.8;
+}
+
+.font-gujarati {
+  font-family: 'Noto Sans Gujarati', 'Shruti', sans-serif;
+  line-height: 1.8;
+}
+
+.font-kannada {
+  font-family: 'Noto Sans Kannada', 'Tunga', sans-serif;
+  line-height: 1.8;
+}
+
+.font-malayalam {
+  font-family: 'Noto Sans Malayalam', 'Kartika', sans-serif;
+  line-height: 1.8;
+}
+
+.font-gurmukhi {
+  font-family: 'Noto Sans Gurmukhi', 'Raavi', sans-serif;
+  line-height: 1.8;
+}
+
+.font-odia {
+  font-family: 'Noto Sans Oriya', 'Kalinga', sans-serif;
+  line-height: 1.8;
+}
+
+.font-urdu {
+  font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', sans-serif;
+  line-height: 2.2;
+  direction: rtl;
 }
 
 /* Prose styling for content */
