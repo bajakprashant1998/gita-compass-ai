@@ -14,14 +14,16 @@ import {
   ArrowDown,
   Keyboard,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Globe
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import { QuickActionsBar } from '@/components/chat/QuickActionsBar';
 import { MessageActions } from '@/components/chat/MessageActions';
-import { ConversationStarters } from '@/components/chat/ConversationStarters';
-import { LanguageSelector, INDIAN_LANGUAGES } from '@/components/chat/LanguageSelector';
+import { MultiLanguageStarters } from '@/components/chat/MultiLanguageStarters';
+import { EnhancedLanguageSelector, INDIAN_LANGUAGES } from '@/components/chat/EnhancedLanguageSelector';
+import { LanguageBadge } from '@/components/chat/LanguageBadge';
 import { SEOHead } from '@/components/SEOHead';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,6 +37,7 @@ interface Message {
   timestamp?: Date;
   isCollapsed?: boolean;
   detectedLanguage?: string;
+  originalContent?: string; // Store original before translation
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gita-coach`;
@@ -298,12 +301,14 @@ export default function ChatPage() {
       const data = await response.json();
       
       if (data.translatedContent) {
-        // Update the message with translated content
+        // Update the message with translated content, storing original
         setMessages(prev => {
           const newMessages = [...prev];
           if (newMessages[messageIndex]) {
+            const msg = newMessages[messageIndex];
             newMessages[messageIndex] = {
-              ...newMessages[messageIndex],
+              ...msg,
+              originalContent: msg.originalContent || msg.content, // Keep first original
               content: data.translatedContent,
               detectedLanguage: langCode,
             };
@@ -316,6 +321,24 @@ export default function ChatPage() {
       console.error('Translation error:', error);
       toast.error('Translation failed. Please try again.', { id: toastId });
     }
+  };
+
+  // Restore original content
+  const handleRestoreOriginal = (messageIndex: number) => {
+    setMessages(prev => {
+      const newMessages = [...prev];
+      const msg = newMessages[messageIndex];
+      if (msg?.originalContent) {
+        newMessages[messageIndex] = {
+          ...msg,
+          content: msg.originalContent,
+          originalContent: undefined,
+          detectedLanguage: undefined,
+        };
+      }
+      return newMessages;
+    });
+    toast.success('Restored original content');
   };
 
   const charCount = input.length;
@@ -357,10 +380,11 @@ export default function ChatPage() {
             </div>
             
             <div className="flex items-center gap-2">
-              <LanguageSelector
+              <EnhancedLanguageSelector
                 selectedLanguage={preferredLanguage}
                 onLanguageChange={setPreferredLanguage}
                 disabled={isLoading}
+                variant="prominent"
               />
               {messages.length > 0 && (
                 <Button 
@@ -395,7 +419,7 @@ export default function ChatPage() {
               {messages.length === 0 ? (
                 <div className="relative">
                   <FloatingOm className="absolute top-0 right-0 text-8xl" />
-                  <ConversationStarters onSelect={handleQuickAction} />
+                  <MultiLanguageStarters onSelect={handleQuickAction} selectedLanguage={preferredLanguage} />
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -431,7 +455,10 @@ export default function ChatPage() {
                             {message.role === 'assistant' ? (
                               isLongMessage ? (
                                 <Collapsible open={!isCollapsed}>
-                                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                                  <div className={cn(
+                                    "prose prose-sm dark:prose-invert max-w-none",
+                                    message.detectedLanguage && getScriptFontClass(message.detectedLanguage)
+                                  )}>
                                     <CollapsibleContent className="CollapsibleContent">
                                       <ReactMarkdown>{message.content}</ReactMarkdown>
                                     </CollapsibleContent>
@@ -461,7 +488,10 @@ export default function ChatPage() {
                                   </CollapsibleTrigger>
                                 </Collapsible>
                               ) : (
-                                <div className="prose prose-sm dark:prose-invert max-w-none">
+                                <div className={cn(
+                                  "prose prose-sm dark:prose-invert max-w-none",
+                                  message.detectedLanguage && getScriptFontClass(message.detectedLanguage)
+                                )}>
                                   <ReactMarkdown>{message.content || '...'}</ReactMarkdown>
                                 </div>
                               )
@@ -469,18 +499,25 @@ export default function ChatPage() {
                               <p>{message.content}</p>
                             )}
                           </div>
-                          <div className="flex items-center justify-between mt-1 px-1">
-                            {message.timestamp && (
-                              <span className="text-xs text-muted-foreground/80">
-                                {formatDistanceToNow(message.timestamp, { addSuffix: true })}
-                              </span>
-                            )}
+                          <div className="flex items-center justify-between mt-1.5 px-1 gap-2">
+                            <div className="flex items-center gap-2">
+                              {message.timestamp && (
+                                <span className="text-xs text-muted-foreground/80">
+                                  {formatDistanceToNow(message.timestamp, { addSuffix: true })}
+                                </span>
+                              )}
+                              {message.detectedLanguage && message.detectedLanguage !== 'en' && (
+                                <LanguageBadge languageCode={message.detectedLanguage} size="sm" />
+                              )}
+                            </div>
                             {message.role === 'assistant' && message.content && (
                               <MessageActions 
                                 content={message.content} 
                                 className="ml-auto" 
                                 messageIndex={index}
+                                hasOriginal={!!message.originalContent}
                                 onTranslate={handleTranslate}
+                                onRestoreOriginal={handleRestoreOriginal}
                               />
                             )}
                           </div>
