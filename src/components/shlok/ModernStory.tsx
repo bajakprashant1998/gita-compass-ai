@@ -123,7 +123,86 @@ export function ModernStory({ shlok }: ModernStoryProps) {
     }
   };
 
+  // Web Speech API fallback
+  const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const useBrowserTTS = (text: string, langCode: string) => {
+    return new Promise<void>((resolve, reject) => {
+      if (!('speechSynthesis' in window)) {
+        reject(new Error('Browser does not support speech synthesis'));
+        return;
+      }
+
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      speechSynthRef.current = utterance;
+
+      // Map language codes to BCP 47 tags for Web Speech API
+      const langMap: Record<string, string> = {
+        'en': 'en-US',
+        'hi': 'hi-IN',
+        'ta': 'ta-IN',
+        'te': 'te-IN',
+        'bn': 'bn-IN',
+        'mr': 'mr-IN',
+        'gu': 'gu-IN',
+        'kn': 'kn-IN',
+        'ml': 'ml-IN',
+      };
+
+      utterance.lang = langMap[langCode] || 'en-US';
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+
+      utterance.onend = () => {
+        setIsPlaying(false);
+        setProgress(100);
+        setTimeout(() => setProgress(0), 500);
+        resolve();
+      };
+
+      utterance.onerror = (event) => {
+        setIsPlaying(false);
+        reject(new Error(event.error));
+      };
+
+      // Simulate progress for browser TTS
+      const estimatedDuration = text.length * 60; // rough estimate in ms
+      let startTime = Date.now();
+      const progressInterval = setInterval(() => {
+        if (!isPlaying) {
+          clearInterval(progressInterval);
+          return;
+        }
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min((elapsed / estimatedDuration) * 100, 95);
+        setProgress(progress);
+      }, 100);
+
+      utterance.onend = () => {
+        clearInterval(progressInterval);
+        setIsPlaying(false);
+        setProgress(100);
+        setTimeout(() => setProgress(0), 500);
+        resolve();
+      };
+
+      window.speechSynthesis.speak(utterance);
+      setIsPlaying(true);
+    });
+  };
+
   const handlePlayPause = async () => {
+    // Handle pause for browser TTS
+    if (isPlaying && speechSynthRef.current) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+      setProgress(0);
+      return;
+    }
+
     if (isPlaying && audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
@@ -142,11 +221,11 @@ export function ModernStory({ shlok }: ModernStoryProps) {
 
     // Determine language for TTS
     const langConfig = SUPPORTED_LANGUAGES.find(l => l.code === selectedLanguage);
-    const language = selectedLanguage === 'en' ? 'english' : 'hindi'; // Google TTS uses broader language categories
+    const language = selectedLanguage === 'en' ? 'english' : 'hindi';
 
     setIsLoading(true);
     try {
-      // Use Google TTS for multilingual support
+      // Try Google TTS first
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-tts`,
         {
@@ -165,8 +244,8 @@ export function ModernStory({ shlok }: ModernStoryProps) {
       );
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to generate audio');
+        console.warn('Google TTS failed, falling back to browser TTS');
+        throw new Error('Google TTS unavailable');
       }
 
       const data = await response.json();
@@ -192,24 +271,36 @@ export function ModernStory({ shlok }: ModernStoryProps) {
       });
 
       audio.addEventListener('error', () => {
-        toast({
-          title: 'Playback Error',
-          description: 'Failed to play audio. Please try again.',
-          variant: 'destructive',
+        // Fallback to browser TTS on playback error
+        useBrowserTTS(textToSpeak, selectedLanguage).catch(() => {
+          toast({
+            title: 'Playback Error',
+            description: 'Failed to play audio. Please try again.',
+            variant: 'destructive',
+          });
         });
-        setIsPlaying(false);
         audioRef.current = null;
       });
 
       await audio.play();
       setIsPlaying(true);
     } catch (error) {
-      console.error('TTS Error:', error);
-      toast({
-        title: 'Audio Generation Failed',
-        description: error instanceof Error ? error.message : 'Please try again later.',
-        variant: 'destructive',
-      });
+      console.warn('Using browser TTS fallback:', error);
+      // Fallback to Web Speech API
+      try {
+        await useBrowserTTS(textToSpeak, selectedLanguage);
+        toast({
+          title: 'Using Browser Audio',
+          description: 'Playing with your browser\'s built-in voice.',
+        });
+      } catch (fallbackError) {
+        console.error('Browser TTS also failed:', fallbackError);
+        toast({
+          title: 'Audio Unavailable',
+          description: 'Text-to-speech is not available. Please try a different browser.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
