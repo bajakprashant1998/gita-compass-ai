@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Copy, Check, Share2, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -12,13 +13,25 @@ interface MessageActionsProps {
 }
 
 const languages = [
-  { code: 'hi', name: 'हिंदी', label: 'Hindi' },
+  { code: 'hi', name: 'हिन्दी', label: 'Hindi' },
   { code: 'en', name: 'English', label: 'English' },
+  { code: 'ta', name: 'தமிழ்', label: 'Tamil' },
+  { code: 'te', name: 'తెలుగు', label: 'Telugu' },
+  { code: 'bn', name: 'বাংলা', label: 'Bengali' },
+  { code: 'mr', name: 'मराठी', label: 'Marathi' },
+  { code: 'gu', name: 'ગુજરાતી', label: 'Gujarati' },
+  { code: 'kn', name: 'ಕನ್ನಡ', label: 'Kannada' },
+  { code: 'ml', name: 'മലയാളം', label: 'Malayalam' },
+  { code: 'pa', name: 'ਪੰਜਾਬੀ', label: 'Punjabi' },
+  { code: 'or', name: 'ଓଡ଼ିଆ', label: 'Odia' },
+  { code: 'as', name: 'অসমীয়া', label: 'Assamese' },
+  { code: 'ur', name: 'اردو', label: 'Urdu' },
 ];
 
 export function MessageActions({ content, className, onTranslate }: MessageActionsProps) {
   const [copied, setCopied] = useState(false);
   const [isTranslateOpen, setIsTranslateOpen] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   const handleCopy = async () => {
     try {
@@ -54,12 +67,21 @@ export function MessageActions({ content, className, onTranslate }: MessageActio
     }
   };
 
-  const handleTranslate = (langCode: string) => {
+  const handleTranslate = async (langCode: string) => {
     setIsTranslateOpen(false);
+    
     if (onTranslate) {
+      setIsTranslating(true);
+      toast.loading(`Translating to ${languages.find(l => l.code === langCode)?.label}...`, { id: 'translate' });
       onTranslate(langCode, content);
+      // The parent component will handle the actual translation
+      setTimeout(() => {
+        setIsTranslating(false);
+        toast.dismiss('translate');
+      }, 500);
     } else {
-      toast.info(`Translation to ${langCode === 'hi' ? 'Hindi' : 'English'} coming soon`);
+      const langName = languages.find(l => l.code === langCode)?.label || langCode;
+      toast.info(`Translation to ${langName} coming soon`);
     }
   };
 
@@ -94,25 +116,38 @@ export function MessageActions({ content, className, onTranslate }: MessageActio
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 hover:bg-primary/10 hover:text-primary transition-colors"
+            className={cn(
+              "h-7 w-7 hover:bg-primary/10 hover:text-primary transition-colors",
+              isTranslating && "animate-pulse"
+            )}
             title="Translate"
+            disabled={isTranslating}
           >
             <Languages className="h-3.5 w-3.5" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-36 p-2" align="end">
-          <div className="space-y-1">
-            {languages.map((lang) => (
-              <button
-                key={lang.code}
-                onClick={() => handleTranslate(lang.code)}
-                className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-primary/10 hover:text-primary transition-colors flex items-center justify-between"
-              >
-                <span>{lang.name}</span>
-                <span className="text-xs text-muted-foreground">{lang.label}</span>
-              </button>
-            ))}
+        <PopoverContent 
+          className="w-52 p-0 bg-popover border border-border shadow-lg z-50" 
+          align="end"
+          sideOffset={5}
+        >
+          <div className="px-3 py-2 border-b border-border bg-muted/50">
+            <p className="text-xs font-medium text-muted-foreground">Translate to</p>
           </div>
+          <ScrollArea className="h-[280px]">
+            <div className="p-1">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => handleTranslate(lang.code)}
+                  className="w-full text-left px-3 py-2.5 text-sm rounded-md hover:bg-primary/10 hover:text-primary transition-colors flex items-center justify-between group/item"
+                >
+                  <span className="font-medium">{lang.name}</span>
+                  <span className="text-xs text-muted-foreground group-hover/item:text-primary/70">{lang.label}</span>
+                </button>
+              ))}
+            </div>
+          </ScrollArea>
         </PopoverContent>
       </Popover>
     </div>
