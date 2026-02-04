@@ -61,57 +61,44 @@ export async function updateSettings(settings: Record<string, string>): Promise<
   }
 }
 
-// Test Gemini API connection
-export async function testGeminiConnection(apiKey: string): Promise<{ success: boolean; error?: string }> {
+// Test API connection via secure edge function (keys never leave the server)
+export async function testApiConnection(provider: 'gemini' | 'google-tts' | 'elevenlabs'): Promise<{ success: boolean; error?: string }> {
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/test-api-connection`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: 'Say "Hello" in one word' }] }],
-          generationConfig: { maxOutputTokens: 10 },
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ provider }),
       }
     );
 
     if (!response.ok) {
-      const error = await response.text();
-      return { success: false, error: `API error: ${response.status}` };
+      const error = await response.json();
+      return { success: false, error: error.error || 'Connection test failed' };
     }
 
-    const data = await response.json();
-    if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      return { success: true };
-    }
-
-    return { success: false, error: 'Invalid response from API' };
+    return response.json();
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Connection failed' };
   }
 }
 
-// Test ElevenLabs API connection
-export async function testElevenLabsConnection(apiKey: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    const response = await fetch('https://api.elevenlabs.io/v1/user', {
-      headers: { 'xi-api-key': apiKey },
-    });
+// Legacy functions kept for backward compatibility - redirect to secure endpoint
+export async function testGeminiConnection(_apiKey?: string): Promise<{ success: boolean; error?: string }> {
+  return testApiConnection('gemini');
+}
 
-    if (!response.ok) {
-      return { success: false, error: `API error: ${response.status}` };
-    }
+export async function testElevenLabsConnection(_apiKey?: string): Promise<{ success: boolean; error?: string }> {
+  return testApiConnection('elevenlabs');
+}
 
-    const data = await response.json();
-    if (data.subscription) {
-      return { success: true };
-    }
-
-    return { success: false, error: 'Invalid API key' };
-  } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : 'Connection failed' };
-  }
+export async function testGoogleTTSConnection(_apiKey?: string): Promise<{ success: boolean; error?: string }> {
+  return testApiConnection('google-tts');
 }
 
 // Generate TTS audio using Google Cloud TTS
@@ -139,38 +126,6 @@ export async function generateTTS(
   }
 
   return response.json();
-}
-
-// Test Google TTS connection
-export async function testGoogleTTSConnection(apiKey: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    const response = await fetch(
-      `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          input: { text: 'Hello' },
-          voice: { languageCode: 'en-US', name: 'en-US-Neural2-D' },
-          audioConfig: { audioEncoding: 'MP3' },
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.text();
-      return { success: false, error: `API error: ${response.status}` };
-    }
-
-    const data = await response.json();
-    if (data.audioContent) {
-      return { success: true };
-    }
-
-    return { success: false, error: 'Invalid response from API' };
-  } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : 'Connection failed' };
-  }
 }
 
 // Play base64 audio
