@@ -300,28 +300,10 @@ export default function ShlokDetailPage() {
               </div>
             )}
 
-            {/* Modern Story / Example - with translation support */}
-            {displayContent.modernStory && (
+            {/* Modern Story / Example - with audio playback */}
+            {shlok.modern_story && (
               <div id="story">
-                <Card className="mb-8 border-0 shadow-xl overflow-hidden animate-fade-in animation-delay-300">
-                  <div className="h-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
-                        <BookOpen className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg">Modern Story</h3>
-                        <p className="text-sm text-muted-foreground">A contemporary example</p>
-                      </div>
-                    </div>
-                    <div className="prose prose-lg max-w-none">
-                      <TranslatableContent languageCode={currentLanguage} className="text-foreground leading-relaxed">
-                        {displayContent.modernStory}
-                      </TranslatableContent>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ModernStory shlok={shlok} />
               </div>
             )}
 
