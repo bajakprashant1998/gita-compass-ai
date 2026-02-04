@@ -6,6 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+
 const SYSTEM_PROMPT = `You are an AI assistant trained on the Bhagavad Gita (all 18 chapters, 700+ verses).
 
 Core Responsibilities:
@@ -82,41 +84,58 @@ Text to translate:
 `;
 }
 
-async function callAI(apiKey: string, messages: any[], stream = false): Promise<Response | string> {
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+async function callGeminiAPI(apiKey: string, prompt: string): Promise<string> {
+  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
-      messages,
-      stream,
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 8192,
+      },
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`AI API error: ${response.status}`);
-  }
-
-  if (stream) {
-    return response;
+    const errorText = await response.text();
+    console.error("Gemini API error:", response.status, errorText);
+    throw new Error(`Gemini API error: ${response.status}`);
   }
 
   const data = await response.json();
-  return data.choices?.[0]?.message?.content || '';
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+async function callGeminiStream(apiKey: string, prompt: string): Promise<Response> {
+  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}&alt=sse`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 8192,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Gemini API error: ${response.status}`);
+  }
+
+  return response;
 }
 
 async function detectLanguage(text: string, apiKey: string): Promise<string> {
   try {
-    const result = await callAI(apiKey, [
-      { role: "user", content: LANGUAGE_DETECTION_PROMPT + text }
-    ]) as string;
-    
+    const result = await callGeminiAPI(apiKey, LANGUAGE_DETECTION_PROMPT + text);
     const langCode = result.trim().toLowerCase().slice(0, 2);
     const validCodes = ['hi', 'ta', 'te', 'bn', 'mr', 'gu', 'kn', 'ml', 'pa', 'or', 'as', 'ur', 'en'];
-    
     return validCodes.includes(langCode) ? langCode : 'en';
   } catch (error) {
     console.error('Language detection error:', error);
@@ -126,9 +145,7 @@ async function detectLanguage(text: string, apiKey: string): Promise<string> {
 
 async function translateToEnglish(text: string, apiKey: string): Promise<string> {
   try {
-    const result = await callAI(apiKey, [
-      { role: "user", content: TRANSLATION_PROMPT + text }
-    ]) as string;
+    const result = await callGeminiAPI(apiKey, TRANSLATION_PROMPT + text);
     return result.trim();
   } catch (error) {
     console.error('Translation to English error:', error);
@@ -138,9 +155,7 @@ async function translateToEnglish(text: string, apiKey: string): Promise<string>
 
 async function translateFromEnglish(text: string, targetLang: string, apiKey: string): Promise<string> {
   try {
-    const result = await callAI(apiKey, [
-      { role: "user", content: getResponseTranslationPrompt(targetLang) + text }
-    ]) as string;
+    const result = await callGeminiAPI(apiKey, getResponseTranslationPrompt(targetLang) + text);
     return result.trim();
   } catch (error) {
     console.error('Translation from English error:', error);
@@ -155,10 +170,10 @@ serve(async (req) => {
 
   try {
     const { messages, conversationId, preferredLanguage } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    if (!GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY is not configured");
     }
 
     // Get the last user message
@@ -173,13 +188,13 @@ serve(async (req) => {
 
     // Auto-detect language if needed
     if (detectedLanguage === 'auto' || !detectedLanguage) {
-      detectedLanguage = await detectLanguage(lastUserMessage.content, LOVABLE_API_KEY);
+      detectedLanguage = await detectLanguage(lastUserMessage.content, GEMINI_API_KEY);
     }
 
     // If not English, translate to English for processing
     if (detectedLanguage !== 'en') {
       needsTranslation = true;
-      processedUserMessage = await translateToEnglish(lastUserMessage.content, LOVABLE_API_KEY);
+      processedUserMessage = await translateToEnglish(lastUserMessage.content, GEMINI_API_KEY);
     }
 
     // Fetch relevant shloks based on the processed message
@@ -224,24 +239,23 @@ serve(async (req) => {
       }
     }
 
-    // Prepare messages for AI - use translated message for processing
-    const processedMessages = messages.map((m: any, i: number) => {
+    // Build the full prompt with conversation history
+    const conversationHistory = messages.map((m: any, i: number) => {
       if (i === messages.length - 1 && m.role === "user" && needsTranslation) {
-        return { role: m.role, content: processedUserMessage };
+        return `${m.role === 'user' ? 'User' : 'Assistant'}: ${processedUserMessage}`;
       }
-      return { role: m.role, content: m.content };
-    });
+      return `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`;
+    }).join("\n\n");
 
-    // Get response from AI (non-streaming first, then we'll translate and stream)
+    const fullPrompt = `${SYSTEM_PROMPT}${contextShloks}\n\nConversation:\n${conversationHistory}\n\nAssistant:`;
+
+    // Get response from Gemini
     if (needsTranslation) {
       // For non-English: get full response, translate, then send
-      const aiResponse = await callAI(LOVABLE_API_KEY, [
-        { role: "system", content: SYSTEM_PROMPT + contextShloks },
-        ...processedMessages,
-      ]) as string;
+      const aiResponse = await callGeminiAPI(GEMINI_API_KEY, fullPrompt);
 
       // Translate response back to user's language
-      const translatedResponse = await translateFromEnglish(aiResponse, detectedLanguage, LOVABLE_API_KEY);
+      const translatedResponse = await translateFromEnglish(aiResponse, detectedLanguage, GEMINI_API_KEY);
 
       // Create SSE response with the translated content
       const encoder = new TextEncoder();
@@ -266,45 +280,57 @@ serve(async (req) => {
       });
     }
 
-    // For English: stream directly
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT + contextShloks },
-          ...messages,
-        ],
-        stream: true,
-      }),
-    });
+    // For English: use streaming with Gemini
+    const streamResponse = await callGeminiStream(GEMINI_API_KEY, fullPrompt);
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait a moment and try again." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Service temporarily unavailable. Please try again later." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      return new Response(JSON.stringify({ error: "Failed to get response from AI" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (!streamResponse.body) {
+      throw new Error("No response body from Gemini");
     }
 
-    return new Response(response.body, {
+    // Transform Gemini SSE to OpenAI-compatible SSE format
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    const reader = streamResponse.body.getReader();
+
+    const transformStream = new ReadableStream({
+      async start(controller) {
+        let buffer = "";
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const jsonStr = line.slice(6).trim();
+              if (jsonStr === "[DONE]") continue;
+              
+              try {
+                const parsed = JSON.parse(jsonStr);
+                const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                  const openAIFormat = JSON.stringify({
+                    choices: [{ delta: { content: text } }]
+                  });
+                  controller.enqueue(encoder.encode(`data: ${openAIFormat}\n\n`));
+                }
+              } catch {
+                // Skip invalid JSON
+              }
+            }
+          }
+        }
+        
+        controller.enqueue(encoder.encode(`data: [DONE]\n\n`));
+        controller.close();
+      }
+    });
+
+    return new Response(transformStream, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {
