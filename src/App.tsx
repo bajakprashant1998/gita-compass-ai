@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
+import { FloatingChatButton } from "./components/chat/FloatingChatButton";
 
 // Eager load the index page for best LCP
 import Index from "./pages/Index";
@@ -74,6 +75,8 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+            {/* Floating chat button - visible on all pages except /chat */}
+            <FloatingChatButton />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>

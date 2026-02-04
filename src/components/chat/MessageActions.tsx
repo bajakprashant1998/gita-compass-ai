@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, Share2, Languages } from 'lucide-react';
+import { Copy, Check, Share2, Languages, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,7 +10,9 @@ interface MessageActionsProps {
   content: string;
   className?: string;
   messageIndex: number;
+  hasOriginal?: boolean;
   onTranslate?: (language: string, content: string, messageIndex: number) => void;
+  onRestoreOriginal?: (messageIndex: number) => void;
 }
 
 const languages = [
@@ -29,7 +31,14 @@ const languages = [
   { code: 'ur', name: 'اردو', label: 'Urdu' },
 ];
 
-export function MessageActions({ content, className, messageIndex, onTranslate }: MessageActionsProps) {
+export function MessageActions({ 
+  content, 
+  className, 
+  messageIndex,
+  hasOriginal,
+  onTranslate,
+  onRestoreOriginal
+}: MessageActionsProps) {
   const [copied, setCopied] = useState(false);
   const [isTranslateOpen, setIsTranslateOpen] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
@@ -88,6 +97,20 @@ export function MessageActions({ content, className, messageIndex, onTranslate }
 
   return (
     <div className={cn("flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity", className)}>
+      {/* Restore Original button - only show if message has been translated */}
+      {hasOriginal && onRestoreOriginal && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-xs gap-1 hover:bg-primary/10 hover:text-primary transition-colors"
+          onClick={() => onRestoreOriginal(messageIndex)}
+          title="View original"
+        >
+          <RotateCcw className="h-3 w-3" />
+          <span className="hidden sm:inline">Original</span>
+        </Button>
+      )}
+
       <Button
         variant="ghost"
         size="icon"
