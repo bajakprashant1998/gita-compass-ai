@@ -62,8 +62,10 @@ serve(async (req) => {
     let voiceName: string;
 
     if (voice_name) {
+      // Extract language code from voice name (e.g., "ta-IN-Neural2-A" -> "ta-IN")
+      const match = voice_name.match(/^([a-z]{2}-[A-Z]{2})/);
+      languageCode = match ? match[1] : 'en-US';
       voiceName = voice_name;
-      languageCode = voice_name.startsWith('hi-') ? 'hi-IN' : 'en-US';
     } else if (language === 'hindi' || language === 'sanskrit') {
       languageCode = 'hi-IN';
       voiceName = settingsMap['google_tts_voice_hi'] || 'hi-IN-Neural2-B';
