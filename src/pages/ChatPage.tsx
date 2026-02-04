@@ -272,8 +272,50 @@ export default function ChatPage() {
     toast.success('Conversation cleared');
   };
 
-  const handleTranslate = (langCode: string, content: string) => {
-    toast.info(`Translation to ${langCode === 'hi' ? 'Hindi' : 'English'} - Feature coming soon!`);
+  const handleTranslate = async (langCode: string, content: string, messageIndex: number) => {
+    const langName = INDIAN_LANGUAGES.find(l => l.code === langCode)?.name || langCode;
+    const toastId = `translate-${messageIndex}`;
+    
+    toast.loading(`Translating to ${langName}...`, { id: toastId });
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-message`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ 
+          content,
+          targetLanguage: langCode,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Translation failed');
+      }
+
+      const data = await response.json();
+      
+      if (data.translatedContent) {
+        // Update the message with translated content
+        setMessages(prev => {
+          const newMessages = [...prev];
+          if (newMessages[messageIndex]) {
+            newMessages[messageIndex] = {
+              ...newMessages[messageIndex],
+              content: data.translatedContent,
+              detectedLanguage: langCode,
+            };
+          }
+          return newMessages;
+        });
+        toast.success(`Translated to ${langName}`, { id: toastId });
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      toast.error('Translation failed. Please try again.', { id: toastId });
+    }
   };
 
   const charCount = input.length;
@@ -437,6 +479,7 @@ export default function ChatPage() {
                               <MessageActions 
                                 content={message.content} 
                                 className="ml-auto" 
+                                messageIndex={index}
                                 onTranslate={handleTranslate}
                               />
                             )}

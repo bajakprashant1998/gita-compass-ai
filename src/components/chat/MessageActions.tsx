@@ -9,7 +9,8 @@ import { cn } from '@/lib/utils';
 interface MessageActionsProps {
   content: string;
   className?: string;
-  onTranslate?: (language: string, content: string) => void;
+  messageIndex: number;
+  onTranslate?: (language: string, content: string, messageIndex: number) => void;
 }
 
 const languages = [
@@ -28,7 +29,7 @@ const languages = [
   { code: 'ur', name: 'اردو', label: 'Urdu' },
 ];
 
-export function MessageActions({ content, className, onTranslate }: MessageActionsProps) {
+export function MessageActions({ content, className, messageIndex, onTranslate }: MessageActionsProps) {
   const [copied, setCopied] = useState(false);
   const [isTranslateOpen, setIsTranslateOpen] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
@@ -73,7 +74,7 @@ export function MessageActions({ content, className, onTranslate }: MessageActio
     if (onTranslate) {
       setIsTranslating(true);
       toast.loading(`Translating to ${languages.find(l => l.code === langCode)?.label}...`, { id: 'translate' });
-      onTranslate(langCode, content);
+      onTranslate(langCode, content, messageIndex);
       // The parent component will handle the actual translation
       setTimeout(() => {
         setIsTranslating(false);
