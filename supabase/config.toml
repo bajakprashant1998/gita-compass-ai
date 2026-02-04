@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.google-tts]
 verify_jwt = false
+
+[functions.translate-message]
+verify_jwt = false
+
+[functions.test-api-connection]
+verify_jwt = false
