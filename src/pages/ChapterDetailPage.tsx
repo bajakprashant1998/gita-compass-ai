@@ -120,7 +120,7 @@ export default function ChapterDetailPage() {
   return (
     <Layout>
       {/* Hero Section - WebFX Enhanced */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-amber-500/5 py-20 lg:py-28">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-amber-500/5 py-12 sm:py-16 lg:py-24">
         {/* Enhanced Background Decorations */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {/* Radial gradients */}
@@ -167,8 +167,8 @@ export default function ChapterDetailPage() {
           {/* Chapter Info - Enhanced */}
           <div className="max-w-4xl mx-auto text-center animate-fade-in">
             {/* Large Chapter Number Badge */}
-            <div className="relative inline-block mb-8">
-              <div className="text-[120px] md:text-[160px] lg:text-[200px] font-black text-transparent bg-clip-text bg-gradient-to-b from-primary/20 to-transparent leading-none select-none">
+            <div className="relative inline-block mb-6 sm:mb-8">
+              <div className="text-[80px] sm:text-[100px] md:text-[140px] lg:text-[180px] font-black text-transparent bg-clip-text bg-gradient-to-b from-primary/20 to-transparent leading-none select-none">
                 {chapter.chapter_number}
               </div>
               <Badge 
@@ -179,12 +179,12 @@ export default function ChapterDetailPage() {
               </Badge>
             </div>
             
-            <h1 className="headline-bold text-4xl md:text-5xl lg:text-7xl mb-4 tracking-tight">
+            <h1 className="headline-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-4 tracking-tight">
               {chapter.title_english}
             </h1>
             
             {chapter.title_sanskrit && (
-              <p className="text-2xl md:text-4xl text-primary/80 sanskrit mb-8 font-bold">
+              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-primary/80 sanskrit mb-6 sm:mb-8 font-bold">
                 {chapter.title_sanskrit}
               </p>
             )}
@@ -219,29 +219,29 @@ export default function ChapterDetailPage() {
             </div>
 
             {/* Stats Cards - WebFX Style */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-              <div className="group p-6 rounded-2xl bg-card border border-border/50 shadow-xl shadow-primary/5 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/30 transition-all hover:-translate-y-1">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform shadow-lg shadow-primary/30">
-                  <BookOpen className="h-7 w-7 text-white" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+              <div className="group p-4 sm:p-6 rounded-2xl bg-card border border-border/50 shadow-xl shadow-primary/5 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/30 transition-all hover:-translate-y-1">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center mb-3 sm:mb-4 mx-auto group-hover:scale-110 transition-transform shadow-lg shadow-primary/30">
+                  <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-white" />
                 </div>
-                <div className="text-4xl md:text-5xl font-black text-gradient mb-1">{animatedVerseCount}</div>
-                <div className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Sacred Verses</div>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-black text-gradient mb-1">{animatedVerseCount}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground font-medium uppercase tracking-wider">Sacred Verses</div>
               </div>
               
-              <div className="group p-6 rounded-2xl bg-card border border-border/50 shadow-xl shadow-primary/5 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/30 transition-all hover:-translate-y-1">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform shadow-lg shadow-purple-500/30">
-                  <Brain className="h-7 w-7 text-white" />
+              <div className="group p-4 sm:p-6 rounded-2xl bg-card border border-border/50 shadow-xl shadow-primary/5 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/30 transition-all hover:-translate-y-1">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center mb-3 sm:mb-4 mx-auto group-hover:scale-110 transition-transform shadow-lg shadow-purple-500/30">
+                  <Brain className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-white" />
                 </div>
-                <div className="text-4xl md:text-5xl font-black bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-1">{themes.length}</div>
-                <div className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Key Themes</div>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-1">{themes.length}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground font-medium uppercase tracking-wider">Key Themes</div>
               </div>
               
-              <div className="group p-6 rounded-2xl bg-card border border-border/50 shadow-xl shadow-primary/5 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/30 transition-all hover:-translate-y-1">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform shadow-lg shadow-emerald-500/30">
-                  <Target className="h-7 w-7 text-white" />
+              <div className="group p-4 sm:p-6 rounded-2xl bg-card border border-border/50 shadow-xl shadow-primary/5 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/30 transition-all hover:-translate-y-1">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mb-3 sm:mb-4 mx-auto group-hover:scale-110 transition-transform shadow-lg shadow-emerald-500/30">
+                  <Target className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-white" />
                 </div>
-                <div className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">{chapterNum}/18</div>
-                <div className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Chapter</div>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">{chapterNum}/18</div>
+                <div className="text-xs sm:text-sm text-muted-foreground font-medium uppercase tracking-wider">Chapter</div>
               </div>
             </div>
           </div>
@@ -255,7 +255,7 @@ export default function ChapterDetailPage() {
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="max-w-4xl mx-auto">
           {/* Section Header with Search & View Toggle */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <div className="w-1.5 h-10 rounded-full bg-gradient-to-b from-primary to-amber-500" />
               <div>
@@ -270,13 +270,13 @@ export default function ChapterDetailPage() {
             
             <div className="flex items-center gap-3">
               {/* Search */}
-              <div className="relative">
+              <div className="relative flex-1 sm:flex-initial">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search verses..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-[200px] border-border/50 focus:border-primary/50"
+                  className="pl-10 w-full sm:w-[200px] border-border/50 focus:border-primary/50"
                 />
               </div>
               

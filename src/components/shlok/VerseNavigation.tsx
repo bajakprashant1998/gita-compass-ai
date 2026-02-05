@@ -44,7 +44,7 @@ export function VerseNavigation({ chapterNumber, verseNumber }: VerseNavigationP
   const nextLink = getNextLink();
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 glass border-t border-border/50 animate-fade-in">
+    <div className="fixed bottom-0 left-0 right-0 z-40 glass border-t border-border/50 animate-fade-in pb-safe">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 max-w-4xl mx-auto">
           {/* Previous */}

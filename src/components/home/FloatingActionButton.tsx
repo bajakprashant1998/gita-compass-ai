@@ -33,7 +33,7 @@ export function FloatingActionButton() {
   if (!isMobile) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-20 right-4 z-50">
       {/* Action buttons */}
       <div className={`flex flex-col-reverse gap-3 mb-3 transition-all duration-300 ${
         isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'

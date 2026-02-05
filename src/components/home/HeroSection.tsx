@@ -43,7 +43,7 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,hsl(var(--primary)/0.15),transparent_40%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,hsl(var(--accent)/0.1),transparent_40%)]" />
       
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 lg:py-32 relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-20 lg:py-28 relative">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left Column - Content */}
           <div className="text-center lg:text-left">
@@ -105,7 +105,7 @@ export function HeroSection() {
               {/* Glow effect */}
               <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-amber-500/20 to-orange-500/20 rounded-3xl blur-2xl opacity-50" />
               
-              <div className="relative bg-card rounded-2xl border-2 border-border/50 p-8 shadow-2xl">
+              <div className="relative bg-card rounded-2xl border-2 border-border/50 p-5 sm:p-8 shadow-2xl">
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary to-amber-500 text-white">
@@ -124,7 +124,7 @@ export function HeroSection() {
                     value={problem}
                     onChange={(e) => setProblem(e.target.value)}
                     placeholder="I'm feeling anxious about..."
-                    className="min-h-[140px] text-base resize-none mb-4 bg-background border-2 border-border focus:border-primary transition-colors rounded-xl"
+                    className="min-h-[100px] sm:min-h-[140px] text-base resize-none mb-4 bg-background border-2 border-border focus:border-primary transition-colors rounded-xl"
                   />
                   <Button 
                     type="submit" 
@@ -140,12 +140,12 @@ export function HeroSection() {
                 {/* Quick prompts */}
                 <div className="mt-6 pt-6 border-t border-border/50">
                   <p className="text-xs text-muted-foreground mb-3 font-medium uppercase tracking-wide">Try these:</p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
                     {quickPrompts.map((prompt) => (
                       <button
                         key={prompt}
                         onClick={() => setProblem(prompt)}
-                        className="text-xs px-4 py-2 rounded-full bg-muted hover:bg-primary/10 hover:text-primary text-muted-foreground transition-all duration-300 font-medium"
+                        className="text-xs px-4 py-2 rounded-full bg-muted hover:bg-primary/10 hover:text-primary text-muted-foreground transition-all duration-300 font-medium whitespace-nowrap flex-shrink-0"
                       >
                         {prompt}
                       </button>
