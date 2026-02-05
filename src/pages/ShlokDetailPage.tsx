@@ -201,7 +201,7 @@ export default function ShlokDetailPage() {
         <RadialGlow position="top-right" color="primary" className="opacity-30" />
         <RadialGlow position="bottom-left" color="amber" className="opacity-20" />
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-24 relative">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12 pb-28 relative">
           <div className="max-w-4xl mx-auto">
             {/* Back Navigation + Language Selector */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -240,7 +240,7 @@ export default function ShlokDetailPage() {
             <div id="meaning">
               <Card className="mb-8 border-0 shadow-lg animate-fade-in animation-delay-200 overflow-hidden">
                 <div className="h-1 bg-gradient-to-r from-secondary via-accent to-secondary" />
-                <CardContent className="p-8">
+                <CardContent className="p-4 sm:p-6 md:p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="p-2.5 rounded-xl bg-gradient-to-br from-secondary to-accent text-secondary-foreground">
                       <MessageSquare className="h-5 w-5" />
@@ -254,7 +254,7 @@ export default function ShlokDetailPage() {
                   <div className="relative pl-6 border-l-4 border-primary/30">
                     <TranslatableContent 
                       languageCode={currentLanguage}
-                      className="text-lg md:text-xl leading-relaxed text-foreground"
+                      className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground"
                     >
                       {displayContent.meaning}
                     </TranslatableContent>
@@ -311,10 +311,10 @@ export default function ShlokDetailPage() {
             <div id="application" className="space-y-6 mb-8 animate-fade-in animation-delay-400">
               {displayContent.lifeApplication && (
                 <Card className="metric-card border-2 border-primary/20 hover:border-primary/40 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-start gap-5">
-                      <div className="shrink-0 p-4 rounded-2xl bg-gradient-to-br from-primary to-amber-500 text-white shadow-lg">
-                        <Lightbulb className="h-7 w-7" />
+                  <CardContent className="p-5 sm:p-6 md:p-8">
+                    <div className="flex items-start gap-4 sm:gap-5">
+                      <div className="shrink-0 p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-primary to-amber-500 text-white shadow-lg">
+                        <Lightbulb className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-3">
@@ -324,7 +324,7 @@ export default function ShlokDetailPage() {
                         </div>
                         <TranslatableContent 
                           languageCode={currentLanguage}
-                          className="text-lg md:text-xl leading-relaxed font-medium text-foreground"
+                          className="text-base sm:text-lg md:text-xl leading-relaxed font-medium text-foreground"
                         >
                           {displayContent.lifeApplication}
                         </TranslatableContent>
@@ -336,10 +336,10 @@ export default function ShlokDetailPage() {
 
               {displayContent.practicalAction && (
                 <Card className="metric-card bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-2 border-green-200 dark:border-green-800 hover:border-green-400 dark:hover:border-green-600 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-start gap-5">
-                      <div className="shrink-0 p-4 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg">
-                        <Target className="h-7 w-7" />
+                  <CardContent className="p-5 sm:p-6 md:p-8">
+                    <div className="flex items-start gap-4 sm:gap-5">
+                      <div className="shrink-0 p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg">
+                        <Target className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-3">
@@ -350,7 +350,7 @@ export default function ShlokDetailPage() {
                         </div>
                         <TranslatableContent 
                           languageCode={currentLanguage}
-                          className="text-lg md:text-xl leading-relaxed text-foreground"
+                          className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground"
                         >
                           {displayContent.practicalAction}
                         </TranslatableContent>
@@ -371,7 +371,7 @@ export default function ShlokDetailPage() {
             <ShlokActions shlokId={shlok.id} />
             
             {/* Chapter Progress Indicator */}
-            <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-primary/5 via-background to-accent/10 dark:from-primary/10 dark:via-background dark:to-accent/5 border border-border/50">
+            <div className="mt-8 sm:mt-12 p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-primary/5 via-background to-accent/10 dark:from-primary/10 dark:via-background dark:to-accent/5 border border-border/50">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-muted-foreground">
                   Chapter {chapterNum} Progress

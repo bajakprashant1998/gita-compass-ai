@@ -109,14 +109,14 @@ export function StatsSection() {
             >
               <div className="relative group">
                 {/* Card */}
-                <div className="relative rounded-2xl border-2 border-border/50 bg-card p-6 text-center transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:-translate-y-1">
+                <div className="relative rounded-2xl border-2 border-border/50 bg-card p-4 sm:p-6 text-center transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:-translate-y-1">
                   {/* Icon */}
-                  <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${stat.color} text-white mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                    <stat.icon className="h-6 w-6" />
+                  <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br ${stat.color} text-white mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <stat.icon className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
                   
                   {/* Value */}
-                  <div className="text-4xl md:text-5xl font-extrabold mb-1 text-gradient">
+                  <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-1 text-gradient">
                     {stat.isStatic ? stat.value : stat.value}
                     {!stat.isStatic && '+'}
                   </div>

@@ -159,7 +159,7 @@ export default function ChaptersPage() {
         <FloatingOm className="top-20 left-10 animate-float hidden lg:block" />
         <FloatingOm className="bottom-20 right-10 animate-float animation-delay-500 hidden lg:block" />
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 lg:py-24 relative">
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold uppercase tracking-wider mb-6 animate-fade-in border border-primary/20">
@@ -168,7 +168,7 @@ export default function ChaptersPage() {
             </div>
 
             {/* Headline - WebFX bold style */}
-            <h1 className="headline-bold mb-6 animate-fade-in animation-delay-100">
+            <h1 className="headline-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-6 animate-fade-in animation-delay-100">
               <span className="text-foreground">The </span>
               <span className="text-gradient">18 Chapters</span>
               <span className="text-foreground"> of Wisdom</span>
@@ -182,29 +182,29 @@ export default function ChaptersPage() {
             {/* Stats row - WebFX metric style with animated counters */}
             <div 
               ref={statsRef}
-              className="flex flex-wrap justify-center gap-8 md:gap-12 animate-fade-in animation-delay-300"
+              className="flex flex-wrap justify-center gap-4 sm:gap-8 md:gap-12 animate-fade-in animation-delay-300"
             >
               <div className="text-center group">
-                <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <BookOpen className="h-8 w-8 text-white" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-2xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <BookOpen className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-white" />
                 </div>
-                <div className="text-4xl md:text-5xl font-extrabold text-gradient">{chaptersCount}</div>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gradient">{chaptersCount}</div>
                 <div className="text-sm text-muted-foreground font-medium uppercase tracking-wide mt-1">Chapters</div>
               </div>
               <div className="hidden sm:block w-px h-24 bg-gradient-to-b from-transparent via-border to-transparent self-center" />
               <div className="text-center group">
-                <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Target className="h-8 w-8 text-white" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Target className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-white" />
                 </div>
-                <div className="text-4xl md:text-5xl font-extrabold text-gradient">{versesCount}+</div>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gradient">{versesCount}+</div>
                 <div className="text-sm text-muted-foreground font-medium uppercase tracking-wide mt-1">Verses</div>
               </div>
               <div className="hidden sm:block w-px h-24 bg-gradient-to-b from-transparent via-border to-transparent self-center" />
               <div className="text-center group">
-                <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Clock className="h-8 w-8 text-white" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Clock className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-white" />
                 </div>
-                <div className="text-4xl md:text-5xl font-extrabold text-gradient">5000+</div>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gradient">5000+</div>
                 <div className="text-sm text-muted-foreground font-medium uppercase tracking-wide mt-1">Years Old</div>
               </div>
             </div>
@@ -258,7 +258,7 @@ export default function ChaptersPage() {
             <p className="text-muted-foreground">No chapters match your filters.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {filteredChapters.map((chapter, index) => {
               const teachings = chapterTeachings[chapter.chapter_number] || [];
               const isPopular = popularChapters.includes(chapter.chapter_number);
@@ -279,7 +279,7 @@ export default function ChaptersPage() {
                       {/* Gradient header */}
                       <div className="h-1 bg-gradient-to-r from-primary via-amber-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                       
-                      <div className="p-6">
+                      <div className="p-4 sm:p-6">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-2">
                             <span className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-primary to-amber-500 text-white text-xs font-bold uppercase tracking-wider shadow-sm">
@@ -308,9 +308,9 @@ export default function ChaptersPage() {
                           </span>
                         </div>
                         
-                        {/* Key teachings */}
+                        {/* Key teachings - hidden on mobile */}
                         {teachings.length > 0 && (
-                          <ul className="text-sm text-muted-foreground space-y-2 mb-5">
+                          <ul className="hidden sm:block text-sm text-muted-foreground space-y-2 mb-5">
                             {teachings.slice(0, 2).map((teaching) => (
                               <li key={teaching} className="flex items-start gap-2">
                                 <span className="text-primary mt-0.5 text-xs">✦</span>

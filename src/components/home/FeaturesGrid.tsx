@@ -76,7 +76,7 @@ export function FeaturesGrid() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {features.map((feature, index) => (
             <Link 
               key={feature.title} 
@@ -84,7 +84,7 @@ export function FeaturesGrid() {
               className="animate-fade-in"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="group h-full rounded-2xl border-2 border-border/50 bg-card p-8 transition-all duration-300 hover:border-primary/30 hover:shadow-2xl hover:-translate-y-2">
+              <div className="group h-full rounded-2xl border-2 border-border/50 bg-card p-5 sm:p-8 transition-all duration-300 hover:border-primary/30 hover:shadow-2xl hover:-translate-y-2">
                 {/* Header with icon and badge */}
                 <div className="flex items-start justify-between mb-6">
                   <div className={`p-4 rounded-xl bg-gradient-to-br ${feature.gradient} text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>

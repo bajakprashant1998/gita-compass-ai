@@ -354,19 +354,19 @@ export default function ChatPage() {
       />
 
       {/* Hero Header - More compact */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-6 border-b border-border/50">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-4 border-b border-border/50">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <RadialGlow position="top-right" color="primary" className="opacity-30" />
           <FloatingOm className="absolute top-2 right-8 text-6xl opacity-5" />
         </div>
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="max-w-3xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary to-amber-500 rounded-xl blur-md opacity-50 animate-pulse" />
-                <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
-                  <Sparkles className="h-6 w-6 text-white" />
+                <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
+                  <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
               </div>
               <div>
@@ -402,7 +402,7 @@ export default function ChatPage() {
         </div>
       </section>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 h-[calc(100vh-14rem)]">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 h-[calc(100vh-12rem)]">
         <div className="max-w-3xl mx-auto h-full flex flex-col">
           {/* Chat Area */}
           <Card className="flex-1 flex flex-col overflow-hidden border-border/50 shadow-xl shadow-primary/5 relative">
@@ -443,7 +443,7 @@ export default function ChatPage() {
                             </div>
                           </div>
                         )}
-                        <div className="flex flex-col max-w-[85%]">
+                        <div className="flex flex-col max-w-[90%] sm:max-w-[85%]">
                           <div
                             className={cn(
                               "rounded-2xl px-4 py-3 backdrop-blur-sm",
@@ -601,7 +601,7 @@ export default function ChatPage() {
                 <Button
                   type="submit"
                   size="icon"
-                  className="h-[60px] w-[60px] bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-105"
+                  className="h-12 w-12 sm:h-[60px] sm:w-[60px] bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-105"
                   disabled={!input.trim() || isLoading || isOverLimit}
                 >
                   {isLoading ? (
