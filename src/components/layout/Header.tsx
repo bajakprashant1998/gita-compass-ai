@@ -143,80 +143,106 @@ export function Header() {
           </div>
 
           {/* Mobile menu button */}
-          < button
+          <button
             type="button"
-            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)
-            }
+            className="md:hidden p-2.5 rounded-xl border border-border/50 hover:bg-muted hover:border-primary/30 transition-all duration-200"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {
-              mobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+            {mobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
         </div>
 
-        {/* Mobile Navigation */}
-        < div className={
-          cn(
-            "md:hidden overflow-hidden transition-all duration-300 ease-in-out",
-            mobileMenuOpen ? "max-h-96 pb-4" : "max-h-0"
-          )
-        } >
-          <div className="flex flex-col gap-1 pt-4 border-t border-border/50">
+        {/* Mobile Navigation - Full screen overlay */}
+        {mobileMenuOpen && (
+          <div 
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+        
+        <div className={cn(
+          "fixed top-0 right-0 h-full w-[85%] max-w-sm bg-card border-l border-border/50 shadow-2xl z-50 md:hidden",
+          "transform transition-transform duration-300 ease-out",
+          mobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        )}>
+          {/* Menu Header */}
+          <div className="flex items-center justify-between p-5 border-b border-border/50">
+            <Link to="/" className="flex items-center gap-2.5" onClick={() => setMobileMenuOpen(false)}>
+              <img src="/logo.png" alt="Logo" className="h-9 w-9 object-contain" />
+              <span className="text-lg font-semibold">
+                Bhagavad Gita<span className="text-gradient">Gyan</span>
+              </span>
+            </Link>
+            <button
+              type="button"
+              className="p-2 rounded-xl border border-border hover:bg-muted transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Navigation Items */}
+          <div className="flex flex-col p-4 space-y-1">
             {navigation.map((item, index) => (
               <Link
                 key={item.name}
                 to={item.href}
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200",
+                  "flex items-center gap-4 px-4 py-3.5 text-base font-medium rounded-xl transition-all duration-200",
                   "animate-fade-in",
                   isActive(item.href)
-                    ? "bg-gradient-to-r from-primary/10 to-amber-500/10 text-primary border-l-2 border-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-accent text-primary border-l-4 border-primary shadow-sm"
+                    : "text-foreground hover:bg-muted"
                 )}
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <item.icon className="h-5 w-5" />
-                {item.name}
+                <div className={cn(
+                  "p-2 rounded-lg",
+                  isActive(item.href) ? "bg-primary/10" : "bg-muted"
+                )}>
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <span>{item.name}</span>
                 {item.badge && (
-                  <span className="ml-auto px-2 py-0.5 text-xs font-bold rounded-full bg-gradient-to-r from-primary to-amber-500 text-white">
+                  <span className="ml-auto px-2.5 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-primary to-amber-500 text-white shadow-sm">
                     {item.badge}
                   </span>
                 )}
               </Link>
             ))}
-            <div className="pt-3 mt-2 border-t border-border/50 space-y-2 animate-fade-in" style={{ animationDelay: '200ms' }}>
-              {/* Donate Button in Mobile Menu - Conditionally rendered */}
-              {showDonate && (
-                <Link to="/donate" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full gap-2 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600">
-                    <Heart className="h-4 w-4" />
-                    Donate
-                  </Button>
-                </Link>
-              )}
-              {
-                user ? (
-                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full gap-2 border-border/50">
-                      <User className="h-4 w-4" />
-                      Dashboard
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full gap-2 bg-gradient-to-r from-primary to-amber-500">
-                      <User className="h-4 w-4" />
-                      Sign In
-                    </Button>
-                  </Link>
-                )
-              }
-            </div>
+          </div>
+
+          {/* Bottom Actions */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3 border-t border-border/50 bg-card animate-fade-in pb-safe" style={{ animationDelay: '200ms' }}>
+            {showDonate && (
+              <Link to="/donate" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button className="w-full h-12 gap-2 text-base font-semibold rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 shadow-lg shadow-rose-500/20">
+                  <Heart className="h-5 w-5" />
+                  Donate
+                </Button>
+              </Link>
+            )}
+            {user ? (
+              <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button variant="outline" className="w-full h-12 gap-2 text-base font-semibold rounded-xl border-2">
+                  <User className="h-5 w-5" />
+                  Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/auth" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button className="w-full h-12 gap-2 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20">
+                  <User className="h-5 w-5" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </nav>
