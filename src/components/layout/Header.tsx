@@ -159,68 +159,69 @@ export function Header() {
         {/* Mobile Navigation - Drawer */}
         {mobileMenuOpen && (
           <>
-            {/* Backdrop - Solid overlay */}
-            <div 
-              className="fixed inset-0 z-[100] bg-black/70 md:hidden"
+            {/* Backdrop - keep it opaque + above page content */}
+            <div
+              className="fixed inset-0 z-[100] bg-foreground/60 backdrop-blur-sm md:hidden"
               onClick={() => setMobileMenuOpen(false)}
               aria-hidden="true"
             />
-            
-            {/* Drawer Panel - Solid background */}
-            <div 
-              className="fixed top-0 right-0 h-full w-[80%] max-w-[320px] z-[101] md:hidden bg-white dark:bg-gray-900 border-l border-border shadow-2xl transform transition-transform duration-300 ease-out"
-              style={{ backgroundColor: 'hsl(var(--background))' }}
-            >
+
+            {/* Drawer Panel */}
+            <div className="fixed top-0 right-0 z-[101] md:hidden h-[100dvh] w-[85%] max-w-sm bg-background border-l border-border shadow-2xl flex flex-col">
               {/* Drawer Header */}
               <div className="flex items-center justify-between p-4 border-b border-border bg-background">
                 <Link to="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
                   <img src="/logo.png" alt="Logo" className="h-8 w-8 object-contain" />
-                  <span className="text-base font-semibold">
-                    Gita<span className="text-primary">Gyan</span>
+                  <span className="text-base font-semibold tracking-tight">
+                    Bhagavad Gita<span className="text-gradient">Gyan</span>
                   </span>
                 </Link>
                 <button
                   type="button"
                   className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
+                  aria-label="Close menu"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
-              {/* Navigation Items */}
-              <div className="flex flex-col p-3 gap-1 overflow-y-auto bg-background" style={{ maxHeight: 'calc(100vh - 180px)' }}>
-                {navigation.map((item, index) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all",
-                      isActive(item.href)
-                        ? "bg-primary/10 text-primary border-l-4 border-primary"
-                        : "text-foreground hover:bg-muted"
-                    )}
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <div className={cn(
-                      "p-2 rounded-lg",
-                      isActive(item.href) ? "bg-primary/20" : "bg-muted"
-                    )}>
-                      <item.icon className="h-4 w-4" />
-                    </div>
-                    <span>{item.name}</span>
-                    {item.badge && (
-                      <span className="ml-auto px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-primary to-amber-500 text-white">
-                        {item.badge}
-                      </span>
-                    )}
-                  </Link>
-                ))}
+              {/* Navigation Items (scrolls, never hidden) */}
+              <div className="flex-1 overflow-y-auto overscroll-contain p-3 pb-6 bg-background">
+                <div className="flex flex-col gap-1">
+                  {navigation.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all",
+                        isActive(item.href)
+                          ? "bg-primary/10 text-primary border-l-4 border-primary"
+                          : "text-foreground hover:bg-muted"
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "p-2 rounded-lg",
+                          isActive(item.href) ? "bg-primary/20" : "bg-muted"
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                      </div>
+                      <span>{item.name}</span>
+                      {item.badge && (
+                        <span className="ml-auto px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-primary to-amber-500 text-white">
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  ))}
+                </div>
               </div>
 
-              {/* Bottom Actions - Fixed with solid background */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2 border-t border-border bg-background pb-safe">
+              {/* Bottom Actions (part of layout, not overlaying links) */}
+              <div className="mt-auto p-4 space-y-2 border-t border-border bg-background pb-safe">
                 {showDonate && (
                   <Link to="/donate" onClick={() => setMobileMenuOpen(false)} className="block">
                     <Button className="w-full h-11 gap-2 text-sm font-semibold rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600">
