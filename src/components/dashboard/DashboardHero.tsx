@@ -1,4 +1,4 @@
-import { LogOut } from 'lucide-react';
+import { LogOut, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface DashboardHeroProps {
@@ -15,9 +15,9 @@ export function DashboardHero({ displayName, memberSince, onSignOut }: Dashboard
     : null;
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-8">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-8 animate-fade-in">
       {/* Avatar */}
-      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground font-bold text-xl sm:text-2xl shadow-lg shrink-0">
+      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-bold text-xl sm:text-2xl shadow-lg glow-primary shrink-0">
         {initials}
       </div>
 
@@ -25,19 +25,25 @@ export function DashboardHero({ displayName, memberSince, onSignOut }: Dashboard
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
           Welcome, <span className="text-gradient">{name}</span>
         </h1>
-        <p className="text-muted-foreground mt-1">
-          Continue your journey of wisdom
-          {joinDate && <span className="hidden sm:inline"> · Member since {joinDate}</span>}
+        <p className="text-muted-foreground mt-1 flex items-center gap-1.5 flex-wrap">
+          <span>Continue your journey of wisdom</span>
+          {joinDate && (
+            <span className="hidden sm:inline-flex items-center gap-1 text-xs bg-muted px-2 py-0.5 rounded-full">
+              <Calendar className="h-3 w-3" />
+              Since {joinDate}
+            </span>
+          )}
         </p>
       </div>
 
       <Button
-        variant="outline"
+        variant="destructive"
         onClick={onSignOut}
         className="gap-2 self-start sm:self-center touch-target"
+        size="sm"
       >
         <LogOut className="h-4 w-4" />
-        <span className="sm:inline">Sign Out</span>
+        Sign Out
       </Button>
     </div>
   );

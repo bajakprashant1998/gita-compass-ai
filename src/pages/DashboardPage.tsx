@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -13,6 +13,7 @@ import { SavedWisdomCard } from '@/components/dashboard/SavedWisdomCard';
 import { QuickActionsCard } from '@/components/dashboard/QuickActionsCard';
 import { PreferencesCard } from '@/components/dashboard/PreferencesCard';
 import { RadialGlow, FloatingOm } from '@/components/ui/decorative-elements';
+import { toast } from 'sonner';
 
 export default function DashboardPage() {
   const { user, profile, signOut, loading, updateProfile } = useAuth();
@@ -22,7 +23,6 @@ export default function DashboardPage() {
   const { data: chatCount } = useChatCount(user?.id);
   const { data: preferences, updatePreference } = useUserPreferences(user?.id);
 
-  // Fix: use useEffect for redirect instead of render-time navigate
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
@@ -32,8 +32,17 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-12">
-          <div className="h-96 animate-pulse rounded-xl bg-muted" />
+        <div className="container mx-auto px-4 py-12 space-y-4">
+          <div className="h-24 animate-pulse rounded-xl bg-muted" />
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-28 animate-pulse rounded-xl bg-muted" />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="h-64 animate-pulse rounded-xl bg-muted" />
+            <div className="h-64 animate-pulse rounded-xl bg-muted" />
+          </div>
         </div>
       </Layout>
     );
@@ -44,21 +53,22 @@ export default function DashboardPage() {
   const handleSignOut = async () => {
     try {
       await signOut();
+      toast.success('Signed out successfully');
       navigate('/');
     } catch {
-      // error handled silently
+      toast.error('Failed to sign out');
     }
   };
 
   return (
     <Layout>
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden min-h-[80vh]">
         {/* Decorative background */}
         <RadialGlow position="top-left" color="primary" className="opacity-40" />
-        <RadialGlow position="top-right" color="amber" className="opacity-30" />
-        <FloatingOm className="top-20 right-10 animate-float hidden md:block" />
+        <RadialGlow position="bottom-right" color="amber" className="opacity-20" />
+        <FloatingOm className="top-20 right-10 animate-float hidden lg:block" />
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 relative z-10">
           {/* Hero */}
           <DashboardHero
             displayName={profile?.display_name}
@@ -77,7 +87,7 @@ export default function DashboardPage() {
           />
 
           {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-5 sm:mb-6">
             <ReadingProgressCard
               chaptersExplored={progress?.chaptersExplored.length || 0}
               versesRead={progress?.shloksRead.length || 0}
@@ -85,7 +95,7 @@ export default function DashboardPage() {
             <SavedWisdomCard favorites={favorites || []} />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 pb-safe">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 pb-safe">
             <QuickActionsCard />
             <PreferencesCard
               language={profile?.preferred_language || 'english'}
