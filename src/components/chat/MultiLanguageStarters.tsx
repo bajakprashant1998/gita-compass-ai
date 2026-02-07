@@ -138,28 +138,28 @@ const categories = [
 
 const headings: Record<string, { title: string; subtitle: string; tip: string }> = {
   en: {
-    title: 'How can I help you today?',
-    subtitle: 'Share what\'s on your mind, or choose a topic',
+    title: '🙏 Hare Krishna!',
+    subtitle: 'Krishna is here to guide you. Just ask.',
     tip: '💡 Be specific about your situation for personalized guidance',
   },
   hi: {
-    title: 'आज मैं आपकी कैसे मदद कर सकता हूं?',
-    subtitle: 'अपनी बात साझा करें या कोई विषय चुनें',
+    title: '🙏 हरे कृष्ण!',
+    subtitle: 'कृष्ण आपका मार्गदर्शन करने के लिए यहाँ हैं। बस पूछें।',
     tip: '💡 व्यक्तिगत मार्गदर्शन के लिए अपनी स्थिति स्पष्ट बताएं',
   },
   ta: {
-    title: 'இன்று நான் எப்படி உதவ முடியும்?',
-    subtitle: 'உங்கள் மனதில் உள்ளதை பகிரவும்',
+    title: '🙏 ஹரே கிருஷ்ணா!',
+    subtitle: 'கிருஷ்ணா உங்களுக்கு வழிகாட்ட இங்கே இருக்கிறார்.',
     tip: '💡 தனிப்பயனாக்கப்பட்ட வழிகாட்டுதலுக்கு குறிப்பிட்டதாக இருங்கள்',
   },
   te: {
-    title: 'ఈ రోజు నేను ఎలా సహాయం చేయగలను?',
-    subtitle: 'మీ మనసులో ఉన్నది పంచుకోండి',
+    title: '🙏 హరే కృష్ణ!',
+    subtitle: 'కృష్ణుడు మీకు మార్గదర్శకత్వం చేయడానికి ఇక్కడ ఉన్నాడు.',
     tip: '💡 వ్యక్తిగతీకరించిన మార్గదర్శకత్వం కోసం నిర్దిష్టంగా ఉండండి',
   },
   bn: {
-    title: 'আজ আমি কীভাবে সাহায্য করতে পারি?',
-    subtitle: 'আপনার মনের কথা শেয়ার করুন',
+    title: '🙏 হরে কৃষ্ণ!',
+    subtitle: 'কৃষ্ণ আপনাকে পথ দেখাতে এখানে আছেন। শুধু জিজ্ঞেস করুন।',
     tip: '💡 ব্যক্তিগত নির্দেশনার জন্য আপনার পরিস্থিতি স্পষ্টভাবে বলুন',
   },
 };
@@ -175,13 +175,10 @@ export function MultiLanguageStarters({ onSelect, selectedLanguage }: MultiLangu
       <div className="max-w-2xl w-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-amber-500/20 text-primary mb-4 animate-fade-in shadow-lg shadow-primary/10">
-            <Sparkles className="h-8 w-8" />
-          </div>
-          <h3 className="text-2xl font-bold mb-2 animate-fade-in" style={{ animationDelay: '100ms' }}>
+          <h3 className="text-2xl font-bold mb-2 animate-fade-in">
             {langHeadings.title}
           </h3>
-          <p className="text-muted-foreground animate-fade-in text-sm" style={{ animationDelay: '150ms' }}>
+          <p className="text-muted-foreground animate-fade-in text-base" style={{ animationDelay: '100ms' }}>
             {langHeadings.subtitle}
           </p>
           
@@ -223,9 +220,10 @@ export function MultiLanguageStarters({ onSelect, selectedLanguage }: MultiLangu
                     key={promptIndex}
                     onClick={() => onSelect(prompt)}
                     className={cn(
-                      "group w-full text-left p-3 rounded-xl border border-border/50 bg-card",
-                      "text-sm transition-all duration-200",
+                      "group w-full text-left p-3.5 sm:p-4 rounded-xl border border-border/50 bg-card",
+                      "text-sm sm:text-base transition-all duration-200",
                       "hover:bg-muted/50 hover:shadow-lg hover:-translate-y-0.5",
+                      "min-h-[48px]",
                       category.borderColor
                     )}
                   >
