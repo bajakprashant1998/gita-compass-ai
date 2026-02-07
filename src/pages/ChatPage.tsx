@@ -28,7 +28,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
-import { FloatingOm, RadialGlow } from '@/components/ui/decorative-elements';
+import { RadialGlow } from '@/components/ui/decorative-elements';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Message {
@@ -45,10 +45,10 @@ const MAX_CHARS = 500;
 const COLLAPSE_THRESHOLD = 800;
 
 const typingMessages = [
-  "Consulting ancient wisdom...",
-  "Finding relevant verses...",
-  "Preparing guidance...",
-  "Translating response...",
+  "Krishna is thinking...",
+  "Finding a verse for you...",
+  "Preparing wisdom...",
+  "Consulting the Gita...",
 ];
 
 // Get font class based on script type
@@ -347,34 +347,26 @@ export default function ChatPage() {
   return (
     <Layout>
       <SEOHead
-        title="AI Gita Coach - Personal Wisdom Guide"
-        description="Chat with an AI-powered guide that offers personalized wisdom from the Bhagavad Gita. Get guidance for anxiety, decision-making, and life challenges."
-        canonicalUrl="https://gitawisdom.com/chat"
-        keywords={['AI coach', 'Gita guidance', 'wisdom chat', 'personal guide', 'life advice AI']}
+        title="Talk to Krishna - Personal Wisdom Guide"
+        description="Talk to Krishna and receive personalized wisdom from the Bhagavad Gita. Get guidance for anxiety, decision-making, and life challenges."
+        canonicalUrl="https://www.bhagavadgitagyan.com/chat"
+        keywords={['talk to Krishna', 'Gita guidance', 'wisdom chat', 'personal guide', 'life advice']}
       />
 
-      {/* Hero Header - More compact */}
+      {/* Hero Header - Clean and simple */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-4 border-b border-border/50">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <RadialGlow position="top-right" color="primary" className="opacity-30" />
-          <FloatingOm className="absolute top-2 right-8 text-6xl opacity-5" />
-        </div>
-        
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary to-amber-500 rounded-xl blur-md opacity-50 animate-pulse" />
-                <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
-                  <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                </div>
+              <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
+                <span className="text-xl sm:text-2xl">🙏</span>
               </div>
               <div>
                 <h1 className="text-xl md:text-2xl font-bold">
-                  AI <span className="text-gradient">Wisdom Guide</span>
+                  Talk to <span className="text-gradient">Krishna</span>
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  {user ? `Welcome back! Share what's on your mind.` : 'Personalized guidance from the Gita'}
+                  {user ? `Hare Krishna! Ask anything about life.` : 'Ask Krishna for guidance from the Gita'}
                 </p>
               </div>
             </div>
@@ -406,21 +398,12 @@ export default function ChatPage() {
         <div className="max-w-3xl mx-auto h-full flex flex-col">
           {/* Chat Area */}
           <Card className="flex-1 flex flex-col overflow-hidden border-border/50 shadow-xl shadow-primary/5 relative">
-            {/* Decorative background */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl" />
-              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-amber-500/5 rounded-full blur-3xl" />
-            </div>
-
             <ScrollArea 
               className="flex-1 p-4 md:p-6 relative" 
               ref={scrollRef}
             >
               {messages.length === 0 ? (
-                <div className="relative">
-                  <FloatingOm className="absolute top-0 right-0 text-8xl" />
-                  <MultiLanguageStarters onSelect={handleQuickAction} selectedLanguage={preferredLanguage} />
-                </div>
+                <MultiLanguageStarters onSelect={handleQuickAction} selectedLanguage={preferredLanguage} />
               ) : (
                 <div className="space-y-6">
                   {messages.map((message, index) => {
@@ -436,11 +419,8 @@ export default function ChatPage() {
                         )}
                       >
                         {message.role === 'assistant' && (
-                          <div className="relative flex-shrink-0">
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-amber-500/30 rounded-xl blur-sm animate-pulse" />
-                            <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30 backdrop-blur-sm">
-                              <Sparkles className="h-5 w-5 text-primary" />
-                            </div>
+                          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30">
+                            <span className="text-lg">🙏</span>
                           </div>
                         )}
                         <div className="flex flex-col max-w-[90%] sm:max-w-[85%]">
@@ -532,11 +512,8 @@ export default function ChatPage() {
                   })}
                   {isLoading && messages[messages.length - 1]?.role === 'user' && (
                     <div className="flex gap-3 animate-fade-in">
-                      <div className="relative flex-shrink-0">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-amber-500/30 rounded-xl blur-sm animate-pulse" />
-                        <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30">
-                          <Sparkles className="h-5 w-5 text-primary animate-spin" />
-                        </div>
+                      <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30">
+                        <span className="text-lg animate-pulse">🙏</span>
                       </div>
                       <div className="bg-gradient-to-br from-muted/90 to-muted/70 border border-border/50 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm backdrop-blur-sm">
                         <div className="flex gap-1">
@@ -577,7 +554,7 @@ export default function ChatPage() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Share what's on your mind..."
+                    placeholder="Ask Krishna anything about life..."
                     className={cn(
                       "min-h-[60px] max-h-[120px] resize-none border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all pr-24",
                       isOverLimit && "border-destructive focus:border-destructive"
@@ -585,13 +562,15 @@ export default function ChatPage() {
                     disabled={isLoading}
                   />
                   {/* Character count & keyboard hint */}
-                  <div className="absolute bottom-2 right-3 hidden md:flex items-center gap-3 text-xs">
-                    <span className={cn(
-                      "transition-colors",
-                      isOverLimit ? "text-destructive font-medium" : "text-muted-foreground/60"
-                    )}>
-                      {charCount}/{MAX_CHARS}
-                    </span>
+                   <div className="absolute bottom-2 right-3 hidden md:flex items-center gap-3 text-xs">
+                    {charCount > 400 && (
+                      <span className={cn(
+                        "transition-colors",
+                        isOverLimit ? "text-destructive font-medium" : "text-muted-foreground/60"
+                      )}>
+                        {charCount}/{MAX_CHARS}
+                      </span>
+                    )}
                     <div className="flex items-center gap-1 text-muted-foreground/60">
                       <Keyboard className="h-3 w-3" />
                       <span>Enter</span>
@@ -600,14 +579,16 @@ export default function ChatPage() {
                 </div>
                 <Button
                   type="submit"
-                  size="icon"
-                  className="h-12 w-12 sm:h-[60px] sm:w-[60px] bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-105"
+                  className="h-12 sm:h-[60px] px-4 sm:px-6 bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-105 gap-2"
                   disabled={!input.trim() || isLoading || isOverLimit}
                 >
                   {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
-                    <Send className="h-5 w-5" />
+                    <>
+                      <Send className="h-5 w-5" />
+                      <span className="hidden sm:inline font-medium">Ask</span>
+                    </>
                   )}
                 </Button>
               </form>
