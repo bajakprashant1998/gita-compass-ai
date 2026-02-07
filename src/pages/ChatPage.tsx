@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
+import { Link } from 'react-router-dom';
+import { linkVerseReferences } from '@/lib/verseLinker';
 import { QuickActionsBar } from '@/components/chat/QuickActionsBar';
 import { MessageActions } from '@/components/chat/MessageActions';
 import { MultiLanguageStarters } from '@/components/chat/MultiLanguageStarters';
@@ -440,10 +442,10 @@ export default function ChatPage() {
                                     message.detectedLanguage && getScriptFontClass(message.detectedLanguage)
                                   )}>
                                     <CollapsibleContent className="CollapsibleContent">
-                                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                                      <ReactMarkdown components={{ a: ({ href, children }) => href?.startsWith('/') ? <Link to={href} className="text-primary underline hover:text-primary/80">{children}</Link> : <a href={href} target="_blank" rel="noopener noreferrer">{children}</a> }}>{linkVerseReferences(message.content)}</ReactMarkdown>
                                     </CollapsibleContent>
                                     {isCollapsed && (
-                                      <ReactMarkdown>{message.content.slice(0, 400) + '...'}</ReactMarkdown>
+                                      <ReactMarkdown components={{ a: ({ href, children }) => href?.startsWith('/') ? <Link to={href} className="text-primary underline hover:text-primary/80">{children}</Link> : <a href={href} target="_blank" rel="noopener noreferrer">{children}</a> }}>{linkVerseReferences(message.content.slice(0, 400) + '...')}</ReactMarkdown>
                                     )}
                                   </div>
                                   <CollapsibleTrigger asChild>
@@ -472,7 +474,7 @@ export default function ChatPage() {
                                   "prose prose-sm dark:prose-invert max-w-none",
                                   message.detectedLanguage && getScriptFontClass(message.detectedLanguage)
                                 )}>
-                                  <ReactMarkdown>{message.content || '...'}</ReactMarkdown>
+                                  <ReactMarkdown components={{ a: ({ href, children }) => href?.startsWith('/') ? <Link to={href} className="text-primary underline hover:text-primary/80">{children}</Link> : <a href={href} target="_blank" rel="noopener noreferrer">{children}</a> }}>{linkVerseReferences(message.content || '...')}</ReactMarkdown>
                                 </div>
                               )
                             ) : (
