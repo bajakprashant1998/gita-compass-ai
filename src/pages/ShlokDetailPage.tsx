@@ -19,12 +19,15 @@ import { LifeApplicationBox } from '@/components/shlok/LifeApplicationBox';
 import { ShareWisdomCard } from '@/components/shlok/ShareWisdomCard';
 import { ShlokActions } from '@/components/shlok/ShlokActions';
 import { WisdomCardGenerator } from '@/components/shlok/WisdomCardGenerator';
+import { VerseChat } from '@/components/shlok/VerseChat';
 import { ReadingProgress } from '@/components/shlok/ReadingProgress';
 import { VerseNavigation } from '@/components/shlok/VerseNavigation';
 import { PageLanguageSelector, getScriptClass, isRTL } from '@/components/shlok/PageLanguageSelector';
 import { TranslatableContent } from '@/components/shlok/TranslatableContent';
 import { Card, CardContent } from '@/components/ui/card';
 import { Target, ArrowRight } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { trackVerseRead } from '@/hooks/useReadingActivity';
 
 // Section navigation items
 const sections = [
@@ -48,6 +51,8 @@ export default function ShlokDetailPage() {
   const chapterNum = parseInt(chapterNumber || '1');
   const verseNum = parseInt(verseNumber || '1');
 
+  const { user } = useAuth();
+
   const { data: shlok, isLoading } = useQuery({
     queryKey: ['shlok-by-verse', chapterNum, verseNum],
     queryFn: () => getShlokByChapterAndVerse(chapterNum, verseNum),
@@ -63,6 +68,13 @@ export default function ShlokDetailPage() {
     setTranslatedContent(null);
     setCurrentLanguage('en');
   }, [shlok?.id]);
+
+  // Track reading activity
+  useEffect(() => {
+    if (shlok?.id && user?.id) {
+      trackVerseRead(user.id).catch(() => {});
+    }
+  }, [shlok?.id, user?.id]);
 
   const handleTranslated = useCallback((content: TranslatedContent, langCode: string) => {
     setTranslatedContent(content);
@@ -366,6 +378,9 @@ export default function ShlokDetailPage() {
 
             {/* Downloadable Wisdom Card Generator */}
             <WisdomCardGenerator shlok={shlok} />
+
+            {/* Ask About This Verse - Contextual AI Chat */}
+            <VerseChat shlok={shlok} />
 
             {/* Actions (Save, Ask AI) */}
             <ShlokActions shlokId={shlok.id} />

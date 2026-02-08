@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 const features = [
   {
     icon: MessageCircle,
-    title: 'AI Gita Coach',
+    title: 'Talk to Krishna',
     description: 'Have a conversation with an AI that understands your struggles and guides you with relevant Gita wisdom.',
     badge: 'HOT',
     badgeColor: 'bg-red-500',

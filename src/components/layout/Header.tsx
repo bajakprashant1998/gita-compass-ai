@@ -48,7 +48,7 @@ export function Header() {
     { name: 'Home', href: '/', icon: Home },
     { name: 'Chapters', href: '/chapters', icon: BookOpen },
     { name: 'Life Problems', href: '/problems', icon: Grid3X3 },
-    { name: 'AI Coach', href: '/chat', icon: MessageCircle, badge: 'NEW' },
+    { name: 'Talk to Krishna', href: '/chat', icon: MessageCircle, badge: 'NEW' },
   ];
 
   const isActive = (href: string) => {

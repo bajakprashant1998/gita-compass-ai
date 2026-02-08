@@ -123,7 +123,7 @@ export const Footer = forwardRef<HTMLElement, object>(function Footer(_props, re
               </li>
               <li>
                 <Link to="/chat" className="group flex items-center text-foreground hover:text-primary transition-colors">
-                  <span>AI Gita Coach</span>
+                  <span>Talk to Krishna</span>
                   <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold rounded bg-gradient-to-r from-primary to-amber-500 text-white">NEW</span>
                 </Link>
               </li>

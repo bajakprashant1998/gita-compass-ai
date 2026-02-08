@@ -169,7 +169,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, conversationId, preferredLanguage } = await req.json();
+    const { messages, conversationId, preferredLanguage, verse_context } = await req.json();
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     
     if (!GEMINI_API_KEY) {
@@ -247,7 +247,12 @@ serve(async (req) => {
       return `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`;
     }).join("\n\n");
 
-    const fullPrompt = `${SYSTEM_PROMPT}${contextShloks}\n\nConversation:\n${conversationHistory}\n\nAssistant:`;
+    // Add verse context if provided (from VerseChat component)
+    const verseContextPrompt = verse_context 
+      ? `\n\nIMPORTANT: The user is asking about a specific verse. Here is the verse context:\n${verse_context}\nAlways reference this verse in your response and keep answers focused on it.`
+      : '';
+
+    const fullPrompt = `${SYSTEM_PROMPT}${verseContextPrompt}${contextShloks}\n\nConversation:\n${conversationHistory}\n\nAssistant:`;
 
     // Get response from Gemini
     if (needsTranslation) {

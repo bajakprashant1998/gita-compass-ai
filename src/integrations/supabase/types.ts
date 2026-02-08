@@ -118,6 +118,33 @@ export type Database = {
           },
         ]
       }
+      bookmark_collections: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chapters: {
         Row: {
           chapter_number: number
@@ -215,6 +242,42 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collection_items: {
+        Row: {
+          added_at: string
+          collection_id: string
+          id: string
+          shlok_id: string
+        }
+        Insert: {
+          added_at?: string
+          collection_id: string
+          id?: string
+          shlok_id: string
+        }
+        Update: {
+          added_at?: string
+          collection_id?: string
+          id?: string
+          shlok_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_items_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "bookmark_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_items_shlok_id_fkey"
+            columns: ["shlok_id"]
+            isOneToOne: false
+            referencedRelation: "shloks"
             referencedColumns: ["id"]
           },
         ]
@@ -344,6 +407,33 @@ export type Database = {
           preferred_language?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      reading_activity: {
+        Row: {
+          activity_date: string
+          chapters_visited: number
+          created_at: string
+          id: string
+          user_id: string
+          verses_read_count: number
+        }
+        Insert: {
+          activity_date?: string
+          chapters_visited?: number
+          created_at?: string
+          id?: string
+          user_id: string
+          verses_read_count?: number
+        }
+        Update: {
+          activity_date?: string
+          chapters_visited?: number
+          created_at?: string
+          id?: string
+          user_id?: string
+          verses_read_count?: number
         }
         Relationships: []
       }
