@@ -2,9 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { getRandomShlok } from '@/lib/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Bookmark, Share2 } from 'lucide-react';
+import { RefreshCw, Bookmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { ShareButtons } from '@/components/ui/share-buttons';
 
 export function DailyWisdom() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -83,18 +84,17 @@ export function DailyWisdom() {
               )}
 
               {/* Actions */}
-              <div className="flex flex-wrap items-center justify-center gap-4">
+              <div className="flex flex-col items-center gap-4">
                 <Link to={`/chapters/${shlok.chapter?.chapter_number}/verse/${shlok.verse_number}`}>
                   <Button variant="default" className="gap-2">
                     Explore This Verse
                   </Button>
                 </Link>
-                <Button variant="outline" size="icon">
-                  <Bookmark className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="icon">
-                  <Share2 className="h-4 w-4" />
-                </Button>
+                <ShareButtons
+                  title={`Bhagavad Gita - Chapter ${shlok.chapter?.chapter_number}, Verse ${shlok.verse_number}`}
+                  text={shlok.life_application || shlok.english_meaning}
+                  url={`https://www.bhagavadgitagyan.com/chapters/${shlok.chapter?.chapter_number}/verse/${shlok.verse_number}`}
+                />
               </div>
             </CardContent>
           </Card>

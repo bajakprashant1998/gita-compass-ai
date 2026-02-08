@@ -12,6 +12,7 @@ import { ReadingProgressCard } from '@/components/dashboard/ReadingProgressCard'
 import { SavedWisdomCard } from '@/components/dashboard/SavedWisdomCard';
 import { QuickActionsCard } from '@/components/dashboard/QuickActionsCard';
 import { PreferencesCard } from '@/components/dashboard/PreferencesCard';
+import { StreakCalendar } from '@/components/dashboard/StreakCalendar';
 import { RadialGlow, FloatingOm } from '@/components/ui/decorative-elements';
 import { toast } from 'sonner';
 
@@ -93,6 +94,11 @@ export default function DashboardPage() {
               versesRead={progress?.shloksRead.length || 0}
             />
             <SavedWisdomCard favorites={favorites || []} />
+          </div>
+
+          {/* Streak Calendar */}
+          <div className="mb-5 sm:mb-6">
+            <StreakCalendar userId={user.id} currentStreak={progress?.currentStreak || 0} />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 pb-safe">

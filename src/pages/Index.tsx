@@ -5,6 +5,7 @@ import { SEOHead, generateWebsiteSchema } from '@/components/SEOHead';
 
 // Lazy load below-the-fold components for faster initial paint
 const StatsSection = lazy(() => import('@/components/home/StatsSection').then(m => ({ default: m.StatsSection })));
+const MoodSelector = lazy(() => import('@/components/home/MoodSelector').then(m => ({ default: m.MoodSelector })));
 const HowItWorks = lazy(() => import('@/components/home/HowItWorks').then(m => ({ default: m.HowItWorks })));
 const FeaturesGrid = lazy(() => import('@/components/home/FeaturesGrid').then(m => ({ default: m.FeaturesGrid })));
 const ProblemCategories = lazy(() => import('@/components/home/ProblemCategories').then(m => ({ default: m.ProblemCategories })));
@@ -44,6 +45,9 @@ const Index = () => {
       {/* Below-the-fold content - lazy loaded */}
       <Suspense fallback={<SectionSkeleton />}>
         <StatsSection />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton />}>
+        <MoodSelector />
       </Suspense>
       <Suspense fallback={<SectionSkeleton />}>
         <HowItWorks />
