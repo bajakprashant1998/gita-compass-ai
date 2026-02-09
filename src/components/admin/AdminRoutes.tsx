@@ -13,6 +13,7 @@ import AdminLanguages from "@/pages/admin/AdminLanguages";
 import AdminAIRules from "@/pages/admin/AdminAIRules";
 import AdminActivityLog from "@/pages/admin/AdminActivityLog";
 import AdminSettings from "@/pages/admin/AdminSettings";
+import AdminSEOPages from "@/pages/admin/AdminSEOPages";
 import AdminLoginPage from "@/pages/admin/AdminLoginPage";
 
 /**
@@ -41,6 +42,7 @@ export function AdminRoutes() {
           <Route path="ai-rules" element={<AdminProtectedRoute><AdminAIRules /></AdminProtectedRoute>} />
           <Route path="activity" element={<AdminProtectedRoute><AdminActivityLog /></AdminProtectedRoute>} />
           <Route path="settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
+          <Route path="seo" element={<AdminProtectedRoute><AdminSEOPages /></AdminProtectedRoute>} />
         </Route>
       </Routes>
     </AdminAuthProvider>

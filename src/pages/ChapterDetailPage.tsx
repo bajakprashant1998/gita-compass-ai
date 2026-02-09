@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { SEOHead, generateBreadcrumbSchema } from '@/components/SEOHead';
 import { Layout } from '@/components/layout/Layout';
 import { getChapter, getShloksByChapter } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
@@ -119,6 +120,17 @@ export default function ChapterDetailPage() {
 
   return (
     <Layout>
+      <SEOHead
+        title={(chapter as any).meta_title || `Chapter ${chapterNum}: ${chapter.title_english} - Bhagavad Gita`}
+        description={(chapter as any).meta_description || chapter.description_english || `Explore Chapter ${chapterNum} of the Bhagavad Gita`}
+        canonicalUrl={`https://www.bhagavadgitagyan.com/chapters/${chapterNum}`}
+        keywords={(chapter as any).meta_keywords || ['Bhagavad Gita', `Chapter ${chapterNum}`, chapter.theme]}
+        structuredData={generateBreadcrumbSchema([
+          { name: 'Home', url: 'https://www.bhagavadgitagyan.com' },
+          { name: 'Chapters', url: 'https://www.bhagavadgitagyan.com/chapters' },
+          { name: `Chapter ${chapterNum}`, url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}` },
+        ])}
+      />
       {/* Hero Section - WebFX Enhanced */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-amber-500/5 py-12 sm:py-16 lg:py-24">
         {/* Enhanced Background Decorations */}

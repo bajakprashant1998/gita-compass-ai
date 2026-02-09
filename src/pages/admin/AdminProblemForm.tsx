@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Save, ArrowLeft } from 'lucide-react';
+import { AdminSEOFields } from '@/components/admin/AdminSEOFields';
 import { supabase } from '@/integrations/supabase/client';
 import { createProblem, updateProblem, logActivity } from '@/lib/adminApi';
 import type { AdminProblem, ProblemCategory } from '@/types/admin';
@@ -36,7 +37,7 @@ export default function AdminProblemForm() {
   const [isLoading, setIsLoading] = useState(isEdit);
   const [isSaving, setIsSaving] = useState(false);
 
-  const [formData, setFormData] = useState<Partial<AdminProblem>>({
+  const [formData, setFormData] = useState<Partial<AdminProblem> & { meta_title?: string; meta_description?: string; meta_keywords?: string[] }>({
     name: '',
     slug: '',
     description_english: '',
@@ -45,6 +46,9 @@ export default function AdminProblemForm() {
     color: '',
     category: 'mental',
     display_order: 0,
+    meta_title: '',
+    meta_description: '',
+    meta_keywords: [],
   });
 
   useEffect(() => {
@@ -265,6 +269,17 @@ export default function AdminProblemForm() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* SEO Section */}
+            <AdminSEOFields
+              metaTitle={formData.meta_title || ''}
+              metaDescription={formData.meta_description || ''}
+              metaKeywords={formData.meta_keywords || []}
+              onMetaTitleChange={(v) => setFormData(prev => ({ ...prev, meta_title: v }))}
+              onMetaDescriptionChange={(v) => setFormData(prev => ({ ...prev, meta_description: v }))}
+              onMetaKeywordsChange={(v) => setFormData(prev => ({ ...prev, meta_keywords: v }))}
+              pageUrl={`bhagavadgitagyan.com/problems/${formData.slug}`}
+            />
 
             <div className="flex items-center gap-4 mt-6">
               <Button type="submit" disabled={isSaving}>
