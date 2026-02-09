@@ -1,136 +1,133 @@
 
 
-# New Features Plan
+# SEO Metadata Management System
 
 ## Overview
-Based on the current state of the project, here are 5 high-impact features to add that enhance engagement, discoverability, and user retention.
+Build a complete SEO management system in the admin panel, and ensure every page has unique Open Graph metadata. This involves two parts: (1) a database-backed SEO editor for admins, and (2) ensuring all pages properly use unique OG tags.
 
----
+## Part 1: Database Schema
 
-## Feature 1: "Verse of the Day" Share to WhatsApp/Social
+### New Table: `page_seo_metadata`
+Stores SEO metadata for all page types in one unified table.
 
-**What it does**: On the Daily Wisdom section and individual verse pages, add a "Share to WhatsApp" button that generates a beautifully formatted text message with the Sanskrit verse, English meaning, and a direct link back to the website.
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| page_type | text | "chapter", "shlok", "problem", or "static" |
+| page_identifier | text | Chapter ID, Shlok ID, problem slug, or static page path (e.g., "/", "/chat", "/problems") |
+| meta_title | text | Custom SEO title |
+| meta_description | text | Custom SEO description |
+| meta_keywords | text[] | Array of keywords |
+| og_image | text | Optional custom OG image URL |
+| created_at | timestamptz | Auto |
+| updated_at | timestamptz | Auto |
 
-**Why**: WhatsApp is the primary sharing medium for the target audience (Indian users). This drives organic traffic.
+RLS: Admins can manage, anyone can read (needed for frontend to fetch SEO data).
 
-**Changes**:
-- Add a `ShareButtons` component with WhatsApp, Twitter, and Copy Link options
-- Update `DailyWisdom.tsx` to use the share component (replacing the current non-functional Share2 icon button)
-- Update `ShareWisdomCard.tsx` to include WhatsApp sharing
+### Add SEO columns to existing tables
+Add `meta_title`, `meta_description`, `meta_keywords` columns directly to the `chapters`, `shloks`, and `problems` tables for simpler queries (avoids extra join on every page load).
 
----
+**Chosen approach**: Add columns directly to `chapters`, `shloks`, and `problems` tables, plus a `page_seo_metadata` table for static pages. This is simpler and faster for content pages.
 
-## Feature 2: Bookmark Collections (Organize Saved Verses)
+## Part 2: Admin Panel - SEO Management
 
-**What it does**: Let users organize their saved/favorite verses into named collections like "Morning Mantras", "For Tough Days", "Karma Yoga", etc. Currently all favorites are in one flat list.
+### A. SEO fields in existing edit forms
+Add an "SEO" tab/section to:
+- **AdminChapterForm** - meta_title, meta_description, meta_keywords fields
+- **AdminShlokForm** - meta_title, meta_description, meta_keywords fields
+- **AdminProblemForm** - meta_title, meta_description, meta_keywords fields
 
-**Why**: Users with many saved verses need organization. This increases return visits and engagement.
+Each SEO section includes:
+- Character count indicators (title: 60 char recommended, description: 160 char recommended)
+- Color-coded length indicators (green/yellow/red)
+- Google SERP preview showing how the page will appear in search results
 
-**Changes**:
-- Create a new `bookmark_collections` table with columns: id, user_id, name, description, created_at
-- Create a `collection_items` table: id, collection_id, shlok_id, added_at
-- Add a `CollectionManager` component for creating/viewing collections
-- Update `SavedWisdomCard` on dashboard to show collection previews
-- Add collection picker when saving a verse
+### B. New "SEO" admin page for static pages
+A dedicated admin page (`/admin/seo`) to manage SEO for non-content pages:
+- Homepage (`/`)
+- Chat page (`/chat`)
+- Problems listing (`/problems`)
+- Chapters listing (`/chapters`)
+- Contact page (`/contact`)
+- Donate page (`/donate`)
+- Dashboard (`/dashboard`)
 
----
+### C. Reusable SEO Editor Component
+A shared `AdminSEOFields` component used across all forms with:
+- Meta title input with character counter
+- Meta description textarea with character counter
+- Keywords tag input
+- Live Google SERP preview box
 
-## Feature 3: "Ask About This Verse" - Contextual AI Chat
+## Part 3: Frontend - Unique OG Tags Per Page
 
-**What it does**: On every verse detail page, add a small inline chat box where users can ask questions specifically about that verse. For example: "How do I apply this at work?" or "Explain this in simple terms." The AI response is pre-contextualized with the verse.
+### Current State
+The `SEOHead` component already sets unique OG tags per page using `react-helmet-async`. This works for Google (which executes JavaScript). 
 
-**Why**: Bridges the gap between reading a verse and understanding it deeply. Currently users must go to the separate chat page and re-explain which verse they mean.
+### Enhancement
+- Update `ChapterDetailPage`, `ShlokDetailPage`, `ProblemDetailPage` to fetch and use admin-defined SEO metadata from the database
+- Ensure every page sets a unique `og:url` with the correct canonical URL
+- Fall back to auto-generated SEO data if admin hasn't set custom values
 
-**Changes**:
-- Create `VerseChat` component - a compact expandable chat box
-- Add it to `ShlokDetailPage.tsx` after the actions section
-- The chat pre-loads the verse context into the system prompt automatically
-- Uses the existing `gita-coach` edge function with an added `verse_context` parameter
+### Important Note on Social Crawlers
+Facebook and some social crawlers do NOT execute JavaScript, so they only see the `index.html` default meta tags. This is a fundamental limitation of single-page applications (SPAs). To fully solve this would require server-side rendering (SSR), which is not supported in React+Vite on this platform. **However**, Google's crawler fully supports JavaScript and will see the correct per-page metadata. For Facebook sharing, a workaround would be a dedicated "share preview" edge function in the future.
 
----
+## Part 4: Files to Create/Modify
 
-## Feature 4: Reading Streaks with Visual Calendar
-
-**What it does**: Show a GitHub-style contribution/activity heatmap on the dashboard showing which days the user read verses. Gamifies the experience and encourages daily engagement.
-
-**Why**: Streak mechanics are proven engagement drivers. The `user_progress` table already tracks `current_streak` and `last_activity_date`, but it's not visualized well.
-
-**Changes**:
-- Create `StreakCalendar` component with a 12-week heatmap grid
-- Create a new `reading_activity` table: id, user_id, date, verses_read_count, chapters_visited
-- Add the calendar to the Dashboard page
-- Track activity automatically when users visit verse pages (update `ShlokDetailPage` to log reads)
-
----
-
-## Feature 5: "Explore by Mood" - Emotion-Based Verse Discovery
-
-**What it does**: A visual, emoji-based mood selector on the homepage and problems page. Users tap their current mood (Anxious, Sad, Angry, Confused, Grateful, Peaceful) and get curated verses matching that emotion.
-
-**Why**: Many users don't know chapter numbers or specific problems. Mood is the most intuitive entry point. The `problems` table already has categories that map well to emotions.
-
-**Changes**:
-- Create `MoodSelector` component with 6-8 emotion cards (emoji + label)
-- Map each mood to existing problem categories/slugs in the database
-- Add the mood selector to the homepage (between HeroSection and StatsSection)
-- Route to the matching problem detail page or show filtered results
-
----
-
-## Implementation Priority
-
-| Priority | Feature | Complexity | Impact |
-|----------|---------|-----------|--------|
-| 1 | WhatsApp/Social Share | Low | High |
-| 2 | Explore by Mood | Low | High |
-| 3 | Ask About This Verse | Medium | High |
-| 4 | Reading Streak Calendar | Medium | Medium |
-| 5 | Bookmark Collections | High | Medium |
-
----
+| File | Action |
+|------|---------|
+| **Migration SQL** | Add `meta_title`, `meta_description`, `meta_keywords` to chapters, shloks, problems tables. Create `page_seo_metadata` table for static pages. |
+| `src/components/admin/AdminSEOFields.tsx` | **New** - Reusable SEO editor with char counters and SERP preview |
+| `src/pages/admin/AdminSEOPages.tsx` | **New** - Static pages SEO management page |
+| `src/pages/admin/AdminChapterForm.tsx` | Add SEO tab with AdminSEOFields |
+| `src/pages/admin/AdminShlokForm.tsx` | Add SEO tab with AdminSEOFields |
+| `src/pages/admin/AdminProblemForm.tsx` | Add SEO tab with AdminSEOFields |
+| `src/components/admin/AdminRoutes.tsx` | Add route for `/admin/seo` |
+| `src/components/admin/AdminSidebar.tsx` | Add "SEO" nav item |
+| `src/hooks/usePageSEO.ts` | **New** - Hook to fetch SEO metadata for any page |
+| `src/pages/ShlokDetailPage.tsx` | Use custom SEO data from DB if available |
+| `src/pages/ChapterDetailPage.tsx` | Use custom SEO data from DB, add proper canonical URL |
+| `src/pages/ProblemDetailPage.tsx` | Use custom SEO data from DB, add proper canonical URL |
+| `src/pages/ChaptersPage.tsx` | Use custom SEO data if available |
+| `src/pages/ChatPage.tsx` | Use custom SEO data if available |
+| `src/lib/adminApi.ts` | Add CRUD functions for page_seo_metadata |
 
 ## Technical Details
 
-### Feature 1 - Share Buttons
-| File | Action |
-|------|--------|
-| `src/components/ui/share-buttons.tsx` | New - reusable share component |
-| `src/components/home/DailyWisdom.tsx` | Update Share2 button to use share-buttons |
-| `src/components/shlok/ShareWisdomCard.tsx` | Add WhatsApp share option |
+### AdminSEOFields Component
+```text
++------------------------------------------+
+| SEO Settings                             |
++------------------------------------------+
+| Meta Title                               |
+| [Bhagavad Gita Chapter 3 - Karm...]  45/60 |
+|                                          |
+| Meta Description                         |
+| [Explore the teachings of Chapter...]  120/160 |
+|                                          |
+| Keywords                                 |
+| [karma] [yoga] [duty] [+ Add]           |
+|                                          |
+| --- Google Preview ---                   |
+| Bhagavad Gita Chapter 3 - Karma Yoga    |
+| bhagavadgitagyan.com > chapters > 3      |
+| Explore the teachings of Chapter 3...    |
++------------------------------------------+
+```
 
-### Feature 2 - Bookmark Collections
-| File | Action |
-|------|--------|
-| Migration SQL | New table `bookmark_collections` and `collection_items` |
-| `src/hooks/useCollections.ts` | New hook for CRUD |
-| `src/components/dashboard/CollectionManager.tsx` | New component |
-| `src/components/dashboard/SavedWisdomCard.tsx` | Update to show collections |
+### Character Limit Colors
+- Green: Within optimal range
+- Yellow: Approaching limit (title > 50, description > 140)
+- Red: Over limit (title > 60, description > 160)
 
-### Feature 3 - Contextual Verse Chat
-| File | Action |
-|------|--------|
-| `src/components/shlok/VerseChat.tsx` | New inline chat component |
-| `src/pages/ShlokDetailPage.tsx` | Add VerseChat below actions |
-| `supabase/functions/gita-coach/index.ts` | Add verse_context parameter support |
+### Data Flow
+When a content page loads:
+1. Fetch content data (chapter/shlok/problem) - already has meta_title, meta_description, meta_keywords columns
+2. If custom SEO fields are set, use them in SEOHead
+3. If not set, fall back to auto-generated values (current behavior)
 
-### Feature 4 - Streak Calendar
-| File | Action |
-|------|--------|
-| Migration SQL | New table `reading_activity` |
-| `src/components/dashboard/StreakCalendar.tsx` | New heatmap component |
-| `src/pages/DashboardPage.tsx` | Add StreakCalendar section |
-| `src/pages/ShlokDetailPage.tsx` | Track verse reads on visit |
-
-### Feature 5 - Mood Selector
-| File | Action |
-|------|--------|
-| `src/components/home/MoodSelector.tsx` | New component with emoji cards |
-| `src/pages/Index.tsx` | Add MoodSelector after HeroSection |
-
-### Branding Fix
-| File | Action |
-|------|--------|
-| `src/components/layout/Footer.tsx` | Change "AI Gita Coach" to "Talk to Krishna" (line 126) |
-| `src/components/layout/Header.tsx` | Change "AI Coach" to "Talk to Krishna" (line 51) |
-| `src/components/home/FeaturesGrid.tsx` | Change "AI Gita Coach" to "Talk to Krishna" (line 21) |
+For static pages:
+1. `usePageSEO` hook queries `page_seo_metadata` by path
+2. If found, override default SEOHead props
+3. If not found, use hardcoded defaults
 
