@@ -13,7 +13,8 @@ type TableName =
   | "languages"
   | "ai_search_rules"
   | "shlok_problems"
-  | "admin_activity_log";
+  | "admin_activity_log"
+  | "page_seo_metadata";
 
 type Operation = "create" | "update" | "delete" | "bulk_update" | "upsert";
 
@@ -55,6 +56,7 @@ Deno.serve(async (req) => {
       "ai_search_rules",
       "shlok_problems",
       "admin_activity_log",
+      "page_seo_metadata",
     ];
 
     if (!allowedTables.includes(table)) {

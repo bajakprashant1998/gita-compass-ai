@@ -322,6 +322,9 @@ export async function updateChapter(id: string, data: Partial<{
   theme: string;
   description_english: string;
   description_hindi: string;
+  meta_title: string | null;
+  meta_description: string | null;
+  meta_keywords: string[] | null;
 }>) {
   return adminCrud('chapters', 'update', { id, data });
 }

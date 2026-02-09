@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AdminHeader } from '@/components/admin/AdminHeader';
+import { AdminSEOFields } from '@/components/admin/AdminSEOFields';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +22,9 @@ interface ChapterData {
   theme: string;
   description_english?: string;
   description_hindi?: string;
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string[];
 }
 
 export default function AdminChapterForm() {
@@ -40,6 +44,9 @@ export default function AdminChapterForm() {
     theme: '',
     description_english: '',
     description_hindi: '',
+    meta_title: '',
+    meta_description: '',
+    meta_keywords: [],
   });
 
   useEffect(() => {
@@ -124,6 +131,9 @@ export default function AdminChapterForm() {
         theme: formData.theme,
         description_english: formData.description_english,
         description_hindi: formData.description_hindi,
+        meta_title: formData.meta_title || null,
+        meta_description: formData.meta_description || null,
+        meta_keywords: formData.meta_keywords?.length ? formData.meta_keywords : null,
       });
 
       await logActivity('update', 'chapter', id!, undefined, formData as unknown as Record<string, unknown>);
@@ -256,6 +266,17 @@ export default function AdminChapterForm() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* SEO Section */}
+            <AdminSEOFields
+              metaTitle={formData.meta_title || ''}
+              metaDescription={formData.meta_description || ''}
+              metaKeywords={formData.meta_keywords || []}
+              onMetaTitleChange={(v) => handleChange('meta_title', v)}
+              onMetaDescriptionChange={(v) => handleChange('meta_description', v)}
+              onMetaKeywordsChange={(v) => setFormData(prev => ({ ...prev, meta_keywords: v }))}
+              pageUrl={`bhagavadgitagyan.com/chapters/${formData.chapter_number}`}
+            />
 
             <div className="flex items-center gap-4">
               <Button type="submit" disabled={isSaving}>

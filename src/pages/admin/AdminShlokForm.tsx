@@ -34,6 +34,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AIGenerateButton } from '@/components/admin/AIGenerateButton';
 import { AddProblemModal } from '@/components/admin/AddProblemModal';
 import { StoryTypeManager } from '@/components/admin/StoryTypeManager';
+import { AdminSEOFields } from '@/components/admin/AdminSEOFields';
 import { supabase } from '@/integrations/supabase/client';
 import { generateTTS, playBase64Audio } from '@/lib/adminSettings';
 
@@ -364,13 +365,14 @@ export default function AdminShlokForm() {
           </Button>
 
           <Tabs defaultValue="core" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="core">Core</TabsTrigger>
               <TabsTrigger value="meanings">Meanings</TabsTrigger>
               <TabsTrigger value="problems">Problems</TabsTrigger>
               <TabsTrigger value="solution">Solution</TabsTrigger>
               <TabsTrigger value="story">Story</TabsTrigger>
               <TabsTrigger value="status">Status</TabsTrigger>
+              <TabsTrigger value="seo">SEO</TabsTrigger>
             </TabsList>
 
             {/* Tab 1: Core Information */}
@@ -808,6 +810,19 @@ export default function AdminShlokForm() {
                   )}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Tab 7: SEO */}
+            <TabsContent value="seo">
+              <AdminSEOFields
+                metaTitle={(formData as any).meta_title || ''}
+                metaDescription={(formData as any).meta_description || ''}
+                metaKeywords={(formData as any).meta_keywords || []}
+                onMetaTitleChange={(v) => handleChange('meta_title' as any, v)}
+                onMetaDescriptionChange={(v) => handleChange('meta_description' as any, v)}
+                onMetaKeywordsChange={(v) => handleChange('meta_keywords' as any, v)}
+                pageUrl={`bhagavadgitagyan.com/chapters/${selectedChapter?.chapter_number}/verse/${formData.verse_number}`}
+              />
             </TabsContent>
           </Tabs>
 

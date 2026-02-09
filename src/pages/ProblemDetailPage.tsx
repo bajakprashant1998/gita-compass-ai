@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
+import { SEOHead } from '@/components/SEOHead';
 import { getProblem, getShloksByProblem } from '@/lib/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -52,6 +53,12 @@ export default function ProblemDetailPage() {
 
   return (
     <Layout>
+      <SEOHead
+        title={(problem as any).meta_title || `${problem.name} - Bhagavad Gita Wisdom`}
+        description={(problem as any).meta_description || problem.description_english || `Find Bhagavad Gita wisdom for ${problem.name}`}
+        canonicalUrl={`https://www.bhagavadgitagyan.com/problems/${slug}`}
+        keywords={(problem as any).meta_keywords || ['Bhagavad Gita', problem.name, 'wisdom', 'guidance']}
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-16 lg:py-24 border-b border-border/30">
         {/* Decorative Elements */}

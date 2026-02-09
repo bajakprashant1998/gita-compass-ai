@@ -181,10 +181,10 @@ export default function ShlokDetailPage() {
       <ReadingProgress />
       
       <SEOHead
-        title={`Chapter ${chapterNum}, Verse ${verseNum} - ${shlok.life_application || 'Bhagavad Gita'}`}
-        description={shlok.english_meaning.substring(0, 155) + '...'}
+        title={(shlok as any).meta_title || `Chapter ${chapterNum}, Verse ${verseNum} - ${shlok.life_application || 'Bhagavad Gita'}`}
+        description={(shlok as any).meta_description || shlok.english_meaning.substring(0, 155) + '...'}
         canonicalUrl={`https://www.bhagavadgitagyan.com/chapters/${chapterNum}/verse/${verseNum}`}
-        keywords={['Bhagavad Gita', `Chapter ${chapterNum}`, `Verse ${verseNum}`, 'wisdom', 'guidance']}
+        keywords={(shlok as any).meta_keywords || ['Bhagavad Gita', `Chapter ${chapterNum}`, `Verse ${verseNum}`, 'wisdom', 'guidance']}
         structuredData={combinedSchema}
         type="article"
       />

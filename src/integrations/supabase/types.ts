@@ -152,6 +152,9 @@ export type Database = {
           description_english: string | null
           description_hindi: string | null
           id: string
+          meta_description: string | null
+          meta_keywords: string[] | null
+          meta_title: string | null
           theme: string
           title_english: string
           title_hindi: string | null
@@ -165,6 +168,9 @@ export type Database = {
           description_english?: string | null
           description_hindi?: string | null
           id?: string
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
           theme: string
           title_english: string
           title_hindi?: string | null
@@ -178,6 +184,9 @@ export type Database = {
           description_english?: string | null
           description_hindi?: string | null
           id?: string
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
           theme?: string
           title_english?: string
           title_hindi?: string | null
@@ -341,6 +350,42 @@ export type Database = {
         }
         Relationships: []
       }
+      page_seo_metadata: {
+        Row: {
+          created_at: string
+          id: string
+          meta_description: string | null
+          meta_keywords: string[] | null
+          meta_title: string | null
+          og_image: string | null
+          page_identifier: string
+          page_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
+          og_image?: string | null
+          page_identifier: string
+          page_type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
+          og_image?: string | null
+          page_identifier?: string
+          page_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       problems: {
         Row: {
           category: string | null
@@ -351,6 +396,9 @@ export type Database = {
           display_order: number | null
           icon: string | null
           id: string
+          meta_description: string | null
+          meta_keywords: string[] | null
+          meta_title: string | null
           name: string
           slug: string
         }
@@ -363,6 +411,9 @@ export type Database = {
           display_order?: number | null
           icon?: string | null
           id?: string
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
           name: string
           slug: string
         }
@@ -375,6 +426,9 @@ export type Database = {
           display_order?: number | null
           icon?: string | null
           id?: string
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
           name?: string
           slug?: string
         }
@@ -531,6 +585,9 @@ export type Database = {
           hindi_meaning: string | null
           id: string
           life_application: string | null
+          meta_description: string | null
+          meta_keywords: string[] | null
+          meta_title: string | null
           modern_story: string | null
           practical_action: string | null
           problem_context: string | null
@@ -552,6 +609,9 @@ export type Database = {
           hindi_meaning?: string | null
           id?: string
           life_application?: string | null
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
           modern_story?: string | null
           practical_action?: string | null
           problem_context?: string | null
@@ -573,6 +633,9 @@ export type Database = {
           hindi_meaning?: string | null
           id?: string
           life_application?: string | null
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
           modern_story?: string | null
           practical_action?: string | null
           problem_context?: string | null

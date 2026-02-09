@@ -12,6 +12,7 @@ import {
   Menu,
   Settings,
   LogOut,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BhagwaFlag } from '@/components/ui/bhagwa-flag';
@@ -178,6 +179,12 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                   label="Settings"
                   collapsed={collapsed}
                 />
+                <NavItem
+                  to="/admin/seo"
+                  icon={<Search className="w-5 h-5" />}
+                  label="SEO"
+                  collapsed={collapsed}
+                />
               </CollapsibleContent>
             </Collapsible>
           ) : (
@@ -205,6 +212,12 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                 to="/admin/settings"
                 icon={<Settings className="w-5 h-5" />}
                 label="Settings"
+                collapsed={collapsed}
+              />
+              <NavItem
+                to="/admin/seo"
+                icon={<Search className="w-5 h-5" />}
+                label="SEO"
                 collapsed={collapsed}
               />
             </>
