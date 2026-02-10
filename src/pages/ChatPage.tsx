@@ -15,7 +15,8 @@ import {
   Keyboard,
   ChevronDown,
   ChevronUp,
-  Globe
+  Globe,
+  History
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
@@ -26,11 +27,12 @@ import { MessageActions } from '@/components/chat/MessageActions';
 import { MultiLanguageStarters } from '@/components/chat/MultiLanguageStarters';
 import { EnhancedLanguageSelector, INDIAN_LANGUAGES } from '@/components/chat/EnhancedLanguageSelector';
 import { LanguageBadge } from '@/components/chat/LanguageBadge';
+import { ChatHistorySidebar } from '@/components/chat/ChatHistorySidebar';
+import { VoiceInputButton } from '@/components/chat/VoiceInputButton';
 import { SEOHead } from '@/components/SEOHead';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
-import { RadialGlow } from '@/components/ui/decorative-elements';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Message {
@@ -39,7 +41,7 @@ interface Message {
   timestamp?: Date;
   isCollapsed?: boolean;
   detectedLanguage?: string;
-  originalContent?: string; // Store original before translation
+  originalContent?: string;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gita-coach`;
@@ -53,25 +55,48 @@ const typingMessages = [
   "Consulting the Gita...",
 ];
 
-// Get font class based on script type
 function getScriptFontClass(langCode: string): string {
   const scriptFonts: Record<string, string> = {
-    hi: 'font-devanagari',
-    mr: 'font-devanagari',
-    sa: 'font-devanagari',
-    ta: 'font-tamil',
-    te: 'font-telugu',
-    bn: 'font-bengali',
-    as: 'font-bengali',
-    gu: 'font-gujarati',
-    kn: 'font-kannada',
-    ml: 'font-malayalam',
-    pa: 'font-gurmukhi',
-    or: 'font-odia',
-    ur: 'font-urdu',
+    hi: 'font-devanagari', mr: 'font-devanagari', sa: 'font-devanagari',
+    ta: 'font-tamil', te: 'font-telugu', bn: 'font-bengali', as: 'font-bengali',
+    gu: 'font-gujarati', kn: 'font-kannada', ml: 'font-malayalam',
+    pa: 'font-gurmukhi', or: 'font-odia', ur: 'font-urdu',
   };
   return scriptFonts[langCode] || '';
 }
+
+// Custom markdown components for richer formatting
+const markdownComponents = {
+  a: ({ href, children }: { href?: string; children?: React.ReactNode }) =>
+    href?.startsWith('/')
+      ? <Link to={href} className="text-primary underline decoration-primary/30 hover:decoration-primary/80 underline-offset-2 transition-all font-medium">{children}</Link>
+      : <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary underline decoration-primary/30 hover:decoration-primary/80 underline-offset-2 transition-all">{children}</a>,
+  strong: ({ children }: { children?: React.ReactNode }) =>
+    <strong className="font-bold text-foreground">{children}</strong>,
+  blockquote: ({ children }: { children?: React.ReactNode }) =>
+    <blockquote className="border-l-3 border-primary/40 pl-4 my-3 italic text-muted-foreground bg-primary/5 py-2 pr-3 rounded-r-lg">{children}</blockquote>,
+  code: ({ children, className }: { children?: React.ReactNode; className?: string }) => {
+    const isInline = !className;
+    return isInline
+      ? <code className="bg-muted/80 px-1.5 py-0.5 rounded text-sm font-mono text-primary">{children}</code>
+      : <code className={cn("block bg-muted/80 p-4 rounded-xl text-sm font-mono overflow-x-auto border border-border/50", className)}>{children}</code>;
+  },
+  h3: ({ children }: { children?: React.ReactNode }) =>
+    <h3 className="text-base font-bold mt-4 mb-2 text-foreground flex items-center gap-2">
+      <span className="w-1 h-4 bg-primary rounded-full inline-block" />
+      {children}
+    </h3>,
+  h4: ({ children }: { children?: React.ReactNode }) =>
+    <h4 className="text-sm font-bold mt-3 mb-1.5 text-foreground">{children}</h4>,
+  ul: ({ children }: { children?: React.ReactNode }) =>
+    <ul className="space-y-1.5 my-2 ml-1">{children}</ul>,
+  li: ({ children }: { children?: React.ReactNode }) =>
+    <li className="flex items-start gap-2 text-sm">
+      <span className="w-1.5 h-1.5 rounded-full bg-primary/60 mt-2 flex-shrink-0" />
+      <span>{children}</span>
+    </li>,
+  hr: () => <hr className="my-4 border-border/50" />,
+};
 
 export default function ChatPage() {
   const [searchParams] = useSearchParams();
@@ -82,35 +107,32 @@ export default function ChatPage() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [collapsedMessages, setCollapsedMessages] = useState<Set<number>>(new Set());
   const [preferredLanguage, setPreferredLanguage] = useState('auto');
+  const [showHistory, setShowHistory] = useState(false);
+  const [activeConversationId, setActiveConversationId] = useState<string>();
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useAuth();
 
-  // Handle initial query from URL
   useEffect(() => {
     const initialQuery = searchParams.get('q');
     if (initialQuery && messages.length === 0) {
       setInput(initialQuery);
-      // Auto-submit after a short delay
       setTimeout(() => {
         handleSubmit(undefined, initialQuery);
       }, 500);
     }
   }, [searchParams]);
 
-  // Scroll handling
   const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, []);
 
-  // Auto-scroll to bottom on new messages
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // Handle scroll position to show/hide scroll button
   const handleScroll = useCallback(() => {
     if (scrollRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
@@ -127,20 +149,16 @@ export default function ChatPage() {
     }
   }, [handleScroll]);
 
-  // Rotate typing message
   useEffect(() => {
     if (!isLoading) return;
-    
     let index = 0;
     const interval = setInterval(() => {
       index = (index + 1) % typingMessages.length;
       setTypingMessage(typingMessages[index]);
     }, 2000);
-    
     return () => clearInterval(interval);
   }, [isLoading]);
 
-  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -151,11 +169,8 @@ export default function ChatPage() {
   const toggleMessageCollapse = (index: number) => {
     setCollapsedMessages(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-      } else {
-        newSet.add(index);
-      }
+      if (newSet.has(index)) newSet.delete(index);
+      else newSet.add(index);
       return newSet;
     });
   };
@@ -181,46 +196,36 @@ export default function ChatPage() {
         },
         body: JSON.stringify({ 
           messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })),
-          preferredLanguage: preferredLanguage,
+          preferredLanguage,
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        if (response.status === 429) {
-          toast.error('Too many requests. Please wait a moment and try again.');
-        } else if (response.status === 402) {
-          toast.error('Service temporarily unavailable. Please try again later.');
-        } else {
-          toast.error(errorData.error || 'Failed to get response');
-        }
+        if (response.status === 429) toast.error('Too many requests. Please wait a moment.');
+        else if (response.status === 402) toast.error('Service temporarily unavailable.');
+        else toast.error(errorData.error || 'Failed to get response');
         setIsLoading(false);
         return;
       }
 
-      if (!response.body) {
-        throw new Error('No response body');
-      }
+      if (!response.body) throw new Error('No response body');
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
 
-      // Add empty assistant message
       setMessages(prev => [...prev, { role: 'assistant', content: '', timestamp: new Date() }]);
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
         buffer += decoder.decode(value, { stream: true });
 
-        // Process complete SSE messages
         let newlineIndex: number;
         while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
           let line = buffer.slice(0, newlineIndex);
           buffer = buffer.slice(newlineIndex + 1);
-
           if (line.endsWith('\r')) line = line.slice(0, -1);
           if (line.startsWith(':') || line.trim() === '') continue;
           if (!line.startsWith('data: ')) continue;
@@ -236,14 +241,11 @@ export default function ChatPage() {
               setMessages(prev => {
                 const newMessages = [...prev];
                 const lastMessage = newMessages[newMessages.length - 1];
-                if (lastMessage?.role === 'assistant') {
-                  lastMessage.content = assistantContent;
-                }
+                if (lastMessage?.role === 'assistant') lastMessage.content = assistantContent;
                 return newMessages;
               });
             }
           } catch {
-            // Incomplete JSON, put it back
             buffer = line + '\n' + buffer;
             break;
           }
@@ -252,7 +254,6 @@ export default function ChatPage() {
     } catch (error) {
       console.error('Chat error:', error);
       toast.error('Failed to send message. Please try again.');
-      // Remove the empty assistant message if there was an error
       setMessages(prev => prev.filter((_, i) => i !== prev.length - 1 || prev[i].content !== ''));
     } finally {
       setIsLoading(false);
@@ -267,20 +268,18 @@ export default function ChatPage() {
     }
   };
 
-  const handleQuickAction = (text: string) => {
-    handleSubmit(undefined, text);
-  };
+  const handleQuickAction = (text: string) => handleSubmit(undefined, text);
 
   const handleClearChat = () => {
     setMessages([]);
     setCollapsedMessages(new Set());
+    setActiveConversationId(undefined);
     toast.success('Conversation cleared');
   };
 
   const handleTranslate = async (langCode: string, content: string, messageIndex: number) => {
     const langName = INDIAN_LANGUAGES.find(l => l.code === langCode)?.name || langCode;
     const toastId = `translate-${messageIndex}`;
-    
     toast.loading(`Translating to ${langName}...`, { id: toastId });
     
     try {
@@ -290,27 +289,20 @@ export default function ChatPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ 
-          content,
-          targetLanguage: langCode,
-        }),
+        body: JSON.stringify({ content, targetLanguage: langCode }),
       });
 
-      if (!response.ok) {
-        throw new Error('Translation failed');
-      }
-
+      if (!response.ok) throw new Error('Translation failed');
       const data = await response.json();
       
       if (data.translatedContent) {
-        // Update the message with translated content, storing original
         setMessages(prev => {
           const newMessages = [...prev];
           if (newMessages[messageIndex]) {
             const msg = newMessages[messageIndex];
             newMessages[messageIndex] = {
               ...msg,
-              originalContent: msg.originalContent || msg.content, // Keep first original
+              originalContent: msg.originalContent || msg.content,
               content: data.translatedContent,
               detectedLanguage: langCode,
             };
@@ -319,13 +311,11 @@ export default function ChatPage() {
         });
         toast.success(`Translated to ${langName}`, { id: toastId });
       }
-    } catch (error) {
-      console.error('Translation error:', error);
+    } catch {
       toast.error('Translation failed. Please try again.', { id: toastId });
     }
   };
 
-  // Restore original content
   const handleRestoreOriginal = (messageIndex: number) => {
     setMessages(prev => {
       const newMessages = [...prev];
@@ -343,6 +333,17 @@ export default function ChatPage() {
     toast.success('Restored original content');
   };
 
+  const handleLoadConversation = (conversationId: string, msgs: Array<{ role: string; content: string }>) => {
+    setActiveConversationId(conversationId);
+    setMessages(msgs.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content, timestamp: new Date() })));
+    setCollapsedMessages(new Set());
+  };
+
+  const handleVoiceTranscript = (text: string) => {
+    setInput(prev => prev ? `${prev} ${text}` : text);
+    textareaRef.current?.focus();
+  };
+
   const charCount = input.length;
   const isOverLimit = charCount > MAX_CHARS;
 
@@ -355,13 +356,15 @@ export default function ChatPage() {
         keywords={['talk to Krishna', 'Gita guidance', 'wisdom chat', 'personal guide', 'life advice']}
       />
 
-      {/* Hero Header - Clean and simple */}
+      {/* Hero Header */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-4 border-b border-border/50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-between gap-3">
+          <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
                 <span className="text-xl sm:text-2xl">🙏</span>
+                {/* Online indicator */}
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
               </div>
               <div>
                 <h1 className="text-xl md:text-2xl font-bold">
@@ -380,6 +383,20 @@ export default function ChatPage() {
                 disabled={isLoading}
                 variant="prominent"
               />
+              {user && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setShowHistory(!showHistory)}
+                  className={cn(
+                    "gap-2 transition-all hidden md:flex",
+                    showHistory && "bg-primary/10 border-primary/30 text-primary"
+                  )}
+                >
+                  <History className="h-4 w-4" />
+                  <span className="hidden lg:inline">History</span>
+                </Button>
+              )}
               {messages.length > 0 && (
                 <Button 
                   variant="outline" 
@@ -397,7 +414,17 @@ export default function ChatPage() {
       </section>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 h-[calc(100vh-12rem)]">
-        <div className="max-w-3xl mx-auto h-full flex flex-col">
+        <div className="max-w-5xl mx-auto h-full flex gap-4">
+          {/* Chat History Sidebar */}
+          <ChatHistorySidebar
+            userId={user?.id}
+            isOpen={showHistory}
+            onToggle={() => setShowHistory(!showHistory)}
+            onSelectConversation={handleLoadConversation}
+            onNewChat={handleClearChat}
+            activeConversationId={activeConversationId}
+          />
+
           {/* Chat Area */}
           <Card className="flex-1 flex flex-col overflow-hidden border-border/50 shadow-xl shadow-primary/5 relative">
             <ScrollArea 
@@ -421,7 +448,7 @@ export default function ChatPage() {
                         )}
                       >
                         {message.role === 'assistant' && (
-                          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30">
+                          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30 shadow-sm">
                             <span className="text-lg">🙏</span>
                           </div>
                         )}
@@ -431,21 +458,21 @@ export default function ChatPage() {
                               "rounded-2xl px-4 py-3 backdrop-blur-sm",
                               message.role === 'user'
                                 ? 'bg-gradient-to-r from-primary to-amber-500 text-white shadow-lg shadow-primary/20'
-                                : 'bg-gradient-to-br from-muted/90 to-muted/70 border border-border/50 shadow-sm'
+                                : 'bg-gradient-to-br from-card to-muted/30 border border-border/50 shadow-sm'
                             )}
                           >
                             {message.role === 'assistant' ? (
                               isLongMessage ? (
                                 <Collapsible open={!isCollapsed}>
                                   <div className={cn(
-                                    "prose prose-sm dark:prose-invert max-w-none",
+                                    "prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-foreground/90 prose-li:text-foreground/90",
                                     message.detectedLanguage && getScriptFontClass(message.detectedLanguage)
                                   )}>
                                     <CollapsibleContent className="CollapsibleContent">
-                                      <ReactMarkdown components={{ a: ({ href, children }) => href?.startsWith('/') ? <Link to={href} className="text-primary underline hover:text-primary/80">{children}</Link> : <a href={href} target="_blank" rel="noopener noreferrer">{children}</a> }}>{linkVerseReferences(message.content)}</ReactMarkdown>
+                                      <ReactMarkdown components={markdownComponents}>{linkVerseReferences(message.content)}</ReactMarkdown>
                                     </CollapsibleContent>
                                     {isCollapsed && (
-                                      <ReactMarkdown components={{ a: ({ href, children }) => href?.startsWith('/') ? <Link to={href} className="text-primary underline hover:text-primary/80">{children}</Link> : <a href={href} target="_blank" rel="noopener noreferrer">{children}</a> }}>{linkVerseReferences(message.content.slice(0, 400) + '...')}</ReactMarkdown>
+                                      <ReactMarkdown components={markdownComponents}>{linkVerseReferences(message.content.slice(0, 400) + '...')}</ReactMarkdown>
                                     )}
                                   </div>
                                   <CollapsibleTrigger asChild>
@@ -471,10 +498,10 @@ export default function ChatPage() {
                                 </Collapsible>
                               ) : (
                                 <div className={cn(
-                                  "prose prose-sm dark:prose-invert max-w-none",
+                                  "prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-foreground/90 prose-li:text-foreground/90",
                                   message.detectedLanguage && getScriptFontClass(message.detectedLanguage)
                                 )}>
-                                  <ReactMarkdown components={{ a: ({ href, children }) => href?.startsWith('/') ? <Link to={href} className="text-primary underline hover:text-primary/80">{children}</Link> : <a href={href} target="_blank" rel="noopener noreferrer">{children}</a> }}>{linkVerseReferences(message.content || '...')}</ReactMarkdown>
+                                  <ReactMarkdown components={markdownComponents}>{linkVerseReferences(message.content || '...')}</ReactMarkdown>
                                 </div>
                               )
                             ) : (
@@ -517,7 +544,7 @@ export default function ChatPage() {
                       <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30">
                         <span className="text-lg animate-pulse">🙏</span>
                       </div>
-                      <div className="bg-gradient-to-br from-muted/90 to-muted/70 border border-border/50 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm backdrop-blur-sm">
+                      <div className="bg-gradient-to-br from-card to-muted/30 border border-border/50 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm backdrop-blur-sm">
                         <div className="flex gap-1">
                           <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
                           <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -547,9 +574,9 @@ export default function ChatPage() {
             )}
 
             {/* Input Area */}
-            <CardContent className="p-4 border-t border-border/50 space-y-3 bg-gradient-to-b from-transparent via-muted/20 to-muted/40 relative">
+            <CardContent className="p-4 border-t border-border/50 space-y-3 bg-gradient-to-b from-transparent via-muted/10 to-muted/30 relative">
               <QuickActionsBar onQuickAction={handleQuickAction} disabled={isLoading} />
-              <form onSubmit={handleSubmit} className="flex gap-3">
+              <form onSubmit={handleSubmit} className="flex gap-3 items-end">
                 <div className="flex-1 relative">
                   <Textarea
                     ref={textareaRef}
@@ -558,30 +585,37 @@ export default function ChatPage() {
                     onKeyDown={handleKeyDown}
                     placeholder="Ask Krishna anything about life..."
                     className={cn(
-                      "min-h-[60px] max-h-[120px] resize-none border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all pr-24",
+                      "min-h-[56px] max-h-[120px] resize-none border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all pr-24 rounded-xl",
                       isOverLimit && "border-destructive focus:border-destructive"
                     )}
                     disabled={isLoading}
                   />
-                  {/* Character count & keyboard hint */}
-                   <div className="absolute bottom-2 right-3 hidden md:flex items-center gap-3 text-xs">
-                    {charCount > 400 && (
-                      <span className={cn(
-                        "transition-colors",
-                        isOverLimit ? "text-destructive font-medium" : "text-muted-foreground/60"
-                      )}>
-                        {charCount}/{MAX_CHARS}
-                      </span>
-                    )}
-                    <div className="flex items-center gap-1 text-muted-foreground/60">
-                      <Keyboard className="h-3 w-3" />
-                      <span>Enter</span>
+                  {/* Voice + Character count */}
+                  <div className="absolute bottom-2 right-3 flex items-center gap-2">
+                    <VoiceInputButton 
+                      onTranscript={handleVoiceTranscript} 
+                      disabled={isLoading}
+                      className="h-8 w-8"
+                    />
+                    <div className="hidden md:flex items-center gap-3 text-xs">
+                      {charCount > 400 && (
+                        <span className={cn(
+                          "transition-colors",
+                          isOverLimit ? "text-destructive font-medium" : "text-muted-foreground/60"
+                        )}>
+                          {charCount}/{MAX_CHARS}
+                        </span>
+                      )}
+                      <div className="flex items-center gap-1 text-muted-foreground/60">
+                        <Keyboard className="h-3 w-3" />
+                        <span>Enter</span>
+                      </div>
                     </div>
                   </div>
                 </div>
                 <Button
                   type="submit"
-                  className="h-12 sm:h-[60px] px-4 sm:px-6 bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-105 gap-2"
+                  className="h-14 px-5 bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-105 gap-2 rounded-xl"
                   disabled={!input.trim() || isLoading || isOverLimit}
                 >
                   {isLoading ? (
