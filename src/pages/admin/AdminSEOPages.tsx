@@ -3,10 +3,11 @@ import { AdminHeader } from '@/components/admin/AdminHeader';
 import { AdminSEOFields } from '@/components/admin/AdminSEOFields';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Save, Check } from 'lucide-react';
+import { Loader2, Save, Check, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { generateAIContentWithMeta } from '@/lib/adminApi';
+import { BulkSEOGenerateModal } from '@/components/admin/BulkSEOGenerateModal';
 
 interface StaticPageSEO {
   id?: string;
@@ -32,6 +33,7 @@ export default function AdminSEOPages() {
   const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [pages, setPages] = useState<StaticPageSEO[]>([]);
+  const [showBulkModal, setShowBulkModal] = useState(false);
 
   useEffect(() => {
     const loadSEOData = async () => {
@@ -115,10 +117,16 @@ export default function AdminSEOPages() {
     <div className="space-y-6">
       <AdminHeader
         title="SEO Management"
-        subtitle="Manage meta titles, descriptions, and keywords for static pages"
+        subtitle="Manage meta titles, descriptions, and keywords for all pages"
       />
       <div className="container">
         <div className="max-w-3xl space-y-6">
+          <div className="flex justify-end">
+            <Button onClick={() => setShowBulkModal(true)} variant="outline" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              Bulk Generate SEO (Chapters/Shloks/Problems)
+            </Button>
+          </div>
           {pages.map(page => (
             <div key={page.page_identifier}>
               <div className="flex items-center justify-between mb-3">
@@ -166,6 +174,10 @@ export default function AdminSEOPages() {
           ))}
         </div>
       </div>
+      <BulkSEOGenerateModal
+        open={showBulkModal}
+        onOpenChange={setShowBulkModal}
+      />
     </div>
   );
 }
