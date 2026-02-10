@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AIGenerateButton } from '@/components/admin/AIGenerateButton';
 
 interface AdminSEOFieldsProps {
   metaTitle: string;
@@ -15,6 +16,7 @@ interface AdminSEOFieldsProps {
   onMetaDescriptionChange: (value: string) => void;
   onMetaKeywordsChange: (value: string[]) => void;
   pageUrl?: string;
+  onGenerateSEO?: () => Promise<string | void>;
 }
 
 function CharCounter({ current, max, warn }: { current: number; max: number; warn: number }) {
@@ -30,6 +32,7 @@ export function AdminSEOFields({
   onMetaDescriptionChange,
   onMetaKeywordsChange,
   pageUrl = 'bhagavadgitagyan.com',
+  onGenerateSEO,
 }: AdminSEOFieldsProps) {
   const [keywordInput, setKeywordInput] = useState('');
 
@@ -58,10 +61,18 @@ export function AdminSEOFields({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Search className="h-5 w-5" />
-          SEO Settings
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5" />
+            SEO Settings
+          </CardTitle>
+          {onGenerateSEO && (
+            <AIGenerateButton
+              label="Generate SEO"
+              onGenerate={onGenerateSEO}
+            />
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-5">
         {/* Meta Title */}
