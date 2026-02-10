@@ -69,35 +69,57 @@ function getScriptFontClass(langCode: string): string {
 
 // Custom markdown components for richer formatting
 const markdownComponents = {
+  p: ({ children }: { children?: React.ReactNode }) =>
+    <p className="text-[15px] leading-[1.75] text-foreground/90 mb-2.5 last:mb-0">{children}</p>,
   a: ({ href, children }: { href?: string; children?: React.ReactNode }) =>
     href?.startsWith('/')
-      ? <Link to={href} className="text-primary underline decoration-primary/30 hover:decoration-primary/80 underline-offset-2 transition-all font-medium">{children}</Link>
-      : <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary underline decoration-primary/30 hover:decoration-primary/80 underline-offset-2 transition-all">{children}</a>,
+      ? <Link to={href} className="text-primary font-semibold underline decoration-primary/40 hover:decoration-primary underline-offset-2 transition-all hover:text-primary/80">{children}</Link>
+      : <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline decoration-primary/40 hover:decoration-primary underline-offset-2 transition-all">{children}</a>,
   strong: ({ children }: { children?: React.ReactNode }) =>
-    <strong className="font-bold text-foreground">{children}</strong>,
+    <strong className="font-bold text-foreground bg-primary/[0.06] px-0.5 rounded">{children}</strong>,
+  em: ({ children }: { children?: React.ReactNode }) =>
+    <em className="italic text-foreground/80 not-italic border-l-2 border-primary/30 pl-2">{children}</em>,
   blockquote: ({ children }: { children?: React.ReactNode }) =>
-    <blockquote className="border-l-3 border-primary/40 pl-4 my-3 italic text-muted-foreground bg-primary/5 py-2 pr-3 rounded-r-lg">{children}</blockquote>,
+    <blockquote className="border-l-[3px] border-primary/50 pl-4 my-3 text-foreground/80 bg-primary/[0.04] py-2.5 pr-4 rounded-r-xl italic">{children}</blockquote>,
   code: ({ children, className }: { children?: React.ReactNode; className?: string }) => {
     const isInline = !className;
     return isInline
-      ? <code className="bg-muted/80 px-1.5 py-0.5 rounded text-sm font-mono text-primary">{children}</code>
+      ? <code className="bg-primary/10 text-primary px-1.5 py-0.5 rounded-md text-[13px] font-semibold">{children}</code>
       : <code className={cn("block bg-muted/80 p-4 rounded-xl text-sm font-mono overflow-x-auto border border-border/50", className)}>{children}</code>;
   },
+  h1: ({ children }: { children?: React.ReactNode }) =>
+    <h1 className="text-xl font-extrabold mt-5 mb-3 text-foreground bg-gradient-to-r from-primary to-amber-600 bg-clip-text text-transparent">{children}</h1>,
+  h2: ({ children }: { children?: React.ReactNode }) =>
+    <h2 className="text-lg font-bold mt-5 mb-2.5 text-foreground flex items-center gap-2">
+      <span className="w-1.5 h-5 bg-gradient-to-b from-primary to-amber-500 rounded-full inline-block" />
+      {children}
+    </h2>,
   h3: ({ children }: { children?: React.ReactNode }) =>
     <h3 className="text-base font-bold mt-4 mb-2 text-foreground flex items-center gap-2">
       <span className="w-1 h-4 bg-primary rounded-full inline-block" />
       {children}
     </h3>,
   h4: ({ children }: { children?: React.ReactNode }) =>
-    <h4 className="text-sm font-bold mt-3 mb-1.5 text-foreground">{children}</h4>,
+    <h4 className="text-sm font-bold mt-3 mb-1.5 text-foreground uppercase tracking-wide text-primary/80">{children}</h4>,
   ul: ({ children }: { children?: React.ReactNode }) =>
-    <ul className="space-y-1.5 my-2 ml-1">{children}</ul>,
-  li: ({ children }: { children?: React.ReactNode }) =>
-    <li className="flex items-start gap-2 text-sm">
-      <span className="w-1.5 h-1.5 rounded-full bg-primary/60 mt-2 flex-shrink-0" />
-      <span>{children}</span>
-    </li>,
-  hr: () => <hr className="my-4 border-border/50" />,
+    <ul className="space-y-2 my-3 ml-1">{children}</ul>,
+  ol: ({ children }: { children?: React.ReactNode }) =>
+    <ol className="space-y-2.5 my-3 ml-1 counter-reset-list">{children}</ol>,
+  li: ({ children, ...props }: { children?: React.ReactNode; ordered?: boolean }) => {
+    const isOrdered = (props as any).ordered;
+    return isOrdered ? (
+      <li className="flex items-start gap-3 text-[15px] leading-relaxed">
+        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-primary to-amber-500 text-white text-xs font-bold flex items-center justify-center mt-0.5 shadow-sm">{(props as any).index + 1}</span>
+        <span className="flex-1">{children}</span>
+      </li>
+    ) : (
+      <li className="flex items-start gap-2.5 text-[15px] leading-relaxed">
+        <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-primary to-amber-500 mt-2.5 flex-shrink-0" />
+        <span className="flex-1">{children}</span>
+      </li>
+    );
+  },
+  hr: () => <hr className="my-5 border-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />,
 };
 
 export default function ChatPage() {
@@ -491,10 +513,10 @@ export default function ChatPage() {
                         <div className="flex flex-col max-w-[92%] sm:max-w-[85%]">
                           <div
                             className={cn(
-                              "rounded-2xl px-4 py-3 backdrop-blur-sm",
+                              "rounded-2xl backdrop-blur-sm",
                               message.role === 'user'
-                                ? 'bg-gradient-to-r from-primary to-amber-500 text-white shadow-lg shadow-primary/20 bubble-tail-right'
-                                : 'bg-gradient-to-br from-card to-muted/30 border border-border/50 shadow-sm bubble-tail-left'
+                                ? 'bg-gradient-to-r from-primary to-amber-500 text-white shadow-lg shadow-primary/20 bubble-tail-right px-4 py-3 text-[15px] leading-relaxed font-medium'
+                                : 'bg-gradient-to-br from-card via-card to-muted/20 border border-border/50 shadow-sm bubble-tail-left px-5 py-4'
                             )}
                           >
                             {message.role === 'assistant' ? (
@@ -541,7 +563,7 @@ export default function ChatPage() {
                                 </div>
                               )
                             ) : (
-                              <p>{message.content}</p>
+                              <p className="text-[15px] leading-relaxed">{message.content}</p>
                             )}
                           </div>
                           <div className="flex items-center justify-between mt-1.5 px-1 gap-2">
