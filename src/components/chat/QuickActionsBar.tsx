@@ -46,7 +46,7 @@ const quickActions = [
 export function QuickActionsBar({ onQuickAction, disabled }: QuickActionsBarProps) {
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="flex flex-wrap gap-2 mb-3">
+      <div className="flex gap-2 mb-3 overflow-x-auto md:flex-wrap md:overflow-visible scrollbar-hide pb-1 md:pb-0 snap-x snap-mandatory md:snap-none">
         {quickActions.map((action) => (
           <Tooltip key={action.label}>
             <TooltipTrigger asChild>
@@ -54,14 +54,15 @@ export function QuickActionsBar({ onQuickAction, disabled }: QuickActionsBarProp
                 onClick={() => onQuickAction(action.text)}
                 disabled={disabled}
                 className={cn(
-                  "inline-flex items-center gap-2 px-4 py-2.5 rounded-full min-h-[44px]",
-                  "bg-card border border-border/50 text-sm font-medium text-muted-foreground",
+                  "inline-flex items-center gap-1.5 md:gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-full min-h-[40px] md:min-h-[44px]",
+                  "bg-card border border-border/50 text-xs md:text-sm font-medium text-muted-foreground",
                   "transition-all duration-200 hover:shadow-md hover:-translate-y-0.5",
                   "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none",
+                  "whitespace-nowrap flex-shrink-0 snap-start",
                   action.color
                 )}
               >
-                <action.icon className="h-4 w-4" />
+                <action.icon className="h-3.5 w-3.5 md:h-4 md:w-4" />
                 <span>{action.label}</span>
               </button>
             </TooltipTrigger>

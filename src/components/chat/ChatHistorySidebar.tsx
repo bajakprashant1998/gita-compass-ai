@@ -135,7 +135,7 @@ export function ChatHistorySidebar({
   }
 
   return (
-    <div className="hidden md:flex flex-col w-72 bg-card border border-border/50 rounded-2xl shadow-xl overflow-hidden animate-slide-in-right">
+    <div className="flex flex-col w-full md:w-72 h-full bg-card md:border md:border-border/50 md:rounded-2xl md:shadow-xl overflow-hidden md:animate-slide-in-right">
       {/* Header */}
       <div className="p-3 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
         <div className="flex items-center justify-between mb-2">
