@@ -1,77 +1,92 @@
 
+# Visual Enhancement Plan for 6 Pages
 
-# Dashboard Health Check and Fix Plan
+## 1. Home Page (`Index.tsx` + `HeroSection.tsx`)
 
-## Issues Found
+### HeroSection Enhancements
+- Add a subtle animated particle/sparkle effect in the background using CSS keyframes (floating dots of light)
+- Add a rotating "verse of the day" teaser below the quick prompts showing a short Sanskrit snippet that fades in/out
+- Add a pulsing "Live" indicator next to "AI-Powered Ancient Wisdom" badge to convey activity
+- Improve the quick prompts with emoji prefixes for visual scanning (e.g., "I feel anxious about my future")
+- Add a subtle typewriter/placeholder animation on the textarea cycling through example problems
 
-### 1. Sign Out Button - Still Potentially Broken
-The sign-out code looks correct after the last fix, but there's a race condition: when `signOut()` clears the user state immediately, the `useEffect` in `DashboardPage` detects `!user` and calls `navigate('/auth')` -- which competes with the `handleSignOut` calling `navigate('/')`. The user may end up on `/auth` instead of `/` because the `useEffect` fires before `handleSignOut` completes.
+### Index Page Section Polish
+- Wrap all lazy sections in a single Suspense with a more elegant skeleton (gradient shimmer instead of plain gray pulse)
+- Add subtle section dividers between components using decorative SVG wave or gradient borders
 
-**Fix**: Add a `signingOut` ref/state to prevent the auth redirect from firing during sign-out.
+## 2. Chapters Page (`ChaptersPage.tsx`)
 
-### 2. AuthPage - setState During Render (Console Warning)
-Lines 22-26 of `AuthPage.tsx` call `navigate('/dashboard')` during render (not inside a `useEffect`). This causes the React warning: "Cannot update a component while rendering a different component."
+### Enhancements
+- Add a "reading progress" mini-bar on each chapter card showing how many verses the user has read (if logged in), otherwise hide
+- Add a subtle hover parallax effect on chapter cards (the chapter number shifts slightly)
+- Improve the empty search state with a friendly illustration/icon and better copy
+- Add a "Start Your Journey" highlighted card for Chapter 1 if user hasn't read any chapters
+- Add alternating subtle background tints on cards for visual rhythm
 
-**Fix**: Move the redirect into a `useEffect`.
+## 3. Chapter Detail Page (`ChapterDetailPage.tsx`)
 
-### 3. FloatingOm - Ref Warning
-`FloatingOm` is a function component that receives a ref somewhere (likely from a parent). It doesn't use `forwardRef`.
+### Enhancements
+- Add a chapter summary quote/key verse highlight at the top of the verses section (pull the first verse's meaning as a featured quote)
+- Add a sticky chapter navigation bar that appears on scroll showing "Chapter X - Title" with prev/next buttons
+- Add progress indicator showing "You've read X of Y verses" if user is logged in
+- Improve the view toggle buttons with better active states and smooth icon transitions
+- Add a "Jump to verse" number input for chapters with many verses
 
-**Fix**: Wrap `FloatingOm` with `React.forwardRef` or ensure no parent passes a ref to it.
+## 4. Shlok Detail Page (`ShlokDetailPage.tsx`)
 
-### 4. Preferences Card - `onLanguageChange` Type Mismatch
-`PreferencesCard` declares `onLanguageChange` as `(lang: string) => void` (sync), but `DashboardPage` passes an `async` function. The `handleLanguageToggle` in `PreferencesCard` uses `await` on it, but since the return type is `void` (not `Promise<void>`), errors won't propagate to the catch block.
+### Enhancements
+- Add a decorative Sanskrit watermark behind the verse section (large faded Om or the verse number in Devanagari)
+- Improve the section navigation dots on the right with active state tracking using IntersectionObserver
+- Add a "Key Insight" callout card between the meaning and problem sections - a single bold sentence summary
+- Add subtle entrance animations (stagger) for each section as user scrolls
+- Improve the chapter progress bar at the bottom with verse thumbnails/dots for quick navigation
 
-**Fix**: Update the prop type to `(lang: string) => Promise<void>`.
+## 5. Problems Page (`ProblemsPage.tsx`)
 
-### 5. SavedWisdomCard - Missing "View All" Link
-When there are more than 4 favorites, only the first 4 are shown with no way to see the rest.
+### Enhancements
+- Add an animated gradient border that "breathes" on the Problem Matcher card to draw attention
+- Add hover micro-interactions: the icon rotates slightly and the card border glows in its theme color
+- Add a "Most Popular" section at the top showing the top 3 problems as larger featured cards before the grid
+- Add a search/filter input above the grid (in addition to Emotion Cloud) for text-based filtering
+- Improve the verse count display with a small progress-bar style indicator
 
-**Fix**: Add a "View All" link/button when `favorites.length > 4`.
+## 6. Chat Page (`ChatPage.tsx`) - Writing Box Redesign
 
-### 6. StreakCalendar - No Empty State
-If the user has no reading activity, the heatmap shows all gray squares with no guidance.
+### Major Input Box Redesign
+- Replace the standard textarea with a modern "composer" style input:
+  - Rounded pill/capsule shape with a frosted glass background
+  - The send button integrated inside the input area (right side) instead of separate
+  - Voice button on the left side of the input
+  - Expandable: starts as a single line, grows as user types (up to 4 lines)
+  - Floating above the chat with a subtle shadow, not attached to the card border
+- Add a subtle gradient glow ring around the input when focused
+- Add suggestion chips that appear above the input when chat is empty (replacing the current quick actions bar location - move them inside the empty state)
+- Add a "typing indicator" that's more visually interesting (animated Krishna emoji with wave dots)
 
-**Fix**: Add a subtle prompt when `activities` is empty.
+### Chat Area Polish
+- Add a subtle background pattern (very faint mandala or geometric pattern) to the chat area
+- Improve message bubble shapes: user messages get a tail pointing right, assistant messages get a tail pointing left
+- Add a smooth scroll animation when new messages arrive
 
 ---
 
-## Technical Implementation
+## Technical Implementation Details
 
-### File: `src/pages/DashboardPage.tsx`
-- Add a `useRef(false)` called `isSigningOut` to track sign-out state.
-- In `handleSignOut`, set `isSigningOut.current = true` before calling `signOut()`.
-- In the `useEffect` redirect, check `!isSigningOut.current` before navigating to `/auth`.
+### Files to Modify
+1. `src/components/home/HeroSection.tsx` - Typewriter placeholder, emoji prompts, live badge
+2. `src/pages/Index.tsx` - Better skeleton shimmer
+3. `src/pages/ChaptersPage.tsx` - Card hover effects, journey card
+4. `src/pages/ChapterDetailPage.tsx` - Sticky nav, featured quote, jump-to-verse
+5. `src/pages/ShlokDetailPage.tsx` - Watermark, active section tracking, key insight
+6. `src/pages/ProblemsPage.tsx` - Featured problems, animated border, search input
+7. `src/pages/ChatPage.tsx` - Complete input redesign, chat area pattern
+8. `src/index.css` - New animations (shimmer, typewriter, breathing border)
 
-### File: `src/pages/AuthPage.tsx`
-- Remove the inline `if (user) { navigate('/dashboard'); return null; }` block.
-- Replace with a `useEffect` that navigates when `user` is truthy.
-- Return loading/null state while redirecting.
+### New CSS Animations to Add
+- `shimmer` - gradient shimmer for loading skeletons
+- `typewriter` - cycling placeholder text effect
+- `breathe` - pulsing border glow for attention-drawing
+- `float-gentle` - softer floating animation for decorative elements
 
-### File: `src/components/ui/decorative-elements.tsx`
-- Wrap `FloatingOm` with `React.forwardRef` to eliminate the ref warning.
-
-### File: `src/components/dashboard/PreferencesCard.tsx`
-- Change `onLanguageChange` prop type from `(lang: string) => void` to `(lang: string) => Promise<void>`.
-- Change `onDailyWisdomChange` prop type from `(enabled: boolean) => void` to `(enabled: boolean) => Promise<void>`.
-
-### File: `src/components/dashboard/SavedWisdomCard.tsx`
-- Add a "View All Saved Verses" button/link below the list when `favorites.length > 4`.
-
-### File: `src/components/dashboard/StreakCalendar.tsx`
-- Add a motivational empty state message when no activities exist (e.g., "Start reading to build your streak!").
-
----
-
-## Summary
-
-| Component | Issue | Severity |
-|-----------|-------|----------|
-| Sign Out flow | Race condition with auth redirect | High |
-| AuthPage | setState during render | Medium |
-| FloatingOm | Missing forwardRef | Low |
-| PreferencesCard | Async prop type mismatch | Low |
-| SavedWisdomCard | No "View All" option | Low |
-| StreakCalendar | No empty state guidance | Low |
-
-All fixes are small, targeted changes that don't alter the overall architecture.
+### No New Dependencies Required
+All enhancements use existing Tailwind, Radix, and Lucide icons. The typewriter effect uses a simple `useState` + `useEffect` interval pattern.
