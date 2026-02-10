@@ -1,77 +1,46 @@
 
 
-# Chat Page Mobile Enhancement Plan
+# Enhanced Chat AI Personality and Response Quality
 
-## Current Issues on Mobile (390px)
+## What Changes
 
-1. **Header is cramped** -- The "Talk to Krishna" header, language selector, and action buttons wrap awkwardly on small screens with too much horizontal content
-2. **Conversation starters take too much space** -- The 4-category grid renders as a single column, pushing the input area way below the fold; users must scroll to type
-3. **Composer input area** -- The voice button, textarea, and send button row is tight; helper text ("Enter to send") is irrelevant on mobile (no physical keyboard)
-4. **Chat height calculation** -- `h-[calc(100vh-12rem)]` doesn't account for mobile header/footer properly, causing scroll issues
-5. **User/assistant avatars** -- 40px avatars eat horizontal space on small screens, reducing message width
-6. **Quick actions bar** -- The pill buttons wrap to 2-3 rows taking up valuable vertical space in conversation mode
-7. **No mobile history access** -- The History button is `hidden md:flex`, so mobile users can't access past conversations
+Update the system prompt in the `gita-coach` edge function to produce more empathetic, human-like, and deeply engaged responses.
 
-## Proposed Fixes
+## Current Problem
 
-### 1. Compact Mobile Header
-- Stack title and controls vertically on mobile: title row on top, controls row below
-- Make the language selector smaller on mobile (icon-only mode)
-- Add a History icon button visible on mobile that opens ChatHistorySidebar as a drawer/sheet overlay
+The existing prompt is structured like a checklist (Problem Understanding, Gita-Based Analysis, Solution Framework, etc.). This produces responses that feel formulaic and robotic -- every answer follows the same template regardless of the user's emotional state or the depth of their concern.
 
-### 2. Compact Conversation Starters
-- On mobile, show only 2 categories (most popular: "Inner Peace" and "Life Decisions") with 1 prompt each
-- Add a "Show all topics" expandable button to reveal the full grid
-- Reduce spacing and padding for mobile
+## New System Prompt Design
 
-### 3. Optimized Composer
-- Remove keyboard helper text on mobile entirely
-- Reduce padding in the composer area on mobile
-- Make voice and send buttons slightly smaller (h-9 w-9) on mobile for more typing space
+The rewritten prompt will focus on:
 
-### 4. Better Height Calculation
-- Use different `calc()` values for mobile vs desktop using responsive classes
-- Account for mobile browser chrome and safe areas
+1. **Human-first tone** -- Acknowledge the user's feelings before jumping to solutions. Use warm, conversational language ("I understand how that feels..." rather than bullet-pointed frameworks).
 
-### 5. Smaller Avatars on Mobile
-- Reduce avatar size from 40px to 32px on mobile (`w-8 h-8 md:w-10 md:h-10`)
-- Increase max message width to 92% on mobile
+2. **Empathetic engagement** -- Mirror the user's emotion. If they're anxious, validate the anxiety first. If they're confused, normalize that confusion. Ask a thoughtful follow-up question when the situation is unclear rather than guessing.
 
-### 6. Compact Quick Actions
-- On mobile, show quick actions as a horizontal scrollable row (no wrapping) to save vertical space
-- Use smaller padding and text
+3. **Contextual Gita teachings** -- Weave verses naturally into the conversation (like a wise friend who happens to know the Gita deeply), not as a structured "Gita-Based Analysis" section. Explain why a specific verse resonates with *their* specific situation.
 
-### 7. Mobile Chat History Access
-- Show History button on mobile
-- Open ChatHistorySidebar as a bottom sheet/drawer overlay on mobile instead of a sidebar
+4. **Practical master plan** -- End with a clear, numbered action plan rooted in Gita principles, but framed as friendly guidance ("Here's what I'd suggest you try this week...").
 
-## Files to Modify
+5. **Krishna's voice without claiming to be Krishna** -- Calm, compassionate, occasionally gently firm. The feel of divine wisdom delivered through a caring mentor.
 
-1. **`src/pages/ChatPage.tsx`** -- Header layout, height calc, avatar sizes, composer mobile tweaks, mobile history drawer, helper text hide
-2. **`src/components/chat/MultiLanguageStarters.tsx`** -- Collapsible categories on mobile, reduced spacing
-3. **`src/components/chat/QuickActionsBar.tsx`** -- Horizontal scroll row on mobile instead of wrapping
+6. **Conversation awareness** -- On follow-up messages, don't repeat the full framework. Be natural -- respond to what the user just said, build on the previous exchange.
 
-## Technical Details
+## Technical Change
 
-### ChatPage.tsx Changes
-- Header: Split into two rows on mobile using `flex-col sm:flex-row`
-- Height: Change to `h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)]`
-- Avatars: `w-8 h-8 md:w-10 md:h-10` and `rounded-lg md:rounded-xl`
-- Message max width: `max-w-[92%] sm:max-w-[85%]`
-- Composer padding: `p-3 md:p-4`
-- Voice/send buttons: `h-9 w-9 md:h-10 md:w-10`
-- Helper text: Add `hidden sm:flex` to the keyboard hint row
-- History button: Remove `hidden md:flex`, add a Sheet/Drawer wrapper for mobile that shows the ChatHistorySidebar content
+### File: `supabase/functions/gita-coach/index.ts`
+- Replace the `SYSTEM_PROMPT` constant (lines 11-46) with the enhanced version below
 
-### MultiLanguageStarters.tsx Changes
-- Heading: Reduce size on mobile (`text-xl md:text-2xl`)
-- Reduce margin/padding (`mb-5 md:mb-8`, `p-2 md:p-4`)
-- On mobile, initially show only 2 categories; add a "More topics" button to expand
-- Use `useState` to track expanded state
+### New Prompt (summary of key additions):
+- Opening instruction to respond like a warm, empathetic human conversation -- not a structured report
+- Explicit instruction to validate emotions first before offering guidance
+- Ask follow-up questions when the user's situation is vague instead of assuming
+- Weave Gita verses naturally into conversation using "Chapter X, Verse Y" format with brief, relatable explanations
+- For detailed problems, end with a "Master Plan" section -- 3-5 actionable steps framed as encouragement
+- For short/casual messages, respond naturally without forcing a full framework
+- Tone: calm, compassionate, occasionally gently firm -- like a wise elder who truly cares
+- Never claim to literally be Krishna; channel that energy through warmth and wisdom
+- On follow-ups in a conversation, be conversational -- don't restart the framework
 
-### QuickActionsBar.tsx Changes
-- Change from `flex-wrap` to `flex overflow-x-auto scrollbar-hide` on mobile
-- Add `flex-nowrap` and `snap-x` for horizontal scroll
-- Add `whitespace-nowrap` on buttons to prevent text wrapping
-- Reduce button padding on mobile: `px-3 py-2 md:px-4 md:py-2.5`
+No other files need to change. The frontend already renders markdown and handles streaming correctly.
 
