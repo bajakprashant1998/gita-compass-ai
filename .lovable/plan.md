@@ -1,92 +1,77 @@
 
-# Visual Enhancement Plan for 6 Pages
 
-## 1. Home Page (`Index.tsx` + `HeroSection.tsx`)
+# Chat Page Mobile Enhancement Plan
 
-### HeroSection Enhancements
-- Add a subtle animated particle/sparkle effect in the background using CSS keyframes (floating dots of light)
-- Add a rotating "verse of the day" teaser below the quick prompts showing a short Sanskrit snippet that fades in/out
-- Add a pulsing "Live" indicator next to "AI-Powered Ancient Wisdom" badge to convey activity
-- Improve the quick prompts with emoji prefixes for visual scanning (e.g., "I feel anxious about my future")
-- Add a subtle typewriter/placeholder animation on the textarea cycling through example problems
+## Current Issues on Mobile (390px)
 
-### Index Page Section Polish
-- Wrap all lazy sections in a single Suspense with a more elegant skeleton (gradient shimmer instead of plain gray pulse)
-- Add subtle section dividers between components using decorative SVG wave or gradient borders
+1. **Header is cramped** -- The "Talk to Krishna" header, language selector, and action buttons wrap awkwardly on small screens with too much horizontal content
+2. **Conversation starters take too much space** -- The 4-category grid renders as a single column, pushing the input area way below the fold; users must scroll to type
+3. **Composer input area** -- The voice button, textarea, and send button row is tight; helper text ("Enter to send") is irrelevant on mobile (no physical keyboard)
+4. **Chat height calculation** -- `h-[calc(100vh-12rem)]` doesn't account for mobile header/footer properly, causing scroll issues
+5. **User/assistant avatars** -- 40px avatars eat horizontal space on small screens, reducing message width
+6. **Quick actions bar** -- The pill buttons wrap to 2-3 rows taking up valuable vertical space in conversation mode
+7. **No mobile history access** -- The History button is `hidden md:flex`, so mobile users can't access past conversations
 
-## 2. Chapters Page (`ChaptersPage.tsx`)
+## Proposed Fixes
 
-### Enhancements
-- Add a "reading progress" mini-bar on each chapter card showing how many verses the user has read (if logged in), otherwise hide
-- Add a subtle hover parallax effect on chapter cards (the chapter number shifts slightly)
-- Improve the empty search state with a friendly illustration/icon and better copy
-- Add a "Start Your Journey" highlighted card for Chapter 1 if user hasn't read any chapters
-- Add alternating subtle background tints on cards for visual rhythm
+### 1. Compact Mobile Header
+- Stack title and controls vertically on mobile: title row on top, controls row below
+- Make the language selector smaller on mobile (icon-only mode)
+- Add a History icon button visible on mobile that opens ChatHistorySidebar as a drawer/sheet overlay
 
-## 3. Chapter Detail Page (`ChapterDetailPage.tsx`)
+### 2. Compact Conversation Starters
+- On mobile, show only 2 categories (most popular: "Inner Peace" and "Life Decisions") with 1 prompt each
+- Add a "Show all topics" expandable button to reveal the full grid
+- Reduce spacing and padding for mobile
 
-### Enhancements
-- Add a chapter summary quote/key verse highlight at the top of the verses section (pull the first verse's meaning as a featured quote)
-- Add a sticky chapter navigation bar that appears on scroll showing "Chapter X - Title" with prev/next buttons
-- Add progress indicator showing "You've read X of Y verses" if user is logged in
-- Improve the view toggle buttons with better active states and smooth icon transitions
-- Add a "Jump to verse" number input for chapters with many verses
+### 3. Optimized Composer
+- Remove keyboard helper text on mobile entirely
+- Reduce padding in the composer area on mobile
+- Make voice and send buttons slightly smaller (h-9 w-9) on mobile for more typing space
 
-## 4. Shlok Detail Page (`ShlokDetailPage.tsx`)
+### 4. Better Height Calculation
+- Use different `calc()` values for mobile vs desktop using responsive classes
+- Account for mobile browser chrome and safe areas
 
-### Enhancements
-- Add a decorative Sanskrit watermark behind the verse section (large faded Om or the verse number in Devanagari)
-- Improve the section navigation dots on the right with active state tracking using IntersectionObserver
-- Add a "Key Insight" callout card between the meaning and problem sections - a single bold sentence summary
-- Add subtle entrance animations (stagger) for each section as user scrolls
-- Improve the chapter progress bar at the bottom with verse thumbnails/dots for quick navigation
+### 5. Smaller Avatars on Mobile
+- Reduce avatar size from 40px to 32px on mobile (`w-8 h-8 md:w-10 md:h-10`)
+- Increase max message width to 92% on mobile
 
-## 5. Problems Page (`ProblemsPage.tsx`)
+### 6. Compact Quick Actions
+- On mobile, show quick actions as a horizontal scrollable row (no wrapping) to save vertical space
+- Use smaller padding and text
 
-### Enhancements
-- Add an animated gradient border that "breathes" on the Problem Matcher card to draw attention
-- Add hover micro-interactions: the icon rotates slightly and the card border glows in its theme color
-- Add a "Most Popular" section at the top showing the top 3 problems as larger featured cards before the grid
-- Add a search/filter input above the grid (in addition to Emotion Cloud) for text-based filtering
-- Improve the verse count display with a small progress-bar style indicator
+### 7. Mobile Chat History Access
+- Show History button on mobile
+- Open ChatHistorySidebar as a bottom sheet/drawer overlay on mobile instead of a sidebar
 
-## 6. Chat Page (`ChatPage.tsx`) - Writing Box Redesign
+## Files to Modify
 
-### Major Input Box Redesign
-- Replace the standard textarea with a modern "composer" style input:
-  - Rounded pill/capsule shape with a frosted glass background
-  - The send button integrated inside the input area (right side) instead of separate
-  - Voice button on the left side of the input
-  - Expandable: starts as a single line, grows as user types (up to 4 lines)
-  - Floating above the chat with a subtle shadow, not attached to the card border
-- Add a subtle gradient glow ring around the input when focused
-- Add suggestion chips that appear above the input when chat is empty (replacing the current quick actions bar location - move them inside the empty state)
-- Add a "typing indicator" that's more visually interesting (animated Krishna emoji with wave dots)
+1. **`src/pages/ChatPage.tsx`** -- Header layout, height calc, avatar sizes, composer mobile tweaks, mobile history drawer, helper text hide
+2. **`src/components/chat/MultiLanguageStarters.tsx`** -- Collapsible categories on mobile, reduced spacing
+3. **`src/components/chat/QuickActionsBar.tsx`** -- Horizontal scroll row on mobile instead of wrapping
 
-### Chat Area Polish
-- Add a subtle background pattern (very faint mandala or geometric pattern) to the chat area
-- Improve message bubble shapes: user messages get a tail pointing right, assistant messages get a tail pointing left
-- Add a smooth scroll animation when new messages arrive
+## Technical Details
 
----
+### ChatPage.tsx Changes
+- Header: Split into two rows on mobile using `flex-col sm:flex-row`
+- Height: Change to `h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)]`
+- Avatars: `w-8 h-8 md:w-10 md:h-10` and `rounded-lg md:rounded-xl`
+- Message max width: `max-w-[92%] sm:max-w-[85%]`
+- Composer padding: `p-3 md:p-4`
+- Voice/send buttons: `h-9 w-9 md:h-10 md:w-10`
+- Helper text: Add `hidden sm:flex` to the keyboard hint row
+- History button: Remove `hidden md:flex`, add a Sheet/Drawer wrapper for mobile that shows the ChatHistorySidebar content
 
-## Technical Implementation Details
+### MultiLanguageStarters.tsx Changes
+- Heading: Reduce size on mobile (`text-xl md:text-2xl`)
+- Reduce margin/padding (`mb-5 md:mb-8`, `p-2 md:p-4`)
+- On mobile, initially show only 2 categories; add a "More topics" button to expand
+- Use `useState` to track expanded state
 
-### Files to Modify
-1. `src/components/home/HeroSection.tsx` - Typewriter placeholder, emoji prompts, live badge
-2. `src/pages/Index.tsx` - Better skeleton shimmer
-3. `src/pages/ChaptersPage.tsx` - Card hover effects, journey card
-4. `src/pages/ChapterDetailPage.tsx` - Sticky nav, featured quote, jump-to-verse
-5. `src/pages/ShlokDetailPage.tsx` - Watermark, active section tracking, key insight
-6. `src/pages/ProblemsPage.tsx` - Featured problems, animated border, search input
-7. `src/pages/ChatPage.tsx` - Complete input redesign, chat area pattern
-8. `src/index.css` - New animations (shimmer, typewriter, breathing border)
+### QuickActionsBar.tsx Changes
+- Change from `flex-wrap` to `flex overflow-x-auto scrollbar-hide` on mobile
+- Add `flex-nowrap` and `snap-x` for horizontal scroll
+- Add `whitespace-nowrap` on buttons to prevent text wrapping
+- Reduce button padding on mobile: `px-3 py-2 md:px-4 md:py-2.5`
 
-### New CSS Animations to Add
-- `shimmer` - gradient shimmer for loading skeletons
-- `typewriter` - cycling placeholder text effect
-- `breathe` - pulsing border glow for attention-drawing
-- `float-gentle` - softer floating animation for decorative elements
-
-### No New Dependencies Required
-All enhancements use existing Tailwind, Radix, and Lucide icons. The typewriter effect uses a simple `useState` + `useEffect` interval pattern.
