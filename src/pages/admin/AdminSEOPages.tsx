@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { AdminSEOFields } from '@/components/admin/AdminSEOFields';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Save, Check, Sparkles } from 'lucide-react';
+import { Loader2, Save, Check, Sparkles, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { generateAIContentWithMeta } from '@/lib/adminApi';
 import { BulkSEOGenerateModal } from '@/components/admin/BulkSEOGenerateModal';
+import { Progress } from '@/components/ui/progress';
 
 interface StaticPageSEO {
   id?: string;
@@ -34,6 +35,8 @@ export default function AdminSEOPages() {
   const [saving, setSaving] = useState<string | null>(null);
   const [pages, setPages] = useState<StaticPageSEO[]>([]);
   const [showBulkModal, setShowBulkModal] = useState(false);
+  const [generatingAll, setGeneratingAll] = useState(false);
+  const [genProgress, setGenProgress] = useState({ current: 0, total: 0 });
 
   useEffect(() => {
     const loadSEOData = async () => {
@@ -102,6 +105,71 @@ export default function AdminSEOPages() {
     );
   };
 
+  const handleGenerateAllAndSave = useCallback(async () => {
+    setGeneratingAll(true);
+    const total = pages.length;
+    setGenProgress({ current: 0, total });
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+      setGenProgress({ current: i + 1, total });
+
+      try {
+        // Generate SEO via AI
+        const result = await generateAIContentWithMeta('generate_seo', {
+          page_title: page.label,
+          page_content: `${page.label} page of Bhagavad Gita Gyan website`,
+          page_url: `bhagavadgitagyan.com${page.page_identifier === '/' ? '' : page.page_identifier}`,
+        });
+
+        const newTitle = (result.meta_title as string) || page.meta_title;
+        const newDesc = (result.meta_description as string) || page.meta_description;
+        const newKeywords: string[] = (result.meta_keywords && Array.isArray(result.meta_keywords))
+          ? result.meta_keywords as string[]
+          : page.meta_keywords;
+
+        // Update local state
+        setPages(prev => prev.map(p =>
+          p.page_identifier === page.page_identifier
+            ? { ...p, meta_title: newTitle, meta_description: newDesc, meta_keywords: newKeywords }
+            : p
+        ));
+
+        // Save to database
+        const upsertPayload: any = {
+          page_type: 'static' as const,
+          page_identifier: page.page_identifier,
+          meta_title: newTitle || null,
+          meta_description: newDesc || null,
+          meta_keywords: newKeywords.length > 0 ? newKeywords : null,
+        };
+
+        const { error } = await supabase
+          .from('page_seo_metadata')
+          .upsert(upsertPayload, { onConflict: 'page_type,page_identifier' });
+
+        if (error) throw error;
+        successCount++;
+      } catch (err) {
+        console.error(`Failed to generate/save SEO for ${page.label}:`, err);
+        failCount++;
+      }
+
+      // Rate limit delay
+      if (i < pages.length - 1) {
+        await new Promise(r => setTimeout(r, 800));
+      }
+    }
+
+    setGeneratingAll(false);
+    toast({
+      title: 'Bulk Generation Complete',
+      description: `${successCount} saved, ${failCount} failed out of ${total} pages.`,
+    });
+  }, [pages, toast]);
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -121,12 +189,39 @@ export default function AdminSEOPages() {
       />
       <div className="container">
         <div className="max-w-3xl space-y-6">
-          <div className="flex justify-end">
+          <div className="flex flex-wrap gap-3 justify-end">
+            <Button
+              onClick={handleGenerateAllAndSave}
+              disabled={generatingAll}
+              className="gap-2"
+            >
+              {generatingAll ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating {genProgress.current}/{genProgress.total}...
+                </>
+              ) : (
+                <>
+                  <Zap className="h-4 w-4" />
+                  Generate All SEO &amp; Save
+                </>
+              )}
+            </Button>
             <Button onClick={() => setShowBulkModal(true)} variant="outline" className="gap-2">
               <Sparkles className="h-4 w-4" />
               Bulk Generate SEO (Chapters/Shloks/Problems)
             </Button>
           </div>
+
+          {generatingAll && (
+            <div className="space-y-2">
+              <Progress value={(genProgress.current / genProgress.total) * 100} className="h-2" />
+              <p className="text-sm text-muted-foreground text-center">
+                Processing {genProgress.current} of {genProgress.total} pages...
+              </p>
+            </div>
+          )}
+
           {pages.map(page => (
             <div key={page.page_identifier}>
               <div className="flex items-center justify-between mb-3">
