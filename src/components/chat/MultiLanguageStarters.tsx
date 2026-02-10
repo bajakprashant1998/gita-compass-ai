@@ -1,4 +1,5 @@
-import { Briefcase, Heart, Brain, Compass, Sparkles, ArrowRight, Globe } from 'lucide-react';
+import { useState } from 'react';
+import { Briefcase, Heart, Brain, Compass, Sparkles, ArrowRight, Globe, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { INDIAN_LANGUAGES } from './EnhancedLanguageSelector';
 
@@ -165,20 +166,26 @@ const headings: Record<string, { title: string; subtitle: string; tip: string }>
 };
 
 export function MultiLanguageStarters({ onSelect, selectedLanguage }: MultiLanguageStartersProps) {
+  const [showAll, setShowAll] = useState(false);
+  
   // Get language-specific content or fall back to English
   const lang = selectedLanguage === 'auto' ? 'en' : selectedLanguage;
   const langPrompts = prompts[lang] || prompts.en;
   const langHeadings = headings[lang] || headings.en;
 
+  // On mobile, show only 2 categories initially (peace + decisions)
+  const visibleCategories = showAll ? categories : categories;
+  const mobileCategories = showAll ? categories : categories.slice(2); // peace & decisions first on mobile
+
   return (
-    <div className="h-full flex items-center justify-center p-4 md:p-6">
+    <div className="h-full flex items-center justify-center p-2 sm:p-4 md:p-6">
       <div className="max-w-2xl w-full">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h3 className="text-2xl font-bold mb-2 animate-fade-in">
+        <div className="text-center mb-5 md:mb-8">
+          <h3 className="text-xl md:text-2xl font-bold mb-1.5 md:mb-2 animate-fade-in">
             {langHeadings.title}
           </h3>
-          <p className="text-muted-foreground animate-fade-in text-base" style={{ animationDelay: '100ms' }}>
+          <p className="text-muted-foreground animate-fade-in text-sm md:text-base" style={{ animationDelay: '100ms' }}>
             {langHeadings.subtitle}
           </p>
           
@@ -191,68 +198,122 @@ export function MultiLanguageStarters({ onSelect, selectedLanguage }: MultiLangu
           )}
         </div>
 
-        {/* Categories Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {categories.map((category, catIndex) => (
-            <div 
-              key={category.key} 
-              className="space-y-2 animate-fade-in"
-              style={{ animationDelay: `${200 + catIndex * 100}ms` }}
+        {/* Categories Grid - Desktop: all 4, Mobile: 2 initially */}
+        <div className="hidden sm:grid sm:grid-cols-2 gap-4">
+          {visibleCategories.map((category, catIndex) => (
+            <CategoryCard
+              key={category.key}
+              category={category}
+              lang={lang}
+              langPrompts={langPrompts}
+              catIndex={catIndex}
+              onSelect={onSelect}
+            />
+          ))}
+        </div>
+
+        {/* Mobile: show 2 categories initially */}
+        <div className="sm:hidden space-y-3">
+          {mobileCategories.map((category, catIndex) => (
+            <CategoryCard
+              key={category.key}
+              category={category}
+              lang={lang}
+              langPrompts={langPrompts}
+              catIndex={catIndex}
+              onSelect={onSelect}
+              compact
+            />
+          ))}
+          
+          {!showAll && (
+            <button
+              onClick={() => setShowAll(true)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 text-sm text-primary font-medium rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
             >
-              {/* Category Header */}
-              <div className="flex items-center gap-2 mb-3">
-                <div className={cn(
-                  "w-9 h-9 rounded-xl flex items-center justify-center",
-                  "bg-gradient-to-br shadow-lg",
-                  category.color
-                )}>
-                  <category.icon className="h-4 w-4 text-white" />
-                </div>
-                <span className="font-semibold text-foreground">
-                  {category.labels[lang as keyof typeof category.labels] || category.labels.en}
-                </span>
-              </div>
-              
-              {/* Prompts */}
-              <div className="space-y-2">
-                {(langPrompts[category.key as keyof typeof langPrompts] || []).map((prompt, promptIndex) => (
-                  <button
-                    key={promptIndex}
-                    onClick={() => onSelect(prompt)}
-                    className={cn(
-                      "group w-full text-left p-3.5 sm:p-4 rounded-xl border border-border/50 bg-card",
-                      "text-sm sm:text-base transition-all duration-200",
-                      "hover:bg-muted/50 hover:shadow-lg hover:-translate-y-0.5",
-                      "min-h-[48px]",
-                      category.borderColor
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="flex-1 text-muted-foreground group-hover:text-foreground transition-colors line-clamp-2">
-                        {prompt}
-                      </span>
-                      <div className={cn(
-                        "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
-                        "opacity-0 group-hover:opacity-100 transition-all",
-                        "bg-gradient-to-r",
-                        category.color
-                      )}>
-                        <ArrowRight className="h-3 w-3 text-white" />
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
+              <span>More topics</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          )}
+          
+          {showAll && categories.slice(0, 2).map((category, catIndex) => (
+            <CategoryCard
+              key={category.key}
+              category={category}
+              lang={lang}
+              langPrompts={langPrompts}
+              catIndex={catIndex + 2}
+              onSelect={onSelect}
+              compact
+            />
           ))}
         </div>
 
         {/* Tip */}
-        <div className="mt-6 text-center animate-fade-in" style={{ animationDelay: '600ms' }}>
+        <div className="mt-4 md:mt-6 text-center animate-fade-in" style={{ animationDelay: '600ms' }}>
           <p className="text-xs text-muted-foreground">
             {langHeadings.tip}
           </p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function CategoryCard({ category, lang, langPrompts, catIndex, onSelect, compact }: {
+  category: typeof categories[0];
+  lang: string;
+  langPrompts: typeof prompts.en;
+  catIndex: number;
+  onSelect: (text: string) => void;
+  compact?: boolean;
+}) {
+  return (
+    <div
+      className="space-y-1.5 sm:space-y-2 animate-fade-in"
+      style={{ animationDelay: `${200 + catIndex * 100}ms` }}
+    >
+      <div className="flex items-center gap-2 mb-2 sm:mb-3">
+        <div className={cn(
+          "w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center",
+          "bg-gradient-to-br shadow-lg",
+          category.color
+        )}>
+          <category.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
+        </div>
+        <span className="font-semibold text-sm sm:text-base text-foreground">
+          {category.labels[lang as keyof typeof category.labels] || category.labels.en}
+        </span>
+      </div>
+      
+      <div className="space-y-1.5 sm:space-y-2">
+        {(langPrompts[category.key as keyof typeof langPrompts] || []).slice(0, compact ? 1 : 2).map((prompt, promptIndex) => (
+          <button
+            key={promptIndex}
+            onClick={() => onSelect(prompt)}
+            className={cn(
+              "group w-full text-left p-3 sm:p-3.5 md:p-4 rounded-xl border border-border/50 bg-card",
+              "text-sm transition-all duration-200",
+              "hover:bg-muted/50 hover:shadow-lg hover:-translate-y-0.5",
+              "min-h-[44px]",
+              category.borderColor
+            )}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <span className="flex-1 text-muted-foreground group-hover:text-foreground transition-colors line-clamp-2">
+                {prompt}
+              </span>
+              <div className={cn(
+                "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
+                "opacity-0 group-hover:opacity-100 transition-all",
+                "bg-gradient-to-r",
+                category.color
+              )}>
+                <ArrowRight className="h-3 w-3 text-white" />
+              </div>
+            </div>
+          </button>
+        ))}
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { 
   Send, 
   Sparkles, 
@@ -32,6 +33,7 @@ import { VoiceInputButton } from '@/components/chat/VoiceInputButton';
 import { SEOHead } from '@/components/SEOHead';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { formatDistanceToNow } from 'date-fns';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
@@ -108,10 +110,12 @@ export default function ChatPage() {
   const [collapsedMessages, setCollapsedMessages] = useState<Set<number>>(new Set());
   const [preferredLanguage, setPreferredLanguage] = useState('auto');
   const [showHistory, setShowHistory] = useState(false);
+  const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<string>();
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useAuth();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const initialQuery = searchParams.get('q');
@@ -357,26 +361,25 @@ export default function ChatPage() {
       />
 
       {/* Hero Header */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-4 border-b border-border/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
-                <span className="text-xl sm:text-2xl">🙏</span>
-                {/* Online indicator */}
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-3 md:py-4 border-b border-border/50">
+        <div className="container mx-auto px-3 sm:px-6 lg:px-8 relative">
+          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
+                <span className="text-lg sm:text-2xl">🙏</span>
+                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 border-background" />
               </div>
               <div>
-                <h1 className="text-xl md:text-2xl font-bold">
+                <h1 className="text-lg md:text-2xl font-bold">
                   Talk to <span className="text-gradient">Krishna</span>
                 </h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {user ? `Hare Krishna! Ask anything about life.` : 'Ask Krishna for guidance from the Gita'}
                 </p>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-end">
               <EnhancedLanguageSelector
                 selectedLanguage={preferredLanguage}
                 onLanguageChange={setPreferredLanguage}
@@ -384,27 +387,39 @@ export default function ChatPage() {
                 variant="prominent"
               />
               {user && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setShowHistory(!showHistory)}
-                  className={cn(
-                    "gap-2 transition-all hidden md:flex",
-                    showHistory && "bg-primary/10 border-primary/30 text-primary"
-                  )}
-                >
-                  <History className="h-4 w-4" />
-                  <span className="hidden lg:inline">History</span>
-                </Button>
+                <>
+                  {/* Desktop history button */}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setShowHistory(!showHistory)}
+                    className={cn(
+                      "gap-2 transition-all hidden md:flex",
+                      showHistory && "bg-primary/10 border-primary/30 text-primary"
+                    )}
+                  >
+                    <History className="h-4 w-4" />
+                    <span className="hidden lg:inline">History</span>
+                  </Button>
+                  {/* Mobile history button */}
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => setMobileHistoryOpen(true)}
+                    className="md:hidden h-8 w-8"
+                  >
+                    <History className="h-4 w-4" />
+                  </Button>
+                </>
               )}
               {messages.length > 0 && (
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={handleClearChat}
-                  className="gap-2 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all"
+                  className="gap-1.5 sm:gap-2 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all h-8 sm:h-9"
                 >
-                  <RotateCcw className="h-4 w-4" />
+                  <RotateCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline">New Chat</span>
                 </Button>
               )}
@@ -413,7 +428,28 @@ export default function ChatPage() {
         </div>
       </section>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 h-[calc(100vh-12rem)]">
+      {/* Mobile History Sheet */}
+      <Sheet open={mobileHistoryOpen} onOpenChange={setMobileHistoryOpen}>
+        <SheetContent side="left" className="w-[85%] p-0 md:hidden">
+          <SheetTitle className="sr-only">Chat History</SheetTitle>
+          <ChatHistorySidebar
+            userId={user?.id}
+            isOpen={true}
+            onToggle={() => setMobileHistoryOpen(false)}
+            onSelectConversation={(id, msgs) => {
+              handleLoadConversation(id, msgs);
+              setMobileHistoryOpen(false);
+            }}
+            onNewChat={() => {
+              handleClearChat();
+              setMobileHistoryOpen(false);
+            }}
+            activeConversationId={activeConversationId}
+          />
+        </SheetContent>
+      </Sheet>
+
+      <div className="container mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-4 h-[calc(100vh-9rem)] sm:h-[calc(100vh-12rem)]">
         <div className="max-w-5xl mx-auto h-full flex gap-4">
           {/* Chat History Sidebar */}
           <ChatHistorySidebar
@@ -443,16 +479,16 @@ export default function ChatPage() {
                       <div
                         key={index}
                         className={cn(
-                          "flex gap-3 group animate-fade-in",
+                          "flex gap-2 md:gap-3 group animate-fade-in",
                           message.role === 'user' ? 'justify-end' : ''
                         )}
                       >
                         {message.role === 'assistant' && (
-                          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30 shadow-sm">
-                            <span className="text-lg">🙏</span>
+                          <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30 shadow-sm">
+                            <span className="text-base md:text-lg">🙏</span>
                           </div>
                         )}
-                        <div className="flex flex-col max-w-[90%] sm:max-w-[85%]">
+                        <div className="flex flex-col max-w-[92%] sm:max-w-[85%]">
                           <div
                             className={cn(
                               "rounded-2xl px-4 py-3 backdrop-blur-sm",
@@ -532,8 +568,8 @@ export default function ChatPage() {
                           </div>
                         </div>
                         {message.role === 'user' && (
-                          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/20">
-                            <User className="h-5 w-5 text-white" />
+                          <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/20">
+                            <User className="h-4 w-4 md:h-5 md:w-5 text-white" />
                           </div>
                         )}
                       </div>
@@ -541,8 +577,8 @@ export default function ChatPage() {
                   })}
                   {isLoading && messages[messages.length - 1]?.role === 'user' && (
                     <div className="flex gap-3 animate-fade-in">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30">
-                        <span className="text-lg animate-pulse">🙏</span>
+                      <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30">
+                        <span className="text-base md:text-lg animate-pulse">🙏</span>
                       </div>
                       <div className="bg-gradient-to-br from-card to-muted/30 border border-border/50 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm backdrop-blur-sm">
                         <div className="flex gap-1">
@@ -574,7 +610,7 @@ export default function ChatPage() {
             )}
 
             {/* Modern Composer Input */}
-            <div className="p-4 relative">
+            <div className="p-2.5 sm:p-4 relative">
               {/* Quick actions only show when no messages */}
               {messages.length > 0 && (
                 <div className="mb-3">
@@ -586,12 +622,12 @@ export default function ChatPage() {
                 {/* Glow ring on focus */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-amber-500/20 to-orange-500/20 rounded-2xl blur-md opacity-0 focus-within:opacity-100 transition-opacity pointer-events-none" />
                 
-                <div className="relative flex items-end gap-2 bg-card/80 backdrop-blur-md border-2 border-border/50 focus-within:border-primary/40 rounded-2xl px-3 py-2 shadow-lg transition-all">
+                <div className="relative flex items-end gap-1.5 sm:gap-2 bg-card/80 backdrop-blur-md border-2 border-border/50 focus-within:border-primary/40 rounded-2xl px-2 sm:px-3 py-1.5 sm:py-2 shadow-lg transition-all">
                   {/* Voice button */}
                   <VoiceInputButton 
                     onTranscript={handleVoiceTranscript} 
                     disabled={isLoading}
-                    className="h-10 w-10 flex-shrink-0 rounded-xl"
+                    className="h-9 w-9 md:h-10 md:w-10 flex-shrink-0 rounded-xl"
                   />
                   
                   {/* Expandable text input */}
@@ -622,25 +658,25 @@ export default function ChatPage() {
                       type="submit"
                       size="icon"
                       className={cn(
-                        "h-10 w-10 rounded-xl bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-md transition-all",
+                        "h-9 w-9 md:h-10 md:w-10 rounded-xl bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-md transition-all",
                         input.trim() && !isOverLimit ? "opacity-100 scale-100" : "opacity-50 scale-95"
                       )}
                       disabled={!input.trim() || isLoading || isOverLimit}
                     >
                       {isLoading ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
                       ) : (
-                        <Send className="h-5 w-5" />
+                        <Send className="h-4 w-4 md:h-5 md:w-5" />
                       )}
                     </Button>
                   </div>
                 </div>
                 
-                {/* Helper text */}
-                <div className="flex items-center justify-between mt-1.5 px-3">
+                {/* Helper text - hidden on mobile */}
+                <div className="hidden sm:flex items-center justify-between mt-1.5 px-3">
                   <div className="flex items-center gap-1 text-xs text-muted-foreground/50">
                     <Keyboard className="h-3 w-3" />
-                    <span className="hidden sm:inline">Enter to send · Shift+Enter for new line</span>
+                    <span>Enter to send · Shift+Enter for new line</span>
                   </div>
                 </div>
               </form>
