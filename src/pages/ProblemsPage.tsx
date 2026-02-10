@@ -18,7 +18,8 @@ import {
   ArrowRight,
   Zap,
   Target,
-  TrendingUp
+  TrendingUp,
+  Search
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ProblemMatcher } from '@/components/problems/ProblemMatcher';
@@ -167,6 +168,7 @@ function ProblemCardSkeleton({ index }: { index: number }) {
 export default function ProblemsPage() {
   const navigate = useNavigate();
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
+  const [searchFilter, setSearchFilter] = useState('');
   const [isStatsVisible, setIsStatsVisible] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
   
@@ -197,12 +199,19 @@ export default function ProblemsPage() {
 
   const filteredProblems = useMemo(() => {
     if (!problems) return [];
-    if (selectedEmotions.length === 0) return problems;
-    
-    return problems.filter(problem => 
-      selectedEmotions.includes(problem.slug)
-    );
-  }, [problems, selectedEmotions]);
+    let filtered = problems;
+    if (selectedEmotions.length > 0) {
+      filtered = filtered.filter(problem => selectedEmotions.includes(problem.slug));
+    }
+    if (searchFilter.trim()) {
+      const q = searchFilter.toLowerCase();
+      filtered = filtered.filter(problem => 
+        problem.name.toLowerCase().includes(q) || 
+        problem.description_english?.toLowerCase().includes(q)
+      );
+    }
+    return filtered;
+  }, [problems, selectedEmotions, searchFilter]);
 
   const handleEmotionToggle = (emotion: string) => {
     setSelectedEmotions(prev => 
@@ -326,9 +335,55 @@ export default function ProblemsPage() {
             ))}
           </div>
         ) : (
+          <>
+            {/* Featured "Most Popular" Section */}
+            {problems && problems.length > 0 && (
+              <div className="mb-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-1.5 h-8 rounded-full bg-gradient-to-b from-primary to-amber-500" />
+                  <h2 className="text-2xl font-bold">Most Popular</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[...problems].sort((a, b) => b.verseCount - a.verseCount).slice(0, 3).map((problem, index) => {
+                    const Icon = iconMap[problem.icon || 'HelpCircle'] || HelpCircle;
+                    const colors = colorMap[problem.color || 'blue'] || colorMap.blue;
+                    return (
+                      <Link key={problem.id} to={`/problems/${problem.slug}`} className="animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                        <div className="group relative rounded-2xl overflow-hidden border-2 border-border/50 bg-card hover:border-primary/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-6 text-center">
+                          <div className={cn("w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-4 bg-gradient-to-br shadow-lg group-hover:scale-110 transition-transform", colors.gradient)}>
+                            <Icon className="h-10 w-10 text-white" />
+                          </div>
+                          <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{problem.name}</h3>
+                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{problem.description_english}</p>
+                          <div className="flex items-center justify-center gap-2 text-sm font-semibold text-primary">
+                            <BookOpen className="h-4 w-4" />
+                            {problem.verseCount} verses
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Search/Filter Input */}
+            <div className="mb-6">
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search problems..."
+                  value={searchFilter}
+                  onChange={(e) => setSearchFilter(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-border/50 bg-card text-sm focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+              </div>
+            </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Problem Matcher - Enhanced */}
-            <div className="relative rounded-2xl overflow-hidden">
+            {/* Problem Matcher - Enhanced with breathing border */}
+            <div className="relative rounded-2xl overflow-hidden animate-breathe">
               <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-primary via-amber-500 to-orange-500 z-10" />
               <ProblemMatcher
                 problems={problems || []}
@@ -365,7 +420,7 @@ export default function ProblemsPage() {
                       <div className="p-6">
                         <div className="flex items-start gap-4">
                           <div className={cn(
-                            "w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg",
+                            "w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-lg",
                             `bg-gradient-to-br ${colors.gradient}`
                           )}>
                             <Icon className="h-8 w-8 text-white" />
@@ -390,6 +445,13 @@ export default function ProblemsPage() {
                               <span className="font-bold text-foreground">{problem.verseCount}</span>
                               <span className="text-muted-foreground">verses</span>
                             </div>
+                            {/* Mini progress bar */}
+                            <div className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
+                              <div 
+                                className={cn("h-full rounded-full bg-gradient-to-r", colors.gradient)}
+                                style={{ width: `${Math.min((problem.verseCount / 50) * 100, 100)}%` }}
+                              />
+                            </div>
                           </div>
                           <div className="flex items-center text-primary text-sm font-bold opacity-0 group-hover:opacity-100 transition-all">
                             <TrendingUp className="h-4 w-4 mr-1" />
@@ -404,6 +466,7 @@ export default function ProblemsPage() {
               );
             })}
           </div>
+          </>
         )}
       </div>
     </Layout>

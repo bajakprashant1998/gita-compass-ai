@@ -17,14 +17,22 @@ const FloatingActionButton = lazy(() => import('@/components/home/FloatingAction
 
 // Minimal skeleton for below-fold content
 const SectionSkeleton = () => (
-  <div className="py-16 animate-pulse">
+  <div className="py-16">
     <div className="container mx-auto px-4">
-      <div className="h-8 w-48 bg-muted rounded mx-auto mb-8" />
+      <div className="h-8 w-48 animate-shimmer rounded mx-auto mb-8" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[1, 2, 3].map(i => (
-          <div key={i} className="h-40 bg-muted rounded-xl" />
+          <div key={i} className="h-40 animate-shimmer rounded-xl" />
         ))}
       </div>
+    </div>
+  </div>
+);
+
+const SectionDivider = () => (
+  <div className="relative py-2">
+    <div className="absolute inset-0 flex items-center">
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
     </div>
   </div>
 );
@@ -46,27 +54,35 @@ const Index = () => {
       <Suspense fallback={<SectionSkeleton />}>
         <StatsSection />
       </Suspense>
+      <SectionDivider />
       <Suspense fallback={<SectionSkeleton />}>
         <MoodSelector />
       </Suspense>
+      <SectionDivider />
       <Suspense fallback={<SectionSkeleton />}>
         <HowItWorks />
       </Suspense>
+      <SectionDivider />
       <Suspense fallback={<SectionSkeleton />}>
         <FeaturesGrid />
       </Suspense>
+      <SectionDivider />
       <Suspense fallback={<SectionSkeleton />}>
         <ProblemCategories />
       </Suspense>
+      <SectionDivider />
       <Suspense fallback={<SectionSkeleton />}>
         <FeaturedVersesCarousel />
       </Suspense>
+      <SectionDivider />
       <Suspense fallback={<SectionSkeleton />}>
         <Testimonials />
       </Suspense>
+      <SectionDivider />
       <Suspense fallback={<SectionSkeleton />}>
         <DailyWisdom />
       </Suspense>
+      <SectionDivider />
       <Suspense fallback={<SectionSkeleton />}>
         <CTASection />
       </Suspense>

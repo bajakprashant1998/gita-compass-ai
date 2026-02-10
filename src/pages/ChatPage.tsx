@@ -428,7 +428,7 @@ export default function ChatPage() {
           {/* Chat Area */}
           <Card className="flex-1 flex flex-col overflow-hidden border-border/50 shadow-xl shadow-primary/5 relative">
             <ScrollArea 
-              className="flex-1 p-4 md:p-6 relative" 
+              className="flex-1 p-4 md:p-6 relative chat-bg-pattern" 
               ref={scrollRef}
             >
               {messages.length === 0 ? (
@@ -457,8 +457,8 @@ export default function ChatPage() {
                             className={cn(
                               "rounded-2xl px-4 py-3 backdrop-blur-sm",
                               message.role === 'user'
-                                ? 'bg-gradient-to-r from-primary to-amber-500 text-white shadow-lg shadow-primary/20'
-                                : 'bg-gradient-to-br from-card to-muted/30 border border-border/50 shadow-sm'
+                                ? 'bg-gradient-to-r from-primary to-amber-500 text-white shadow-lg shadow-primary/20 bubble-tail-right'
+                                : 'bg-gradient-to-br from-card to-muted/30 border border-border/50 shadow-sm bubble-tail-left'
                             )}
                           >
                             {message.role === 'assistant' ? (
@@ -573,11 +573,28 @@ export default function ChatPage() {
               </div>
             )}
 
-            {/* Input Area */}
-            <CardContent className="p-4 border-t border-border/50 space-y-3 bg-gradient-to-b from-transparent via-muted/10 to-muted/30 relative">
-              <QuickActionsBar onQuickAction={handleQuickAction} disabled={isLoading} />
-              <form onSubmit={handleSubmit} className="flex gap-3 items-end">
-                <div className="flex-1 relative">
+            {/* Modern Composer Input */}
+            <div className="p-4 relative">
+              {/* Quick actions only show when no messages */}
+              {messages.length > 0 && (
+                <div className="mb-3">
+                  <QuickActionsBar onQuickAction={handleQuickAction} disabled={isLoading} />
+                </div>
+              )}
+              
+              <form onSubmit={handleSubmit} className="relative">
+                {/* Glow ring on focus */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-amber-500/20 to-orange-500/20 rounded-2xl blur-md opacity-0 focus-within:opacity-100 transition-opacity pointer-events-none" />
+                
+                <div className="relative flex items-end gap-2 bg-card/80 backdrop-blur-md border-2 border-border/50 focus-within:border-primary/40 rounded-2xl px-3 py-2 shadow-lg transition-all">
+                  {/* Voice button */}
+                  <VoiceInputButton 
+                    onTranscript={handleVoiceTranscript} 
+                    disabled={isLoading}
+                    className="h-10 w-10 flex-shrink-0 rounded-xl"
+                  />
+                  
+                  {/* Expandable text input */}
                   <Textarea
                     ref={textareaRef}
                     value={input}
@@ -585,50 +602,49 @@ export default function ChatPage() {
                     onKeyDown={handleKeyDown}
                     placeholder="Ask Krishna anything about life..."
                     className={cn(
-                      "min-h-[56px] max-h-[120px] resize-none border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all pr-24 rounded-xl",
-                      isOverLimit && "border-destructive focus:border-destructive"
+                      "min-h-[44px] max-h-[120px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent px-2 py-2.5 text-base",
+                      isOverLimit && "text-destructive"
                     )}
                     disabled={isLoading}
                   />
-                  {/* Voice + Character count */}
-                  <div className="absolute bottom-2 right-3 flex items-center gap-2">
-                    <VoiceInputButton 
-                      onTranscript={handleVoiceTranscript} 
-                      disabled={isLoading}
-                      className="h-8 w-8"
-                    />
-                    <div className="hidden md:flex items-center gap-3 text-xs">
-                      {charCount > 400 && (
-                        <span className={cn(
-                          "transition-colors",
-                          isOverLimit ? "text-destructive font-medium" : "text-muted-foreground/60"
-                        )}>
-                          {charCount}/{MAX_CHARS}
-                        </span>
+                  
+                  {/* Character count + Send button */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {charCount > 400 && (
+                      <span className={cn(
+                        "text-xs hidden md:inline",
+                        isOverLimit ? "text-destructive font-medium" : "text-muted-foreground/60"
+                      )}>
+                        {charCount}/{MAX_CHARS}
+                      </span>
+                    )}
+                    <Button
+                      type="submit"
+                      size="icon"
+                      className={cn(
+                        "h-10 w-10 rounded-xl bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-md transition-all",
+                        input.trim() && !isOverLimit ? "opacity-100 scale-100" : "opacity-50 scale-95"
                       )}
-                      <div className="flex items-center gap-1 text-muted-foreground/60">
-                        <Keyboard className="h-3 w-3" />
-                        <span>Enter</span>
-                      </div>
-                    </div>
+                      disabled={!input.trim() || isLoading || isOverLimit}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <Send className="h-5 w-5" />
+                      )}
+                    </Button>
                   </div>
                 </div>
-                <Button
-                  type="submit"
-                  className="h-14 px-5 bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-105 gap-2 rounded-xl"
-                  disabled={!input.trim() || isLoading || isOverLimit}
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <>
-                      <Send className="h-5 w-5" />
-                      <span className="hidden sm:inline font-medium">Ask</span>
-                    </>
-                  )}
-                </Button>
+                
+                {/* Helper text */}
+                <div className="flex items-center justify-between mt-1.5 px-3">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground/50">
+                    <Keyboard className="h-3 w-3" />
+                    <span className="hidden sm:inline">Enter to send · Shift+Enter for new line</span>
+                  </div>
+                </div>
               </form>
-            </CardContent>
+            </div>
           </Card>
         </div>
       </div>

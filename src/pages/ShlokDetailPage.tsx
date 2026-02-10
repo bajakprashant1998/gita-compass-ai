@@ -207,6 +207,11 @@ export default function ShlokDetailPage() {
       
       {/* Main Content with Decorative Elements */}
       <div className="relative overflow-hidden">
+        {/* Sanskrit watermark */}
+        <div className="absolute top-32 right-10 text-[200px] font-bold text-primary/[0.03] select-none pointer-events-none leading-none hidden lg:block" style={{ fontFamily: "'Noto Sans Devanagari', sans-serif" }}>
+          ॐ
+        </div>
+
         {/* Decorative floating elements */}
         <FloatingOm className="top-40 -left-10 animate-float hidden xl:block" />
         <FloatingOm className="top-96 -right-10 animate-float animation-delay-500 hidden xl:block" />
@@ -282,6 +287,25 @@ export default function ShlokDetailPage() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Key Insight Card */}
+            {displayContent.meaning && (
+              <div className="mb-8 animate-fade-in animation-delay-300">
+                <div className="relative rounded-2xl bg-gradient-to-r from-primary/10 via-amber-500/10 to-orange-500/10 border border-primary/20 p-5 sm:p-6">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-amber-500 text-white flex-shrink-0">
+                      <Sparkles className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-primary uppercase tracking-wider mb-1">Key Insight</h4>
+                      <p className="text-base sm:text-lg font-medium text-foreground leading-relaxed">
+                        {displayContent.meaning.split('.')[0]}.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Problem Tags (Clickable Navigation) */}
             <ProblemTags problems={shlok.problems || []} />
