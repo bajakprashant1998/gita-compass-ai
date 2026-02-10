@@ -97,8 +97,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    // Clear local state immediately so UI updates regardless of API result
+    setUser(null);
+    setSession(null);
+    setProfile(null);
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Ignore errors - local state is already cleared
+    }
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
