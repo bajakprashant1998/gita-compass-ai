@@ -63,6 +63,12 @@ export function StreakCalendar({ userId, currentStreak }: StreakCalendarProps) {
           </div>
         </div>
 
+        {(!activities || activities.length === 0) && (
+          <div className="text-center py-4 mb-2">
+            <p className="text-sm text-muted-foreground">Start reading verses to build your streak! 🔥</p>
+          </div>
+        )}
+
         {/* Heatmap */}
         <div className="flex gap-[3px] overflow-x-auto pb-1">
           {weeks.map((week, wi) => (

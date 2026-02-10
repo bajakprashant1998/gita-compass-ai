@@ -7,8 +7,8 @@ import { toast } from 'sonner';
 interface PreferencesCardProps {
   language: string;
   dailyWisdom: boolean;
-  onLanguageChange: (lang: string) => void;
-  onDailyWisdomChange: (enabled: boolean) => void;
+  onLanguageChange: (lang: string) => Promise<void>;
+  onDailyWisdomChange: (enabled: boolean) => Promise<void>;
 }
 
 export function PreferencesCard({
