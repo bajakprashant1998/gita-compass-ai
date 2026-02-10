@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,8 +24,10 @@ export default function DashboardPage() {
   const { data: chatCount } = useChatCount(user?.id);
   const { data: preferences, updatePreference } = useUserPreferences(user?.id);
 
+  const isSigningOut = useRef(false);
+
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && !isSigningOut.current) {
       navigate('/auth');
     }
   }, [loading, user, navigate]);
@@ -52,8 +54,8 @@ export default function DashboardPage() {
   if (!user) return null;
 
   const handleSignOut = async () => {
+    isSigningOut.current = true;
     try {
-      // Add timeout to prevent hanging if signOut never resolves
       await Promise.race([
         signOut(),
         new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))

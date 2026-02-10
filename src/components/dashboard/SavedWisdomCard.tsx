@@ -45,6 +45,13 @@ export function SavedWisdomCard({ favorites }: SavedWisdomCardProps) {
                 </div>
               </Link>
             ))}
+            {favorites.length > 4 && (
+              <Link to="/dashboard">
+                <Button variant="ghost" size="sm" className="w-full mt-2 text-primary">
+                  View All {favorites.length} Saved Verses <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </Link>
+            )}
           </div>
         ) : (
           <div className="text-center py-6">
