@@ -53,9 +53,13 @@ export default function DashboardPage() {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      // Add timeout to prevent hanging if signOut never resolves
+      await Promise.race([
+        signOut(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+      ]);
     } catch {
-      // Sign out locally even if the API call fails
+      // Sign out locally even if the API call fails or times out
     }
     toast.success('Signed out successfully');
     navigate('/');
