@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Save, ArrowLeft } from 'lucide-react';
 import { AdminSEOFields } from '@/components/admin/AdminSEOFields';
 import { supabase } from '@/integrations/supabase/client';
-import { createProblem, updateProblem, logActivity } from '@/lib/adminApi';
+import { createProblem, updateProblem, logActivity, generateAIContentWithMeta } from '@/lib/adminApi';
 import type { AdminProblem, ProblemCategory } from '@/types/admin';
 import { useToast } from '@/hooks/use-toast';
 
@@ -279,6 +279,20 @@ export default function AdminProblemForm() {
               onMetaDescriptionChange={(v) => setFormData(prev => ({ ...prev, meta_description: v }))}
               onMetaKeywordsChange={(v) => setFormData(prev => ({ ...prev, meta_keywords: v }))}
               pageUrl={`bhagavadgitagyan.com/problems/${formData.slug}`}
+              onGenerateSEO={async () => {
+                const result = await generateAIContentWithMeta('generate_seo', {
+                  page_title: formData.name,
+                  page_content: `${formData.name}. ${formData.description_english || ''} Category: ${formData.category || ''}`,
+                  page_url: `bhagavadgitagyan.com/problems/${formData.slug}`,
+                });
+                if (result.meta_title) setFormData(prev => ({ ...prev, meta_title: result.meta_title as string }));
+                if (result.meta_description) setFormData(prev => ({ ...prev, meta_description: result.meta_description as string }));
+                if (result.meta_keywords && Array.isArray(result.meta_keywords)) {
+                  setFormData(prev => ({ ...prev, meta_keywords: result.meta_keywords as string[] }));
+                }
+                toast({ title: 'Generated', description: 'SEO metadata generated' });
+                return '';
+              }}
             />
 
             <div className="flex items-center gap-4 mt-6">

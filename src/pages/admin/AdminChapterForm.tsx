@@ -109,6 +109,21 @@ export default function AdminChapterForm() {
     return result.content as string || '';
   };
 
+  const handleGenerateSEO = async () => {
+    const result = await generateAIContentWithMeta('generate_seo', {
+      page_title: formData.title_english,
+      page_content: `Chapter ${formData.chapter_number}: ${formData.title_english}. Theme: ${formData.theme}. ${formData.description_english || ''}`,
+      page_url: `bhagavadgitagyan.com/chapters/${formData.chapter_number}`,
+    });
+    if (result.meta_title) handleChange('meta_title', result.meta_title as string);
+    if (result.meta_description) handleChange('meta_description', result.meta_description as string);
+    if (result.meta_keywords && Array.isArray(result.meta_keywords)) {
+      setFormData(prev => ({ ...prev, meta_keywords: result.meta_keywords as string[] }));
+    }
+    toast({ title: 'Generated', description: 'SEO metadata generated' });
+    return '';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -276,6 +291,7 @@ export default function AdminChapterForm() {
               onMetaDescriptionChange={(v) => handleChange('meta_description', v)}
               onMetaKeywordsChange={(v) => setFormData(prev => ({ ...prev, meta_keywords: v }))}
               pageUrl={`bhagavadgitagyan.com/chapters/${formData.chapter_number}`}
+              onGenerateSEO={handleGenerateSEO}
             />
 
             <div className="flex items-center gap-4">

@@ -66,7 +66,8 @@ export type AIGenerationType =
   | 'modern_story'
   | 'suggest_story_type'
   | 'chapter_description'
-  | 'suggest_problems';
+  | 'suggest_problems'
+  | 'generate_seo';
 
 export interface AIGenerationRequest {
   type: AIGenerationType;
@@ -81,6 +82,9 @@ export interface AIGenerationRequest {
   chapter_number?: number;
   verse_number?: number;
   existing_problems?: Array<{ name: string; category: string }>;
+  page_title?: string;
+  page_content?: string;
+  page_url?: string;
 }
 
 export interface StoryTypeConfig {

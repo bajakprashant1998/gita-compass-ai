@@ -18,7 +18,8 @@ type GenerationType =
   | "modern_story"
   | "suggest_story_type"
   | "chapter_description"
-  | "suggest_problems";
+  | "suggest_problems"
+  | "generate_seo";
 
 interface GenerationRequest {
   type: GenerationType;
@@ -33,6 +34,9 @@ interface GenerationRequest {
   chapter_number?: number;
   verse_number?: number;
   existing_problems?: Array<{ name: string; category: string }>;
+  page_title?: string;
+  page_content?: string;
+  page_url?: string;
 }
 
 // Build verse context string
@@ -113,6 +117,15 @@ Analyze this specific Gita verse and suggest 3-5 life problems it addresses.
 Consider problems in categories: mental (anxiety, stress, depression), relationships (family, social), career (work, ambition), ethics (moral dilemmas), leadership (responsibility, decision-making).
 Return as JSON array: [{"name": "Problem Name", "category": "category", "relevance_score": 1-10}]
 Only output valid JSON, no other text.`,
+
+    generate_seo: `You are an SEO expert for a Bhagavad Gita spiritual website (bhagavadgitagyan.com).
+Generate optimized SEO metadata for the given page content.
+Rules:
+- meta_title: Max 60 characters, include primary keyword, compelling for clicks
+- meta_description: Max 155 characters, include call-to-action, summarize value
+- meta_keywords: 5-8 relevant keywords as comma-separated list
+Return ONLY valid JSON in this exact format:
+{"meta_title": "...", "meta_description": "...", "meta_keywords": ["keyword1", "keyword2", ...]}`,
   };
 
   return prompts[type];
@@ -167,6 +180,9 @@ function buildUserPrompt(request: GenerationRequest): string {
     case "suggest_problems":
       const existingList = existing_problems?.map(p => p.name).join(", ") || "None";
       return `Verse ${verseId}:\n${verse_content || english_meaning || sanskrit_text}\n\nExisting problems in database: ${existingList}\n\nSuggest relevant problems for this specific verse (prefer suggesting from existing list if applicable):`;
+
+    case "generate_seo":
+      return `Generate SEO metadata for this page:\nPage Title: ${request.page_title || "Untitled"}\nPage URL: ${request.page_url || ""}\nPage Content: ${request.page_content || verse_content || english_meaning || sanskrit_text || chapter_title || "No content provided"}\n\nReturn JSON with meta_title, meta_description, and meta_keywords.`;
 
     default:
       return verse_content || english_meaning || sanskrit_text || "";
@@ -350,6 +366,22 @@ function handleContentResponse(type: GenerationType, content: string, corsHeader
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
+  }
+
+  // Special handling for generate_seo - parse JSON
+  if (type === "generate_seo") {
+    try {
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const seo = JSON.parse(jsonMatch[0]);
+        return new Response(
+          JSON.stringify({ content, ...seo }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } catch (parseError) {
+      console.error("Failed to parse SEO JSON:", parseError);
+    }
   }
 
   return new Response(

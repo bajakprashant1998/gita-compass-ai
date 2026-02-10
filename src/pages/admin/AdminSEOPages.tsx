@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Save, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { generateAIContentWithMeta } from '@/lib/adminApi';
 
 interface StaticPageSEO {
   id?: string;
@@ -146,6 +147,20 @@ export default function AdminSEOPages() {
                 onMetaDescriptionChange={(v) => updatePage(page.page_identifier, 'meta_description', v)}
                 onMetaKeywordsChange={(v) => updatePage(page.page_identifier, 'meta_keywords', v)}
                 pageUrl={`bhagavadgitagyan.com${page.page_identifier === '/' ? '' : page.page_identifier}`}
+                onGenerateSEO={async () => {
+                  const result = await generateAIContentWithMeta('generate_seo', {
+                    page_title: page.label,
+                    page_content: `${page.label} page of Bhagavad Gita Gyan website`,
+                    page_url: `bhagavadgitagyan.com${page.page_identifier === '/' ? '' : page.page_identifier}`,
+                  });
+                  if (result.meta_title) updatePage(page.page_identifier, 'meta_title', result.meta_title);
+                  if (result.meta_description) updatePage(page.page_identifier, 'meta_description', result.meta_description);
+                  if (result.meta_keywords && Array.isArray(result.meta_keywords)) {
+                    updatePage(page.page_identifier, 'meta_keywords', result.meta_keywords);
+                  }
+                  toast({ title: 'Generated', description: `SEO generated for ${page.label}` });
+                  return '';
+                }}
               />
             </div>
           ))}

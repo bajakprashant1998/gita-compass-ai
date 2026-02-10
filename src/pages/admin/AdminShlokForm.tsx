@@ -822,6 +822,20 @@ export default function AdminShlokForm() {
                 onMetaDescriptionChange={(v) => handleChange('meta_description' as any, v)}
                 onMetaKeywordsChange={(v) => handleChange('meta_keywords' as any, v)}
                 pageUrl={`bhagavadgitagyan.com/chapters/${selectedChapter?.chapter_number}/verse/${formData.verse_number}`}
+                onGenerateSEO={async () => {
+                  const result = await generateAIContentWithMeta('generate_seo', {
+                    page_title: `Verse ${selectedChapter?.chapter_number}.${formData.verse_number}`,
+                    page_content: `${formData.sanskrit_text || ''} ${formData.english_meaning || ''} ${formData.hindi_meaning || ''}`,
+                    page_url: `bhagavadgitagyan.com/chapters/${selectedChapter?.chapter_number}/verse/${formData.verse_number}`,
+                  });
+                  if (result.meta_title) handleChange('meta_title' as any, result.meta_title as string);
+                  if (result.meta_description) handleChange('meta_description' as any, result.meta_description as string);
+                  if (result.meta_keywords && Array.isArray(result.meta_keywords)) {
+                    handleChange('meta_keywords' as any, result.meta_keywords);
+                  }
+                  toast({ title: 'Generated', description: 'SEO metadata generated' });
+                  return '';
+                }}
               />
             </TabsContent>
           </Tabs>
