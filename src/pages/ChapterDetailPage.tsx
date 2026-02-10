@@ -263,8 +263,25 @@ export default function ChapterDetailPage() {
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent" />
       </section>
 
+      {/* Featured Quote - First verse highlight */}
+      {shloks && shloks.length > 0 && (
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="relative rounded-2xl bg-gradient-to-br from-primary/5 via-background to-accent/5 border border-primary/20 p-6 sm:p-8">
+              <div className="absolute top-4 left-6 text-5xl text-primary/20 font-serif">"</div>
+              <blockquote className="relative pl-8 text-lg sm:text-xl text-foreground/80 italic leading-relaxed">
+                {shloks[0].english_meaning.length > 200 
+                  ? shloks[0].english_meaning.substring(0, 200) + '...' 
+                  : shloks[0].english_meaning}
+              </blockquote>
+              <p className="mt-4 pl-8 text-sm text-primary font-semibold">— Verse {shloks[0].verse_number}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Verses Section - Enhanced */}
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
         <div className="max-w-4xl mx-auto">
           {/* Section Header with Search & View Toggle */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center justify-between mb-8">
@@ -325,7 +342,7 @@ export default function ChapterDetailPage() {
               viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "space-y-4"
             )}>
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-32 animate-pulse rounded-xl bg-muted" />
+                <div key={i} className="h-32 animate-shimmer rounded-xl" />
               ))}
             </div>
           ) : filteredShloks && filteredShloks.length > 0 ? (

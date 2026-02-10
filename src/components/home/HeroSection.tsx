@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,41 @@ import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, ArrowRight, BookOpen, FileText, MessageCircle, CheckCircle } from 'lucide-react';
 import { TrustBadges } from './TrustBadges';
 import { getStats } from '@/lib/api';
+
+// Typewriter placeholder hook
+function useTypewriter(phrases: string[], typingSpeed = 60, pauseTime = 2000) {
+  const [placeholder, setPlaceholder] = useState('');
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentPhrase = phrases[phraseIndex];
+    
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        if (charIndex < currentPhrase.length) {
+          setPlaceholder(currentPhrase.slice(0, charIndex + 1));
+          setCharIndex(prev => prev + 1);
+        } else {
+          setTimeout(() => setIsDeleting(true), pauseTime);
+        }
+      } else {
+        if (charIndex > 0) {
+          setPlaceholder(currentPhrase.slice(0, charIndex - 1));
+          setCharIndex(prev => prev - 1);
+        } else {
+          setIsDeleting(false);
+          setPhraseIndex((prev) => (prev + 1) % phrases.length);
+        }
+      }
+    }, isDeleting ? 30 : typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [charIndex, isDeleting, phraseIndex, phrases, typingSpeed, pauseTime]);
+
+  return placeholder;
+}
 
 export function HeroSection() {
   const [problem, setProblem] = useState('');
@@ -23,11 +58,19 @@ export function HeroSection() {
     }
   };
 
+  const typewriterPlaceholder = useTypewriter([
+    "I'm feeling anxious about my future...",
+    "I can't make a difficult decision...",
+    "I'm struggling with anger issues...",
+    "I feel lost and don't know my purpose...",
+    "How do I deal with fear of failure?",
+  ]);
+
   const quickPrompts = [
-    "I feel anxious about my future",
-    "I can't make a difficult decision",
-    "I'm struggling with anger",
-    "I feel lost and confused",
+    "😰 I feel anxious about my future",
+    "🤔 I can't make a difficult decision",
+    "😤 I'm struggling with anger",
+    "😶‍🌫️ I feel lost and confused",
   ];
 
   const benefits = [
@@ -48,9 +91,13 @@ export function HeroSection() {
           {/* Left Column - Content */}
           <div className="text-center lg:text-left">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold uppercase tracking-wider mb-6 animate-fade-in">
-              <Sparkles className="h-4 w-4" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold uppercase tracking-wider mb-6 animate-fade-in border border-primary/20">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+              </span>
               AI-Powered Ancient Wisdom
+              <Sparkles className="h-4 w-4" />
             </div>
 
             {/* Headline - WebFX bold style */}
@@ -123,7 +170,7 @@ export function HeroSection() {
                   <Textarea
                     value={problem}
                     onChange={(e) => setProblem(e.target.value)}
-                    placeholder="I'm feeling anxious about..."
+                    placeholder={typewriterPlaceholder || "I'm feeling anxious about..."}
                     className="min-h-[100px] sm:min-h-[140px] text-base resize-none mb-4 bg-background border-2 border-border focus:border-primary transition-colors rounded-xl"
                   />
                   <Button 

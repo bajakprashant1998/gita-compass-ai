@@ -1,10 +1,12 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { getChapters, getStats } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Sparkles, ArrowRight, TrendingUp, Clock, Target } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { BookOpen, Sparkles, ArrowRight, TrendingUp, Clock, Target, Search } from 'lucide-react';
 import { ChapterFilters } from '@/components/chapters/ChapterFilters';
 import { SEOHead, generateBreadcrumbSchema } from '@/components/SEOHead';
 import { FloatingOm, RadialGlow, PopularBadge } from '@/components/ui/decorative-elements';
@@ -248,14 +250,21 @@ export default function ChaptersPage() {
             {[...Array(18)].map((_, i) => (
               <div 
                 key={i} 
-                className="h-72 animate-pulse rounded-2xl bg-muted"
+                className="h-72 animate-shimmer rounded-2xl"
                 style={{ animationDelay: `${i * 50}ms` }}
               />
             ))}
           </div>
         ) : filteredChapters.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No chapters match your filters.</p>
+          <div className="text-center py-16">
+            <div className="w-20 h-20 mx-auto rounded-full bg-muted flex items-center justify-center mb-4">
+              <BookOpen className="h-10 w-10 text-muted-foreground" />
+            </div>
+            <h3 className="text-xl font-bold mb-2">No chapters found</h3>
+            <p className="text-muted-foreground mb-4">Try adjusting your search or filters</p>
+            <Button variant="outline" onClick={() => { setSearchQuery(''); setSelectedThemes([]); }}>
+              Clear Filters
+            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
@@ -275,9 +284,17 @@ export default function ChaptersPage() {
                     {/* Left Gradient Border */}
                     <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-primary via-amber-500 to-orange-500 z-10" />
                     
-                    <div className="h-full border-2 border-l-0 border-border/50 bg-card rounded-r-2xl transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-xl group-hover:shadow-primary/10 group-hover:-translate-y-2">
+                    <div className={cn(
+                      "h-full border-2 border-l-0 border-border/50 bg-card rounded-r-2xl transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-xl group-hover:shadow-primary/10 group-hover:-translate-y-2",
+                      index % 2 === 1 && "bg-muted/20"
+                    )}>
                       {/* Gradient header */}
                       <div className="h-1 bg-gradient-to-r from-primary via-amber-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                      {/* Large faded chapter number watermark */}
+                      <div className="absolute top-2 right-4 text-7xl font-black text-muted/30 select-none pointer-events-none group-hover:text-primary/10 transition-colors duration-500 group-hover:translate-x-1 group-hover:-translate-y-1">
+                        {chapter.chapter_number}
+                      </div>
                       
                       <div className="p-4 sm:p-6">
                         <div className="flex items-center justify-between mb-4">
