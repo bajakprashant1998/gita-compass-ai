@@ -65,7 +65,7 @@ function AdminLoadingSkeleton() {
 }
 
 export function AdminProtectedRoute({ children }: { children: React.ReactNode }) {
-    const { isAdmin, isLoading, user, error, signOut } = useAdminAuthContext();
+    const { isAdmin, isLoading, user, error, retry, signOut } = useAdminAuthContext();
 
     if (isLoading) {
         return <AdminLoadingSkeleton />;
@@ -79,7 +79,7 @@ export function AdminProtectedRoute({ children }: { children: React.ReactNode })
                     <h1 className="text-2xl font-bold">Access Denied</h1>
                     <p className="text-muted-foreground">{error}</p>
                     <div className="flex gap-4 items-center">
-                        <Button variant="outline" onClick={() => window.location.reload()}>Retry</Button>
+                        <Button variant="outline" onClick={retry}>Retry</Button>
                         <Button variant="destructive" onClick={signOut}>Log Out</Button>
                     </div>
                 </div>

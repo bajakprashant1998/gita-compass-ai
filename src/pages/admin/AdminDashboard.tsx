@@ -25,31 +25,32 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  const loadStats = async () => {
+    setIsLoading(true);
+    setError(null);
+    console.log('AdminDashboard: Loading stats...');
+    try {
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out')), 10000)
+      );
+
+      const statsData = await Promise.race([
+        getAdminStats(),
+        timeoutPromise
+      ]) as AdminStats;
+
+      console.log('AdminDashboard: Stats loaded', statsData);
+      setStats(statsData);
+    } catch (error: any) {
+      console.error('Failed to load admin stats:', error);
+      setError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!isReady) return;
-
-    const loadStats = async () => {
-      console.log('AdminDashboard: Loading stats...');
-      try {
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Request timed out')), 10000)
-        );
-
-        const statsData = await Promise.race([
-          getAdminStats(),
-          timeoutPromise
-        ]) as AdminStats;
-
-        console.log('AdminDashboard: Stats loaded', statsData);
-        setStats(statsData);
-      } catch (error: any) {
-        console.error('Failed to load admin stats:', error);
-        setError(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadStats();
   }, [isReady]);
 
@@ -65,7 +66,10 @@ export default function AdminDashboard() {
         {error ? (
           <div className="col-span-full p-6 border border-destructive/20 bg-destructive/10 rounded-lg text-destructive flex items-center gap-3">
             <div className="h-5 w-5 border-2 border-destructive rounded-full flex items-center justify-center font-bold">!</div>
-            <p>Failed to load dashboard data: {error.message}</p>
+            <p className="flex-1">Failed to load dashboard data: {error.message}</p>
+            <Button variant="outline" size="sm" onClick={loadStats}>
+              Retry
+            </Button>
           </div>
         ) : isLoading ? (
           Array.from({ length: 6 }).map((_, i) => (

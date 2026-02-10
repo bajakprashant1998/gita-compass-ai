@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef, useCallback } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { getAdminCache, setAdminCache, clearAdminCache } from "@/lib/adminAuth";
@@ -11,10 +11,15 @@ interface AdminAuthContextType {
     isLoading: boolean;
     isReady: boolean;
     error: string | null;
+    retry: () => void;
     signOut: () => Promise<void>;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
+
+const SESSION_TIMEOUT = 8000;
+const ROLE_CHECK_TIMEOUT = 10000;
+const TAB_HIDDEN_THRESHOLD = 5 * 60 * 1000; // 5 minutes
 
 export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
@@ -23,19 +28,17 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     const [isReady, setIsReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const tabHiddenAt = useRef<number | null>(null);
+    const mountedRef = useRef(true);
 
-    // Check admin role using secure RPC function or table query
-    const checkAdminRole = async (userId: string) => {
+    const checkAdminRole = async (userId: string): Promise<boolean> => {
         try {
-            // First check cache
             const cache = getAdminCache();
             if (cache && cache.userId === userId && cache.verified) {
                 console.log('AdminAuthContext: Cache hit');
                 return true;
             }
 
-            // Query database with timeout
-            // If the query hangs (network/stale token), we want to fail fast so UI shows error instead of infinite loader
             const { data, error } = await Promise.race([
                 supabase
                     .from("user_roles")
@@ -44,141 +47,183 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
                     .eq("role", "admin")
                     .maybeSingle(),
                 new Promise<{ data: null, error: any }>((resolve) =>
-                    setTimeout(() => resolve({ data: null, error: new Error('Verification timed out') }), 5000)
+                    setTimeout(() => resolve({ data: null, error: new Error('Verification timed out') }), ROLE_CHECK_TIMEOUT)
                 )
             ]);
 
             if (error) throw error;
 
             const verified = !!data;
-
             if (verified) {
                 setAdminCache(userId);
             } else {
                 clearAdminCache();
             }
-
             return verified;
         } catch (err) {
             console.error('AdminAuthContext: Role verification error', err);
-            // If network error but we have cache, might be worth handling?
-            // For now, fail safe
+            // If we have a valid cache, trust it on network failure
+            const cache = getAdminCache();
+            if (cache && cache.userId === userId && cache.verified) {
+                return true;
+            }
             return false;
         }
     };
 
-    useEffect(() => {
-        let mounted = true;
+    const initAuth = useCallback(async (useCache = true) => {
+        try {
+            console.log('AdminAuthContext: Starting initAuth');
+            setError(null);
 
-        // Initial session check
-        const initAuth = async () => {
-            try {
-                console.log('AdminAuthContext: Starting initAuth');
-                // Wrap getSession in timeout as it might be hanging too
-                const { data: { session }, error: sessionError } = await Promise.race([
+            // Cache-first: if we have a valid admin cache, set isReady immediately
+            const cache = getAdminCache();
+            if (useCache && cache?.verified) {
+                const { data: { session } } = await Promise.race([
                     supabase.auth.getSession(),
-                    new Promise<{ data: { session: null }, error: any }>((resolve) =>
-                        setTimeout(() => resolve({ data: { session: null }, error: new Error('GetSession timed out') }), 2000)
+                    new Promise<{ data: { session: null } }>((resolve) =>
+                        setTimeout(() => resolve({ data: { session: null } }), SESSION_TIMEOUT)
                     )
-                ]) as any; // Cast to bypass strict type check on the race result if needed
+                ]) as any;
 
-                if (sessionError) {
-                    console.error("AdminAuthContext: getSession error", sessionError);
-                }
-
-                if (!mounted) return;
-
-                if (session?.user) {
-                    // Force refresh session and GET the new session data
-                    // This fixes issues where stale tokens cause DB queries to hang
-                    // Add timeout to prevent hanging on refresh
-                    const { data: refreshData, error: refreshError } = await Promise.race([
-                        supabase.auth.refreshSession(),
-                        new Promise<{ data: { session: null, user: null }, error: any }>((resolve) =>
-                            setTimeout(() => resolve({ data: { session: null, user: null }, error: new Error('Refresh timed out') }), 2000)
-                        )
-                    ]);
-
-                    if (refreshError) {
-                        console.warn('AdminAuthContext: Session refresh failed, forcing logout to prevented stale state', refreshError);
-                        // If refresh fails, the token is likely stale and will cause RLS issues (0 data).
-                        // Better to force re-login than show incorrect empty dashboard.
-                        clearAdminCache();
-                        // Fire and forget signout to clean up Supabase storage
-                        supabase.auth.signOut().catch(console.error);
-
-                        if (mounted) {
-                            setUser(null);
-                            setIsAdmin(false);
-                            setIsLoading(false);
-                            navigate("/admin/login");
-                        }
-                        return; // Stop init
+                if (session?.user && cache.userId === session.user.id) {
+                    console.log('AdminAuthContext: Cache-first fast path');
+                    if (mountedRef.current) {
+                        setUser(session.user);
+                        setIsAdmin(true);
+                        setIsReady(true);
+                        setIsLoading(false);
                     }
-
-                    // Use the refreshed session
-                    const activeSession = refreshData?.session;
-                    if (!activeSession) {
-                        // Should not happen if no error but strictly handle it
-                        if (mounted) {
+                    // Background verify
+                    checkAdminRole(session.user.id).then(verified => {
+                        if (mountedRef.current && !verified) {
+                            setIsAdmin(false);
+                            setError("Admin privileges revoked.");
                             clearAdminCache();
-                            supabase.auth.signOut().catch(console.error);
+                        }
+                    });
+                    return;
+                }
+            }
+
+            // Full flow
+            const { data: { session }, error: sessionError } = await Promise.race([
+                supabase.auth.getSession(),
+                new Promise<{ data: { session: null }, error: any }>((resolve) =>
+                    setTimeout(() => resolve({ data: { session: null }, error: new Error('GetSession timed out') }), SESSION_TIMEOUT)
+                )
+            ]) as any;
+
+            if (sessionError) {
+                console.error("AdminAuthContext: getSession error", sessionError);
+            }
+
+            if (!mountedRef.current) return;
+
+            if (session?.user) {
+                const { data: refreshData, error: refreshError } = await Promise.race([
+                    supabase.auth.refreshSession(),
+                    new Promise<{ data: { session: null, user: null }, error: any }>((resolve) =>
+                        setTimeout(() => resolve({ data: { session: null, user: null }, error: new Error('Refresh timed out') }), SESSION_TIMEOUT)
+                    )
+                ]);
+
+                if (refreshError) {
+                    console.warn('AdminAuthContext: Session refresh failed', refreshError);
+                    // Retry once instead of force logout
+                    try {
+                        const retryResult = await Promise.race([
+                            supabase.auth.refreshSession(),
+                            new Promise<{ data: { session: null, user: null }, error: any }>((resolve) =>
+                                setTimeout(() => resolve({ data: { session: null, user: null }, error: new Error('Retry refresh timed out') }), SESSION_TIMEOUT)
+                            )
+                        ]);
+                        if (retryResult.error || !retryResult.data?.session) {
+                            if (mountedRef.current) {
+                                setError('Session expired. Please log in again.');
+                                setUser(null);
+                                setIsAdmin(false);
+                                setIsLoading(false);
+                                clearAdminCache();
+                            }
+                            return;
+                        }
+                        // Use retry result
+                        const activeSession = retryResult.data.session;
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        const verified = await checkAdminRole(activeSession.user.id);
+                        if (mountedRef.current) {
+                            setUser(activeSession.user);
+                            setIsAdmin(verified);
+                            setIsReady(true);
+                            if (!verified) setError("You don't have admin privileges.");
+                        }
+                        return;
+                    } catch {
+                        if (mountedRef.current) {
+                            setError('Session expired. Please log in again.');
                             setUser(null);
                             setIsAdmin(false);
                             setIsLoading(false);
-                            navigate("/admin/login");
+                            clearAdminCache();
                         }
                         return;
                     }
+                }
 
-                    // Small delay to ensure token propagation to Supabase client
-                    await new Promise(resolve => setTimeout(resolve, 100));
-
-                    const verified = await checkAdminRole(activeSession.user.id);
-                    if (mounted) {
-                        setUser(activeSession.user);
-                        setIsAdmin(verified);
-                        setIsReady(true);
-                        if (!verified) setError("You don't have admin privileges.");
-                    }
-                } else {
-                    if (mounted) {
+                const activeSession = refreshData?.session;
+                if (!activeSession) {
+                    if (mountedRef.current) {
+                        setError('Session expired. Please log in again.');
+                        clearAdminCache();
                         setUser(null);
                         setIsAdmin(false);
-
-                        // Critical: If we found no session (or timed out), we MUST clear any potential garbage tokens
-                        // This prevents the "Login Hang" where a bad token blocks signInWithPassword
-                        clearAdminCache();
-                        // Clear in-memory Supabase client state
-                        supabase.auth.signOut().catch(console.error);
-
-                        Object.keys(localStorage).forEach(key => {
-                            if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
-                                localStorage.removeItem(key);
-                            }
-                        });
+                        setIsLoading(false);
                     }
+                    return;
                 }
-            } catch (err: any) {
-                console.error("AdminAuthContext: Init error", err);
-                if (mounted) setError(err.message);
-            } finally {
-                if (mounted) setIsLoading(false);
-            }
-        };
 
+                await new Promise(resolve => setTimeout(resolve, 100));
+                const verified = await checkAdminRole(activeSession.user.id);
+                if (mountedRef.current) {
+                    setUser(activeSession.user);
+                    setIsAdmin(verified);
+                    setIsReady(true);
+                    if (!verified) setError("You don't have admin privileges.");
+                }
+            } else {
+                if (mountedRef.current) {
+                    setUser(null);
+                    setIsAdmin(false);
+                    clearAdminCache();
+                }
+            }
+        } catch (err: any) {
+            console.error("AdminAuthContext: Init error", err);
+            if (mountedRef.current) setError(err.message);
+        } finally {
+            if (mountedRef.current) setIsLoading(false);
+        }
+    }, []);
+
+    const retry = useCallback(() => {
+        setIsLoading(true);
+        setError(null);
+        initAuth(false);
+    }, [initAuth]);
+
+    useEffect(() => {
+        mountedRef.current = true;
         initAuth();
 
-        // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-            if (!mounted) return;
+            if (!mountedRef.current) return;
 
             if (session?.user) {
-                // Only re-verify if user changed or we weren't admin
                 if (session.user.id !== user?.id) {
                     setIsLoading(true);
                     const verified = await checkAdminRole(session.user.id);
-                    if (mounted) {
+                    if (mountedRef.current) {
                         setUser(session.user);
                         setIsAdmin(verified);
                         setIsReady(true);
@@ -193,23 +238,24 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
             }
         });
 
-        // Visibility change handler for tab switching to ensure auth is fresh
+        // Smart visibility handler: only re-init after 5+ minutes hidden
         const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible' && !user) {
-                supabase.auth.getSession().then(({ data: { session } }) => {
-                    if (session?.user && session.user.id !== user?.id) {
-                        // Trigger re-verification via the existing logic or just reload
-                        // Simpler to just let the user refresh if stuck, but let's try to update
-                        initAuth();
-                    }
-                });
+            if (document.visibilityState === 'hidden') {
+                tabHiddenAt.current = Date.now();
+            } else if (document.visibilityState === 'visible') {
+                const hiddenDuration = tabHiddenAt.current ? Date.now() - tabHiddenAt.current : 0;
+                tabHiddenAt.current = null;
+                if (hiddenDuration > TAB_HIDDEN_THRESHOLD) {
+                    console.log('AdminAuthContext: Tab was hidden >5min, re-verifying');
+                    initAuth(true);
+                }
             }
         };
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
-            mounted = false;
+            mountedRef.current = false;
             subscription.unsubscribe();
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
@@ -218,34 +264,30 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     const signOut = async () => {
         setIsLoading(true);
         try {
-            // Attempt sign out but don't wait forever
             const { error } = await Promise.race([
                 supabase.auth.signOut(),
-                new Promise<{ error: null }>((resolve) => setTimeout(() => resolve({ error: null }), 2000))
+                new Promise<{ error: null }>((resolve) => setTimeout(() => resolve({ error: null }), 3000))
             ]);
             if (error) console.error("AdminAuthContext: SignOut error", error);
         } catch (e) {
             console.error("AdminAuthContext: SignOut exception", e);
         } finally {
-            // Always clear local state
             clearAdminCache();
-
-            // Manual cleanup of Supabase token in localStorage to be safe
             Object.keys(localStorage).forEach(key => {
                 if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
                     localStorage.removeItem(key);
                 }
             });
-
             setUser(null);
             setIsAdmin(false);
+            setIsReady(false);
             setIsLoading(false);
             navigate("/admin/login");
         }
     };
 
     return (
-        <AdminAuthContext.Provider value={{ user, isAdmin, isLoading, isReady, error, signOut }}>
+        <AdminAuthContext.Provider value={{ user, isAdmin, isLoading, isReady, error, retry, signOut }}>
             {children}
         </AdminAuthContext.Provider>
     );

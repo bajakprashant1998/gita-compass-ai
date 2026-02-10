@@ -48,9 +48,8 @@ export default function AdminLoginPage() {
       if (error) throw error;
 
       if (data.session) {
-        // Verification will happen in AdminLayout
-        // But we can optimistically set cache if we want, or just let AdminLayout handle it
-        // Let's let AdminLayout handle the rigorous check to be safe.
+        // Optimistically set admin cache before navigating to prevent race with AdminAuthContext
+        setAdminCache(data.session.user.id);
         navigate('/admin', { replace: true });
       }
     } catch (err: any) {
