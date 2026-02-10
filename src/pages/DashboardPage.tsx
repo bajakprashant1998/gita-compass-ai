@@ -54,11 +54,11 @@ export default function DashboardPage() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      toast.success('Signed out successfully');
-      navigate('/');
     } catch {
-      toast.error('Failed to sign out');
+      // Sign out locally even if the API call fails
     }
+    toast.success('Signed out successfully');
+    navigate('/');
   };
 
   return (
