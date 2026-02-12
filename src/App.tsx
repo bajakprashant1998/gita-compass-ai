@@ -24,6 +24,8 @@ const AuthPage = lazy(() => import("./pages/AuthPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const DonatePage = lazy(() => import("./pages/DonatePage"));
+const ReadingPlansPage = lazy(() => import("./pages/ReadingPlansPage"));
+const ReadingPlanDetailPage = lazy(() => import("./pages/ReadingPlanDetailPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminRoutes = lazy(() => import("@/components/admin/AdminRoutes").then(m => ({ default: m.AdminRoutes })));
 
@@ -68,6 +70,8 @@ const App = () => (
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/donate" element={<DonatePage />} />
+                <Route path="/reading-plans" element={<ReadingPlansPage />} />
+                <Route path="/reading-plans/:planId" element={<ReadingPlanDetailPage />} />
 
                 {/* Admin Routes - handles its own layout and protection */}
                 <Route path="/admin/*" element={<AdminRoutes />} />

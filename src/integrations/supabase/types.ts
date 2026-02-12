@@ -491,6 +491,110 @@ export type Database = {
         }
         Relationships: []
       }
+      reading_plan_days: {
+        Row: {
+          created_at: string
+          day_number: number
+          id: string
+          plan_id: string
+          reflection_prompt: string | null
+          shlok_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_number: number
+          id?: string
+          plan_id: string
+          reflection_prompt?: string | null
+          shlok_id: string
+        }
+        Update: {
+          created_at?: string
+          day_number?: number
+          id?: string
+          plan_id?: string
+          reflection_prompt?: string | null
+          shlok_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reading_plan_days_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "reading_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reading_plan_days_shlok_id_fkey"
+            columns: ["shlok_id"]
+            isOneToOne: false
+            referencedRelation: "shloks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reading_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          difficulty: string
+          display_order: number | null
+          duration_days: number
+          icon: string | null
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          display_order?: number | null
+          duration_days?: number
+          icon?: string | null
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          display_order?: number | null
+          duration_days?: number
+          icon?: string | null
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      reflection_likes: {
+        Row: {
+          created_at: string
+          id: string
+          reflection_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reflection_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reflection_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reflection_likes_reflection_id_fkey"
+            columns: ["reflection_id"]
+            isOneToOne: false
+            referencedRelation: "verse_reflections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shlok_problems: {
         Row: {
           id: string
@@ -759,6 +863,47 @@ export type Database = {
         }
         Relationships: []
       }
+      user_reading_plans: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_day: number
+          id: string
+          plan_id: string
+          started_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_day?: number
+          id?: string
+          plan_id: string
+          started_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_day?: number
+          id?: string
+          plan_id?: string
+          started_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_reading_plans_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "reading_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -776,6 +921,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      verse_reflections: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          shlok_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          shlok_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          shlok_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verse_reflections_shlok_id_fkey"
+            columns: ["shlok_id"]
+            isOneToOne: false
+            referencedRelation: "shloks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

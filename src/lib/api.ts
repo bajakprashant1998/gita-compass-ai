@@ -160,6 +160,45 @@ export async function getRandomShlok(): Promise<Shlok | null> {
   } as Shlok;
 }
 
+// Get the "verse of the day" deterministically based on the current date
+export async function getDailyVerse(): Promise<Shlok | null> {
+  // Fetch total count of shloks
+  const countUrl = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/shloks?select=id&limit=1000`;
+  const countResponse = await fetch(countUrl, {
+    headers: {
+      'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      'Prefer': 'count=exact',
+    },
+  });
+  
+  const totalCount = parseInt(countResponse.headers.get('content-range')?.split('/')[1] || '0');
+  if (totalCount === 0) return getRandomShlok();
+  
+  // Deterministic index based on date
+  const today = new Date();
+  const dateNum = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const index = dateNum % totalCount;
+  
+  // Fetch that specific shlok
+  const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/shloks?select=*,chapters(*)&order=chapter_id,verse_number&offset=${index}&limit=1`;
+  const response = await fetch(url, {
+    headers: {
+      'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+    },
+  });
+  
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  const data = await response.json();
+  if (!data || data.length === 0) return null;
+  
+  return {
+    ...data[0],
+    chapter: data[0].chapters,
+  } as Shlok;
+}
+
 // Sanitize special characters that could break PostgREST queries
 function sanitizeSearchQuery(query: string): string {
   return query.replace(/[%_(),.*]/g, '');
