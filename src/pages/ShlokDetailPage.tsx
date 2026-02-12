@@ -20,6 +20,7 @@ import { ShareWisdomCard } from '@/components/shlok/ShareWisdomCard';
 import { ShlokActions } from '@/components/shlok/ShlokActions';
 import { WisdomCardGenerator } from '@/components/shlok/WisdomCardGenerator';
 import { VerseChat } from '@/components/shlok/VerseChat';
+import { CommunityReflections } from '@/components/shlok/CommunityReflections';
 import { ReadingProgress } from '@/components/shlok/ReadingProgress';
 import { VerseNavigation } from '@/components/shlok/VerseNavigation';
 import { PageLanguageSelector, getScriptClass, isRTL } from '@/components/shlok/PageLanguageSelector';
@@ -405,6 +406,9 @@ export default function ShlokDetailPage() {
 
             {/* Ask About This Verse - Contextual AI Chat */}
             <VerseChat shlok={shlok} />
+
+            {/* Community Reflections */}
+            <CommunityReflections shlokId={shlok.id} />
 
             {/* Actions (Save, Ask AI) */}
             <ShlokActions shlokId={shlok.id} />

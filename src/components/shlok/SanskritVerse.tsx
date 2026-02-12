@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Languages, Sparkles } from 'lucide-react';
+import { BookOpen, Languages, Sparkles, Volume2, Loader2, Pause } from 'lucide-react';
 import type { Shlok } from '@/types';
+import { useVerseAudio } from '@/hooks/useVerseAudio';
 
 interface SanskritVerseProps {
   shlok: Shlok;
@@ -10,6 +11,7 @@ interface SanskritVerseProps {
 
 export function SanskritVerse({ shlok }: SanskritVerseProps) {
   const [showTransliteration, setShowTransliteration] = useState(false);
+  const { play, isPlaying, isLoading: audioLoading } = useVerseAudio(shlok.id, shlok.sanskrit_text);
 
   return (
     <Card className="mb-8 overflow-hidden border-0 shadow-xl glow-primary animate-fade-in animation-delay-100">
@@ -29,22 +31,43 @@ export function SanskritVerse({ shlok }: SanskritVerseProps) {
               <p className="text-xs text-muted-foreground mt-0.5">Sacred Scripture</p>
             </div>
           </div>
-          {shlok.transliteration && (
+          <div className="flex items-center gap-2">
+            {/* Audio play button */}
             <Button
-              variant={showTransliteration ? "default" : "outline"}
+              variant={isPlaying ? "default" : "outline"}
               size="sm"
-              onClick={() => setShowTransliteration(!showTransliteration)}
+              onClick={play}
+              disabled={audioLoading}
               className="gap-2 transition-all duration-300"
             >
-              <Languages className="h-4 w-4" />
+              {audioLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : isPlaying ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Volume2 className="h-4 w-4" />
+              )}
               <span className="hidden sm:inline">
-                {showTransliteration ? 'Hide' : 'Show'} Transliteration
-              </span>
-              <span className="sm:hidden">
-                {showTransliteration ? 'Hide' : 'Show'}
+                {audioLoading ? 'Loading...' : isPlaying ? 'Pause' : 'Listen'}
               </span>
             </Button>
-          )}
+            {shlok.transliteration && (
+              <Button
+                variant={showTransliteration ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowTransliteration(!showTransliteration)}
+                className="gap-2 transition-all duration-300"
+              >
+                <Languages className="h-4 w-4" />
+                <span className="hidden sm:inline">
+                  {showTransliteration ? 'Hide' : 'Show'} Transliteration
+                </span>
+                <span className="sm:hidden">
+                  {showTransliteration ? 'Hide' : 'Show'}
+                </span>
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Sanskrit text with decorative elements */}
