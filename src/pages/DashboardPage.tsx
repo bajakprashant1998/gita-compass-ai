@@ -16,6 +16,8 @@ import { PreferencesCard } from '@/components/dashboard/PreferencesCard';
 import { StreakCalendar } from '@/components/dashboard/StreakCalendar';
 import { RadialGlow, FloatingOm } from '@/components/ui/decorative-elements';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function DashboardPage() {
   const { user, profile, signOut, loading, updateProfile } = useAuth();
@@ -24,6 +26,19 @@ export default function DashboardPage() {
   const { data: progress } = useUserProgress(user?.id);
   const { data: chatCount } = useChatCount(user?.id);
   const { data: preferences, updatePreference } = useUserPreferences(user?.id);
+  const { data: plansCompleted = 0 } = useQuery({
+    queryKey: ['plans-completed-count', user?.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('user_reading_plans')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user!.id)
+        .eq('status', 'completed');
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!user,
+  });
 
   const isSigningOut = useRef(false);
 
@@ -92,6 +107,7 @@ export default function DashboardPage() {
             currentStreak={progress?.currentStreak || 0}
             chatCount={chatCount || 0}
             language={profile?.preferred_language || 'english'}
+            plansCompleted={plansCompleted}
           />
 
           {/* Main Grid */}

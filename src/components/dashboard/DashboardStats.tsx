@@ -5,6 +5,7 @@ import {
   Flame,
   MessageCircle,
   Globe,
+  CalendarDays,
 } from 'lucide-react';
 
 interface DashboardStatsProps {
@@ -14,6 +15,7 @@ interface DashboardStatsProps {
   currentStreak: number;
   chatCount: number;
   language: string;
+  plansCompleted?: number;
 }
 
 interface StatItemProps {
@@ -44,16 +46,18 @@ export function DashboardStats({
   currentStreak,
   chatCount,
   language,
+  plansCompleted = 0,
 }: DashboardStatsProps) {
   const langLabel = language === 'hindi' ? 'हिंदी' : 'EN';
 
   return (
-    <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 mb-8">
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-3 sm:gap-4 mb-8">
       <StatItem icon={<Bookmark className="h-5 w-5 text-primary" />} value={favoritesCount} label="Saved Verses" />
       <StatItem icon={<BookOpen className="h-5 w-5 text-primary" />} value={chaptersExplored} label="Chapters" />
       <StatItem icon={<ScrollText className="h-5 w-5 text-primary" />} value={versesRead} label="Verses Read" />
       <StatItem icon={<Flame className="h-5 w-5 text-primary" />} value={currentStreak} label="Day Streak" />
       <StatItem icon={<MessageCircle className="h-5 w-5 text-primary" />} value={chatCount} label="AI Chats" />
+      <StatItem icon={<CalendarDays className="h-5 w-5 text-primary" />} value={plansCompleted} label="Plans Done" />
       <StatItem icon={<Globe className="h-5 w-5 text-primary" />} value={langLabel} label="Language" />
     </div>
   );
