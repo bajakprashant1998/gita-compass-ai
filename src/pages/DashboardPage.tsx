@@ -11,6 +11,7 @@ import { DashboardStats } from '@/components/dashboard/DashboardStats';
 import { ReadingProgressCard } from '@/components/dashboard/ReadingProgressCard';
 import { SavedWisdomCard } from '@/components/dashboard/SavedWisdomCard';
 import { QuickActionsCard } from '@/components/dashboard/QuickActionsCard';
+import { ReadingPlansWidget } from '@/components/dashboard/ReadingPlansWidget';
 import { PreferencesCard } from '@/components/dashboard/PreferencesCard';
 import { StreakCalendar } from '@/components/dashboard/StreakCalendar';
 import { RadialGlow, FloatingOm } from '@/components/ui/decorative-elements';
@@ -107,8 +108,12 @@ export default function DashboardPage() {
             <StreakCalendar userId={user.id} currentStreak={progress?.currentStreak || 0} />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 pb-safe">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-5 sm:mb-6">
+            <ReadingPlansWidget userId={user.id} />
             <QuickActionsCard />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 pb-safe">
             <PreferencesCard
               language={profile?.preferred_language || 'english'}
               dailyWisdom={preferences?.dailyWisdomEnabled ?? true}

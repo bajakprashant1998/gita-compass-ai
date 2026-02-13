@@ -116,6 +116,12 @@ export const Footer = forwardRef<HTMLElement, object>(function Footer(_props, re
                 </Link>
               </li>
               <li>
+                <Link to="/reading-plans" className="group flex items-center text-foreground hover:text-primary transition-colors">
+                  <span>Reading Plans</span>
+                  <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold rounded bg-gradient-to-r from-primary to-amber-500 text-white">NEW</span>
+                </Link>
+              </li>
+              <li>
                 <Link to="/problems" className="group flex items-center text-foreground hover:text-primary transition-colors">
                   <span>Life Problems</span>
                   <ArrowRight className="h-4 w-4 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />

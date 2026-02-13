@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MessageCircle, BookOpen, TrendingUp, Sparkles, ChevronRight, Sun } from 'lucide-react';
+import { MessageCircle, BookOpen, TrendingUp, Sparkles, ChevronRight, CalendarDays } from 'lucide-react';
 import { GradientBorderCard } from '@/components/ui/decorative-elements';
 
 const actions = [
@@ -25,10 +25,10 @@ const actions = [
     highlight: false,
   },
   {
-    to: '/',
-    icon: Sun,
-    title: 'Daily Wisdom',
-    desc: "Today's verse inspiration",
+    to: '/reading-plans',
+    icon: CalendarDays,
+    title: 'Reading Plans',
+    desc: 'Guided spiritual journeys',
     highlight: false,
   },
 ];
