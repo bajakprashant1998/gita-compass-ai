@@ -5,7 +5,9 @@ import { SEOHead } from '@/components/SEOHead';
 import { PlanCard } from '@/components/reading-plans/PlanCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { BookOpen, Sparkles, Filter } from 'lucide-react';
+import { BookOpen, Sparkles, Filter, Search, ArrowUp, ArrowDown } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadialGlow, FloatingOm } from '@/components/ui/decorative-elements';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +21,8 @@ const DIFFICULTY_FILTERS = [
 export default function ReadingPlansPage() {
   const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('display_order');
 
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ['reading-plans'],
@@ -48,9 +52,25 @@ export default function ReadingPlansPage() {
 
   const userPlanMap = new Map(userPlans.map(up => [up.plan_id, up]));
 
-  const filteredPlans = activeFilter === 'all'
+  let filteredPlans = activeFilter === 'all'
     ? plans
     : plans.filter(p => p.difficulty === activeFilter);
+
+  // Apply search filter
+  filteredPlans = filteredPlans.filter(p => 
+    p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  // Apply sorting
+  filteredPlans = [...filteredPlans].sort((a, b) => {
+    if (sortBy === 'duration_asc') {
+      return a.duration_days - b.duration_days;
+    } else if (sortBy === 'duration_desc') {
+      return b.duration_days - a.duration_days;
+    }
+    return (a.display_order || 0) - (b.display_order || 0);
+  });
 
   const activePlanCount = userPlans.filter(p => p.status === 'active').length;
   const completedPlanCount = userPlans.filter(p => p.status === 'completed').length;
@@ -109,27 +129,60 @@ export default function ReadingPlansPage() {
         </section>
 
         {/* Filters + Content */}
-        <section className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16 relative z-10">
-          <div className="max-w-4xl mx-auto">
-            {/* Category Filters */}
-            <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
-              <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
-              {DIFFICULTY_FILTERS.map(filter => (
-                <button
-                  key={filter.key}
-                  onClick={() => setActiveFilter(filter.key)}
-                  className={cn(
-                    "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200",
-                    activeFilter === filter.key
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                      : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  <span>{filter.icon}</span>
-                  {filter.label}
-                </button>
-              ))}
-            </div>
+         <section className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16 relative z-10">
+           <div className="max-w-4xl mx-auto">
+             {/* Category Filters */}
+             <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+               <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+               {DIFFICULTY_FILTERS.map(filter => (
+                 <button
+                   key={filter.key}
+                   onClick={() => setActiveFilter(filter.key)}
+                   className={cn(
+                     "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200",
+                     activeFilter === filter.key
+                       ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                       : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                   )}
+                 >
+                   <span>{filter.icon}</span>
+                   {filter.label}
+                 </button>
+               ))}
+             </div>
+
+             {/* Search and Sort Controls */}
+             <div className="flex flex-col sm:flex-row gap-4 mb-8">
+               <div className="flex-1 relative">
+                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                 <Input
+                   placeholder="Search plans by title or description..."
+                   value={searchQuery}
+                   onChange={(e) => setSearchQuery(e.target.value)}
+                   className="pl-10"
+                 />
+               </div>
+               <Select value={sortBy} onValueChange={setSortBy}>
+                 <SelectTrigger className="sm:w-48">
+                   <SelectValue />
+                 </SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="display_order">Default Order</SelectItem>
+                   <SelectItem value="duration_asc">
+                     <div className="flex items-center gap-2">
+                       <ArrowUp className="h-3 w-3" />
+                       Shortest First
+                     </div>
+                   </SelectItem>
+                   <SelectItem value="duration_desc">
+                     <div className="flex items-center gap-2">
+                       <ArrowDown className="h-3 w-3" />
+                       Longest First
+                     </div>
+                   </SelectItem>
+                 </SelectContent>
+               </Select>
+             </div>
 
             {/* Plans grid */}
             {isLoading ? (
