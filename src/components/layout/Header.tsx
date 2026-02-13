@@ -9,7 +9,8 @@ import {
   X,
   Home,
   Grid3X3,
-  Heart
+  Heart,
+  CalendarDays
 } from 'lucide-react';
 import { BhagwaFlag } from '@/components/ui/bhagwa-flag';
 import { useAuth } from '@/hooks/useAuth';
@@ -48,6 +49,7 @@ export function Header() {
     { name: 'Home', href: '/', icon: Home },
     { name: 'Chapters', href: '/chapters', icon: BookOpen },
     { name: 'Life Problems', href: '/problems', icon: Grid3X3 },
+    { name: 'Reading Plans', href: '/reading-plans', icon: CalendarDays },
     { name: 'Talk to Krishna', href: '/chat', icon: MessageCircle, badge: 'NEW' },
   ];
 
