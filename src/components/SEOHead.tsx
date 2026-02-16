@@ -1,4 +1,7 @@
 import { Helmet } from 'react-helmet-async';
+import { useLocation } from 'react-router-dom';
+
+const CANONICAL_DOMAIN = 'https://www.bhagavadgitagyan.com';
 
 interface SEOHeadProps {
   title: string;
@@ -8,18 +11,28 @@ interface SEOHeadProps {
   keywords?: string[];
   structuredData?: object;
   type?: 'website' | 'article';
+  noindex?: boolean;
 }
 
 export function SEOHead({
   title,
   description,
   canonicalUrl,
-  ogImage = 'https://www.bhagavadgitagyan.com/og-image.png',
+  ogImage = `${CANONICAL_DOMAIN}/og-image.png`,
   keywords = [],
   structuredData,
   type = 'website',
+  noindex = false,
 }: SEOHeadProps) {
+  const location = useLocation();
   const fullTitle = title.includes('Bhagavad Gita Gyan') ? title : `${title} | Bhagavad Gita Gyan`;
+  
+  // Auto-generate canonical URL from current path if not provided
+  const resolvedCanonical = canonicalUrl || `${CANONICAL_DOMAIN}${location.pathname}`;
+  
+  // Detect if serving from a non-canonical domain (e.g. lovable.app preview)
+  const isNonCanonicalDomain = typeof window !== 'undefined' && 
+    !window.location.hostname.includes('bhagavadgitagyan.com');
   
   return (
     <Helmet>
@@ -31,12 +44,17 @@ export function SEOHead({
         <meta name="keywords" content={keywords.join(', ')} />
       )}
       
+      {/* Prevent non-canonical domains from being indexed */}
+      {(noindex || isNonCanonicalDomain) && (
+        <meta name="robots" content="noindex, nofollow" />
+      )}
+      
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={ogImage} />
-      {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+      <meta property="og:url" content={resolvedCanonical} />
       
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
@@ -44,8 +62,8 @@ export function SEOHead({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
       
-      {/* Canonical URL */}
-      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+      {/* Canonical URL - always set */}
+      <link rel="canonical" href={resolvedCanonical} />
       
       {/* Structured Data */}
       {structuredData && (

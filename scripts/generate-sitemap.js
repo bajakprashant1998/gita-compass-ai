@@ -48,6 +48,7 @@ async function generateSitemap() {
         { path: '', priority: '1.0', changefreq: 'weekly' },
         { path: '/chapters', priority: '0.9', changefreq: 'weekly' },
         { path: '/problems', priority: '0.8', changefreq: 'weekly' },
+        { path: '/reading-plans', priority: '0.8', changefreq: 'weekly' },
         { path: '/chat', priority: '0.8', changefreq: 'weekly' },
         { path: '/contact', priority: '0.5', changefreq: 'monthly' },
         { path: '/donate', priority: '0.5', changefreq: 'monthly' },
