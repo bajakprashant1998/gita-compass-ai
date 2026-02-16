@@ -5,11 +5,20 @@ import { SEOHead } from '@/components/SEOHead';
 import { PlanCard } from '@/components/reading-plans/PlanCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { BookOpen, Sparkles, Filter, Search, ArrowUp, ArrowDown } from 'lucide-react';
+import { BookOpen, Sparkles, Filter, Search, ArrowUp, ArrowDown, Lightbulb } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadialGlow, FloatingOm } from '@/components/ui/decorative-elements';
 import { cn } from '@/lib/utils';
+
+const QUICK_FILTERS = [
+  { label: 'Peace', emoji: '🕊️' },
+  { label: 'Fear', emoji: '💪' },
+  { label: 'Purpose', emoji: '🎯' },
+  { label: 'Karma', emoji: '⚡' },
+  { label: 'Calm', emoji: '🧘' },
+  { label: 'Courage', emoji: '🦁' },
+];
 
 const DIFFICULTY_FILTERS = [
   { key: 'all', label: 'All Plans', icon: '🕉️' },
@@ -50,7 +59,51 @@ export default function ReadingPlansPage() {
     enabled: !!user,
   });
 
+  // Fetch user's most-read problem categories for recommendations
+  const { data: userProblems = [] } = useQuery({
+    queryKey: ['user-problem-keywords', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      // Get user's read shloks, then find their associated problems
+      const { data: progress } = await supabase
+        .from('user_progress')
+        .select('shloks_read')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (!progress?.shloks_read?.length) return [];
+      
+      const shlokIds = (progress.shloks_read as string[]).slice(0, 50);
+      const { data: problemLinks } = await supabase
+        .from('shlok_problems')
+        .select('problems(name)')
+        .in('shlok_id', shlokIds);
+      
+      if (!problemLinks) return [];
+      return problemLinks
+        .map((p: any) => p.problems?.name?.toLowerCase())
+        .filter(Boolean) as string[];
+    },
+    enabled: !!user,
+  });
+
   const userPlanMap = new Map(userPlans.map(up => [up.plan_id, up]));
+
+  // Compute recommended plans based on user's problem categories
+  const recommendedPlans = (() => {
+    if (!userProblems.length || !plans.length) return [];
+    const notStarted = plans.filter(p => !userPlanMap.has(p.id));
+    const scored = notStarted.map(plan => {
+      const text = `${plan.title} ${plan.description || ''}`.toLowerCase();
+      const score = userProblems.filter(kw => text.includes(kw)).length;
+      return { plan, score };
+    });
+    return scored
+      .filter(s => s.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 2)
+      .map(s => s.plan);
+  })();
 
   let filteredPlans = activeFilter === 'all'
     ? plans
@@ -151,38 +204,78 @@ export default function ReadingPlansPage() {
                ))}
              </div>
 
-             {/* Search and Sort Controls */}
-             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-               <div className="flex-1 relative">
-                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                 <Input
-                   placeholder="Search plans by title or description..."
-                   value={searchQuery}
-                   onChange={(e) => setSearchQuery(e.target.value)}
-                   className="pl-10"
-                 />
-               </div>
-               <Select value={sortBy} onValueChange={setSortBy}>
-                 <SelectTrigger className="sm:w-48">
-                   <SelectValue />
-                 </SelectTrigger>
-                 <SelectContent>
-                   <SelectItem value="display_order">Default Order</SelectItem>
-                   <SelectItem value="duration_asc">
-                     <div className="flex items-center gap-2">
-                       <ArrowUp className="h-3 w-3" />
-                       Shortest First
-                     </div>
-                   </SelectItem>
-                   <SelectItem value="duration_desc">
-                     <div className="flex items-center gap-2">
-                       <ArrowDown className="h-3 w-3" />
-                       Longest First
-                     </div>
-                   </SelectItem>
-                 </SelectContent>
-               </Select>
-             </div>
+              {/* Quick Filter Tags */}
+              <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-1 scrollbar-hide">
+                <span className="text-xs text-muted-foreground shrink-0">Popular:</span>
+                {QUICK_FILTERS.map(tag => (
+                  <button
+                    key={tag.label}
+                    onClick={() => setSearchQuery(prev => prev === tag.label.toLowerCase() ? '' : tag.label.toLowerCase())}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 border",
+                      searchQuery === tag.label.toLowerCase()
+                        ? "bg-primary/10 border-primary/30 text-primary"
+                        : "bg-background border-border text-muted-foreground hover:border-primary/20 hover:text-foreground"
+                    )}
+                  >
+                    <span>{tag.emoji}</span>
+                    {tag.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Search and Sort Controls */}
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search plans by title or description..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="sm:w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="display_order">Default Order</SelectItem>
+                    <SelectItem value="duration_asc">
+                      <div className="flex items-center gap-2">
+                        <ArrowUp className="h-3 w-3" />
+                        Shortest First
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="duration_desc">
+                      <div className="flex items-center gap-2">
+                        <ArrowDown className="h-3 w-3" />
+                        Longest First
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Recommended Plans */}
+              {recommendedPlans.length > 0 && activeFilter === 'all' && !searchQuery && (
+                <div className="mb-10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Lightbulb className="h-5 w-5 text-primary" />
+                    <h2 className="text-lg font-semibold">Recommended for You</h2>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {recommendedPlans.map((plan, i) => (
+                      <div key={plan.id} className="animate-fade-in ring-2 ring-primary/20 rounded-xl" style={{ animationDelay: `${i * 100}ms` }}>
+                        <PlanCard
+                          plan={plan}
+                          userProgress={userPlanMap.get(plan.id) as any}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
             {/* Plans grid */}
             {isLoading ? (
