@@ -26,6 +26,12 @@ const ContactPage = lazy(() => import("./pages/ContactPage"));
 const DonatePage = lazy(() => import("./pages/DonatePage"));
 const ReadingPlansPage = lazy(() => import("./pages/ReadingPlansPage"));
 const ReadingPlanDetailPage = lazy(() => import("./pages/ReadingPlanDetailPage"));
+const BadgesPage = lazy(() => import("./pages/BadgesPage"));
+const CompareVersesPage = lazy(() => import("./pages/CompareVersesPage"));
+const MoodFinderPage = lazy(() => import("./pages/MoodFinderPage"));
+const BlogPage = lazy(() => import("./pages/BlogPage"));
+const BlogPostPage = lazy(() => import("./pages/BlogPostPage"));
+const StudyGroupsPage = lazy(() => import("./pages/StudyGroupsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminRoutes = lazy(() => import("@/components/admin/AdminRoutes").then(m => ({ default: m.AdminRoutes })));
 
@@ -72,6 +78,12 @@ const App = () => (
                 <Route path="/donate" element={<DonatePage />} />
                 <Route path="/reading-plans" element={<ReadingPlansPage />} />
                 <Route path="/reading-plans/:planId" element={<ReadingPlanDetailPage />} />
+                <Route path="/badges" element={<BadgesPage />} />
+                <Route path="/compare" element={<CompareVersesPage />} />
+                <Route path="/mood" element={<MoodFinderPage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/blog/:slug" element={<BlogPostPage />} />
+                <Route path="/study-groups" element={<StudyGroupsPage />} />
 
                 {/* Admin Routes - handles its own layout and protection */}
                 <Route path="/admin/*" element={<AdminRoutes />} />

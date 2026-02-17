@@ -79,6 +79,23 @@ export function DailyWisdom() {
                   text={shlok.life_application || shlok.english_meaning}
                   url={`https://www.bhagavadgitagyan.com/chapters/${shlok.chapter?.chapter_number}/verse/${shlok.verse_number}`}
                 />
+                {/* Native Web Share for mobile */}
+                {typeof navigator !== 'undefined' && 'share' in navigator && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => {
+                      navigator.share({
+                        title: `Bhagavad Gita - Chapter ${shlok.chapter?.chapter_number}, Verse ${shlok.verse_number}`,
+                        text: `"${shlok.english_meaning}"\n\n💡 ${shlok.life_application || ''}\n\n— Bhagavad Gita`,
+                        url: `https://www.bhagavadgitagyan.com/chapters/${shlok.chapter?.chapter_number}/verse/${shlok.verse_number}`,
+                      }).catch(() => {});
+                    }}
+                  >
+                    📤 Share as Story
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
