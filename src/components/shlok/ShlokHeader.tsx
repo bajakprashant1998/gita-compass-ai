@@ -56,12 +56,12 @@ export function ShlokHeader({ shlok }: ShlokHeaderProps) {
         </Badge>
         
         <h1 className="headline-bold text-gradient">
-          Chapter {shlok.chapter?.chapter_number}, Verse {shlok.verse_number}
+          Chapter {shlok.chapter?.chapter_number}: {shlok.chapter?.title_english}
         </h1>
         
-        <p className="text-xl md:text-2xl text-muted-foreground font-medium max-w-2xl mx-auto">
-          {shlok.chapter?.title_english}
-        </p>
+        <h2 className="text-xl md:text-2xl text-muted-foreground font-medium max-w-2xl mx-auto">
+          Verse {shlok.verse_number}
+        </h2>
 
         {/* Quick stats bar */}
         <div className="flex items-center justify-center gap-6 pt-4 text-sm text-muted-foreground">
