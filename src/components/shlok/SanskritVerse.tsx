@@ -75,7 +75,7 @@ export function SanskritVerse({ shlok }: SanskritVerseProps) {
           <Sparkles className="absolute -top-2 left-4 h-4 w-4 text-primary/30" />
           <Sparkles className="absolute -bottom-2 right-4 h-4 w-4 text-primary/30" />
           
-          <blockquote className="text-xl md:text-2xl lg:text-3xl font-medium sanskrit leading-loose text-center px-4 whitespace-pre-line">
+          <blockquote className="text-xl md:text-2xl lg:text-3xl font-medium sanskrit leading-loose text-center px-4 whitespace-pre-line" lang="sa">
             {shlok.sanskrit_text}
           </blockquote>
         </div>

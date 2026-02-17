@@ -31,7 +31,7 @@ export function VerseCard({ shlok, chapterNumber, animationDelay = 0, compact = 
         <div className={cn("pl-6 pr-6", compact ? "py-4" : "py-6")}>
           {/* Header: Verse Number + Arrow */}
           <header className="flex items-center justify-between mb-4">
-            <div className="flex items-baseline gap-2">
+            <h2 className="flex items-baseline gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Verse
               </span>
@@ -41,7 +41,7 @@ export function VerseCard({ shlok, chapterNumber, animationDelay = 0, compact = 
               )}>
                 {shlok.verse_number}
               </span>
-            </div>
+            </h2>
             
             <div className="flex items-center text-primary font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
               <span className="text-sm mr-2 hidden sm:block">Read Now</span>
