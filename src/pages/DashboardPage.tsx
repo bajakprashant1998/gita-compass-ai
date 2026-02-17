@@ -14,6 +14,7 @@ import { QuickActionsCard } from '@/components/dashboard/QuickActionsCard';
 import { ReadingPlansWidget } from '@/components/dashboard/ReadingPlansWidget';
 import { PreferencesCard } from '@/components/dashboard/PreferencesCard';
 import { StreakCalendar } from '@/components/dashboard/StreakCalendar';
+import { DailyAffirmation } from '@/components/dashboard/DailyAffirmation';
 import { RadialGlow, FloatingOm } from '@/components/ui/decorative-elements';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
@@ -122,6 +123,11 @@ export default function DashboardPage() {
           {/* Streak Calendar */}
           <div className="mb-5 sm:mb-6">
             <StreakCalendar userId={user.id} currentStreak={progress?.currentStreak || 0} />
+          </div>
+
+          {/* Daily Affirmation */}
+          <div className="mb-5 sm:mb-6">
+            <DailyAffirmation userId={user.id} versesRead={progress?.shloksRead || []} />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-5 sm:mb-6">

@@ -50,6 +50,11 @@ async function generateSitemap() {
         { path: '/problems', priority: '0.8', changefreq: 'weekly' },
         { path: '/reading-plans', priority: '0.8', changefreq: 'weekly' },
         { path: '/chat', priority: '0.8', changefreq: 'weekly' },
+        { path: '/mood', priority: '0.8', changefreq: 'weekly' },
+        { path: '/compare', priority: '0.7', changefreq: 'monthly' },
+        { path: '/badges', priority: '0.7', changefreq: 'monthly' },
+        { path: '/blog', priority: '0.8', changefreq: 'weekly' },
+        { path: '/study-groups', priority: '0.7', changefreq: 'weekly' },
         { path: '/contact', priority: '0.5', changefreq: 'monthly' },
         { path: '/donate', priority: '0.5', changefreq: 'monthly' },
     ];

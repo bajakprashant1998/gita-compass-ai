@@ -51,6 +51,7 @@ export function Header() {
     { name: 'Life Problems', href: '/problems', icon: Grid3X3 },
     { name: 'Reading Plans', href: '/reading-plans', icon: CalendarDays },
     { name: 'Talk to Krishna', href: '/chat', icon: MessageCircle, badge: 'NEW' },
+    { name: 'Mood Finder', href: '/mood', icon: Heart },
   ];
 
   const isActive = (href: string) => {

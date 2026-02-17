@@ -22,6 +22,7 @@ import { WisdomCardGenerator } from '@/components/shlok/WisdomCardGenerator';
 import { VerseChat } from '@/components/shlok/VerseChat';
 import { CommunityReflections } from '@/components/shlok/CommunityReflections';
 import { ReadingProgress } from '@/components/shlok/ReadingProgress';
+import { DiscussionThreads } from '@/components/shlok/DiscussionThreads';
 import { VerseNavigation } from '@/components/shlok/VerseNavigation';
 import { PageLanguageSelector, getScriptClass, isRTL } from '@/components/shlok/PageLanguageSelector';
 import { TranslatableContent } from '@/components/shlok/TranslatableContent';
@@ -409,6 +410,9 @@ export default function ShlokDetailPage() {
 
             {/* Community Reflections */}
             <CommunityReflections shlokId={shlok.id} />
+
+            {/* Discussion Threads */}
+            <DiscussionThreads shlokId={shlok.id} />
 
             {/* Actions (Save, Ask AI) */}
             <ShlokActions shlokId={shlok.id} />

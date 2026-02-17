@@ -1,0 +1,23 @@
+{
+  "name": "Bhagavad Gita Gyan",
+  "short_name": "Gita Gyan",
+  "description": "AI-powered ancient wisdom from Bhagavad Gita for modern life problems",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF8F0",
+  "theme_color": "#F97316",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["education", "lifestyle"]
+}

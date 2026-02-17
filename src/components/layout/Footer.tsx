@@ -134,6 +134,36 @@ export const Footer = forwardRef<HTMLElement, object>(function Footer(_props, re
                 </Link>
               </li>
               <li>
+                <Link to="/mood" className="group flex items-center text-foreground hover:text-primary transition-colors">
+                  <span>Mood Finder</span>
+                  <ArrowRight className="h-4 w-4 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                </Link>
+              </li>
+              <li>
+                <Link to="/compare" className="group flex items-center text-foreground hover:text-primary transition-colors">
+                  <span>Compare Verses</span>
+                  <ArrowRight className="h-4 w-4 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog" className="group flex items-center text-foreground hover:text-primary transition-colors">
+                  <span>Blog</span>
+                  <ArrowRight className="h-4 w-4 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                </Link>
+              </li>
+              <li>
+                <Link to="/study-groups" className="group flex items-center text-foreground hover:text-primary transition-colors">
+                  <span>Study Groups</span>
+                  <ArrowRight className="h-4 w-4 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                </Link>
+              </li>
+              <li>
+                <Link to="/badges" className="group flex items-center text-foreground hover:text-primary transition-colors">
+                  <span>Badges</span>
+                  <ArrowRight className="h-4 w-4 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                </Link>
+              </li>
+              <li>
                 <Link to="/contact" className="group flex items-center text-foreground hover:text-primary transition-colors">
                   <span>Contact Us</span>
                   <ArrowRight className="h-4 w-4 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
