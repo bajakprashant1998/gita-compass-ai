@@ -27,10 +27,21 @@ export default function StudyGroupsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('study_groups')
-        .select('*, members:study_group_members(count), creator:profiles!study_groups_creator_id_fkey(display_name)')
+        .select('*, members:study_group_members(count)')
         .eq('is_public', true)
         .order('created_at', { ascending: false });
       if (error) throw error;
+      
+      // Fetch creator names separately
+      if (data && data.length > 0) {
+        const creatorIds = [...new Set(data.map(g => g.creator_id))];
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, display_name')
+          .in('user_id', creatorIds);
+        const profileMap = new Map(profiles?.map(p => [p.user_id, p.display_name]) || []);
+        return data.map(g => ({ ...g, creator_name: profileMap.get(g.creator_id) || 'Unknown' }));
+      }
       return data;
     },
   });
@@ -212,7 +223,7 @@ export default function StudyGroupsPage() {
                               <Users className="h-3 w-3" /> {memberCount} members
                             </span>
                             <span className="flex items-center gap-1">
-                              <Crown className="h-3 w-3" /> {group.creator?.display_name || 'Unknown'}
+                              <Crown className="h-3 w-3" /> {group.creator_name || 'Unknown'}
                             </span>
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" /> {format(new Date(group.created_at), 'MMM d, yyyy')}
