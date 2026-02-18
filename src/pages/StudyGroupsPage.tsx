@@ -22,27 +22,49 @@ export default function StudyGroupsPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
-  const { data: groups, isLoading } = useQuery({
+  const { data: groups, isLoading, isError } = useQuery({
     queryKey: ['study-groups'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('study_groups')
-        .select('*, members:study_group_members(count)')
-        .eq('is_public', true)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      
-      // Fetch creator names separately
-      if (data && data.length > 0) {
+      try {
+        const { data, error } = await supabase
+          .from('study_groups')
+          .select('*')
+          .eq('is_public', true)
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        
+        if (!data || data.length === 0) return [];
+
+        // Fetch member counts separately to avoid RLS issues
+        const groupIds = data.map(g => g.id);
+        const { data: memberCounts } = await supabase
+          .from('study_group_members')
+          .select('group_id')
+          .in('group_id', groupIds);
+        
+        const countMap = new Map<string, number>();
+        memberCounts?.forEach(m => {
+          countMap.set(m.group_id, (countMap.get(m.group_id) || 0) + 1);
+        });
+
+        // Fetch creator names separately
         const creatorIds = [...new Set(data.map(g => g.creator_id))];
         const { data: profiles } = await supabase
           .from('profiles')
           .select('user_id, display_name')
           .in('user_id', creatorIds);
         const profileMap = new Map(profiles?.map(p => [p.user_id, p.display_name]) || []);
-        return data.map(g => ({ ...g, creator_name: profileMap.get(g.creator_id) || 'Unknown' }));
+        
+        return data.map(g => ({
+          ...g,
+          creator_name: profileMap.get(g.creator_id) || 'Unknown',
+          member_count: countMap.get(g.id) || 0,
+        }));
+      } catch (error) {
+        console.error('Failed to load study groups:', error);
+        toast.error('Failed to load study groups');
+        return [];
       }
-      return data;
     },
   });
 
@@ -192,11 +214,22 @@ export default function StudyGroupsPage() {
                 <div key={i} className="h-32 animate-pulse rounded-xl bg-muted" />
               ))}
             </div>
+          ) : isError ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h2 className="text-xl font-bold mb-2">Failed to Load Groups</h2>
+                <p className="text-muted-foreground mb-4">Something went wrong. Please try again.</p>
+                <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['study-groups'] })}>
+                  Retry
+                </Button>
+              </CardContent>
+            </Card>
           ) : groups && groups.length > 0 ? (
             <div className="space-y-4">
               {groups.map((group: any, idx: number) => {
                 const isMember = myMemberships?.has(group.id);
-                const memberCount = group.members?.[0]?.count || 0;
+                const memberCount = group.member_count || 0;
 
                 return (
                   <Card
