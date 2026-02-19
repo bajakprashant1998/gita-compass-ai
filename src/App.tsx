@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
+import { CanonicalRedirect } from "./components/CanonicalRedirect";
 import { FloatingChatButton } from "./components/chat/FloatingChatButton";
 
 // Eager load the index page for best LCP
@@ -59,6 +60,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <CanonicalRedirect />
             <ScrollToTop />
             <Suspense fallback={<PageLoader />}>
               <Routes>
