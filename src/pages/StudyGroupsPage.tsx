@@ -35,12 +35,13 @@ export default function StudyGroupsPage() {
         
         if (!data || data.length === 0) return [];
 
-        // Fetch member counts separately to avoid RLS issues
+        // Fetch member counts separately (RLS now allows public group member reads)
         const groupIds = data.map(g => g.id);
-        const { data: memberCounts } = await supabase
+        const { data: memberCounts, error: memberError } = await supabase
           .from('study_group_members')
           .select('group_id')
           .in('group_id', groupIds);
+        if (memberError) console.warn('Member counts unavailable:', memberError.message);
         
         const countMap = new Map<string, number>();
         memberCounts?.forEach(m => {
