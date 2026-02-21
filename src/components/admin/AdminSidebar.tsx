@@ -13,6 +13,7 @@ import {
   Settings,
   LogOut,
   Search,
+  PenSquare,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BhagwaFlag } from '@/components/ui/bhagwa-flag';
@@ -122,6 +123,12 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                   label="Problems"
                   collapsed={collapsed}
                 />
+                <NavItem
+                  to="/admin/blog"
+                  icon={<PenSquare className="w-5 h-5" />}
+                  label="Blog"
+                  collapsed={collapsed}
+                />
               </CollapsibleContent>
             </Collapsible>
           ) : (
@@ -142,6 +149,12 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                 to="/admin/problems"
                 icon={<Tags className="w-5 h-5" />}
                 label="Problems"
+                collapsed={collapsed}
+              />
+              <NavItem
+                to="/admin/blog"
+                icon={<PenSquare className="w-5 h-5" />}
+                label="Blog"
                 collapsed={collapsed}
               />
             </>
