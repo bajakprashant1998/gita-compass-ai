@@ -1,0 +1,343 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Save, Loader2, X, Eye } from 'lucide-react';
+import { toast } from 'sonner';
+
+interface BlogFormData {
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  cover_image: string;
+  author: string;
+  tags: string[];
+  published: boolean;
+  meta_title: string;
+  meta_description: string;
+  meta_keywords: string[];
+}
+
+const defaultForm: BlogFormData = {
+  title: '',
+  slug: '',
+  excerpt: '',
+  content: '',
+  cover_image: '',
+  author: 'Bhagavad Gita Gyan',
+  tags: [],
+  published: false,
+  meta_title: '',
+  meta_description: '',
+  meta_keywords: [],
+};
+
+export default function AdminBlogForm() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isEditing = !!id;
+  const [form, setForm] = useState<BlogFormData>(defaultForm);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [tagInput, setTagInput] = useState('');
+  const [keywordInput, setKeywordInput] = useState('');
+
+  useEffect(() => {
+    if (isEditing) {
+      setIsLoading(true);
+      supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('id', id)
+        .single()
+        .then(({ data, error }) => {
+          if (error || !data) {
+            toast.error('Post not found');
+            navigate('/admin/blog');
+            return;
+          }
+          setForm({
+            title: data.title,
+            slug: data.slug,
+            excerpt: data.excerpt || '',
+            content: data.content,
+            cover_image: data.cover_image || '',
+            author: data.author,
+            tags: data.tags || [],
+            published: data.published,
+            meta_title: data.meta_title || '',
+            meta_description: data.meta_description || '',
+            meta_keywords: data.meta_keywords || [],
+          });
+          setIsLoading(false);
+        });
+    }
+  }, [id, isEditing, navigate]);
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  };
+
+  const handleTitleChange = (title: string) => {
+    setForm(prev => ({
+      ...prev,
+      title,
+      slug: isEditing ? prev.slug : generateSlug(title),
+    }));
+  };
+
+  const addTag = () => {
+    const tag = tagInput.trim();
+    if (tag && !form.tags.includes(tag)) {
+      setForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+    }
+    setTagInput('');
+  };
+
+  const removeTag = (tag: string) => {
+    setForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }));
+  };
+
+  const addKeyword = () => {
+    const kw = keywordInput.trim();
+    if (kw && !form.meta_keywords.includes(kw)) {
+      setForm(prev => ({ ...prev, meta_keywords: [...prev.meta_keywords, kw] }));
+    }
+    setKeywordInput('');
+  };
+
+  const removeKeyword = (kw: string) => {
+    setForm(prev => ({ ...prev, meta_keywords: prev.meta_keywords.filter(k => k !== kw) }));
+  };
+
+  const handleSave = async () => {
+    if (!form.title.trim()) {
+      toast.error('Title is required');
+      return;
+    }
+    if (!form.slug.trim()) {
+      toast.error('Slug is required');
+      return;
+    }
+    if (!form.content.trim()) {
+      toast.error('Content is required');
+      return;
+    }
+
+    setIsSaving(true);
+
+    const payload = {
+      title: form.title,
+      slug: form.slug,
+      excerpt: form.excerpt || null,
+      content: form.content,
+      cover_image: form.cover_image || null,
+      author: form.author,
+      tags: form.tags,
+      published: form.published,
+      meta_title: form.meta_title || null,
+      meta_description: form.meta_description || null,
+      meta_keywords: form.meta_keywords.length > 0 ? form.meta_keywords : null,
+    };
+
+    let error;
+    if (isEditing) {
+      ({ error } = await supabase.from('blog_posts').update(payload).eq('id', id));
+    } else {
+      ({ error } = await supabase.from('blog_posts').insert(payload));
+    }
+
+    if (error) {
+      toast.error(error.message || 'Failed to save post');
+    } else {
+      toast.success(isEditing ? 'Post updated' : 'Post created');
+      navigate('/admin/blog');
+    }
+    setIsSaving(false);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/admin/blog')}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl font-bold">{isEditing ? 'Edit Post' : 'New Blog Post'}</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={form.published}
+              onCheckedChange={v => setForm(prev => ({ ...prev, published: v }))}
+            />
+            <Label className="text-sm">{form.published ? 'Published' : 'Draft'}</Label>
+          </div>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+            Save
+          </Button>
+        </div>
+      </div>
+
+      <Tabs defaultValue="content">
+        <TabsList>
+          <TabsTrigger value="content">Content</TabsTrigger>
+          <TabsTrigger value="seo">SEO</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="content" className="space-y-6 mt-4">
+          <div className="space-y-2">
+            <Label>Title</Label>
+            <Input
+              value={form.title}
+              onChange={e => handleTitleChange(e.target.value)}
+              placeholder="Blog post title..."
+              className="text-lg font-medium"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Slug</Label>
+            <Input
+              value={form.slug}
+              onChange={e => setForm(prev => ({ ...prev, slug: e.target.value }))}
+              placeholder="blog-post-slug"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Excerpt</Label>
+            <Textarea
+              value={form.excerpt}
+              onChange={e => setForm(prev => ({ ...prev, excerpt: e.target.value }))}
+              placeholder="Brief summary of the post..."
+              rows={3}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Content (Markdown supported)</Label>
+            <Textarea
+              value={form.content}
+              onChange={e => setForm(prev => ({ ...prev, content: e.target.value }))}
+              placeholder="Write your blog post content here... (Markdown supported)"
+              rows={20}
+              className="font-mono text-sm"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Cover Image URL</Label>
+            <Input
+              value={form.cover_image}
+              onChange={e => setForm(prev => ({ ...prev, cover_image: e.target.value }))}
+              placeholder="https://..."
+            />
+            {form.cover_image && (
+              <img src={form.cover_image} alt="Cover preview" className="mt-2 h-32 w-auto rounded-lg object-cover border" />
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Author</Label>
+            <Input
+              value={form.author}
+              onChange={e => setForm(prev => ({ ...prev, author: e.target.value }))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Tags</Label>
+            <div className="flex gap-2">
+              <Input
+                value={tagInput}
+                onChange={e => setTagInput(e.target.value)}
+                placeholder="Add a tag..."
+                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addTag())}
+              />
+              <Button type="button" variant="outline" onClick={addTag}>Add</Button>
+            </div>
+            <div className="flex gap-1 flex-wrap mt-2">
+              {form.tags.map(tag => (
+                <Badge key={tag} variant="secondary" className="gap-1">
+                  {tag}
+                  <button onClick={() => removeTag(tag)}><X className="h-3 w-3" /></button>
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="seo" className="space-y-6 mt-4">
+          <div className="space-y-2">
+            <Label>Meta Title</Label>
+            <Input
+              value={form.meta_title}
+              onChange={e => setForm(prev => ({ ...prev, meta_title: e.target.value }))}
+              placeholder="SEO title (max 60 chars)"
+              maxLength={60}
+            />
+            <p className="text-xs text-muted-foreground">{form.meta_title.length}/60</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Meta Description</Label>
+            <Textarea
+              value={form.meta_description}
+              onChange={e => setForm(prev => ({ ...prev, meta_description: e.target.value }))}
+              placeholder="SEO description (max 160 chars)"
+              maxLength={160}
+              rows={3}
+            />
+            <p className="text-xs text-muted-foreground">{form.meta_description.length}/160</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Meta Keywords</Label>
+            <div className="flex gap-2">
+              <Input
+                value={keywordInput}
+                onChange={e => setKeywordInput(e.target.value)}
+                placeholder="Add a keyword..."
+                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addKeyword())}
+              />
+              <Button type="button" variant="outline" onClick={addKeyword}>Add</Button>
+            </div>
+            <div className="flex gap-1 flex-wrap mt-2">
+              {form.meta_keywords.map(kw => (
+                <Badge key={kw} variant="outline" className="gap-1">
+                  {kw}
+                  <button onClick={() => removeKeyword(kw)}><X className="h-3 w-3" /></button>
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

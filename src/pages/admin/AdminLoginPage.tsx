@@ -19,9 +19,18 @@ export default function AdminLoginPage() {
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      const cache = getAdminCache();
+      if (!session?.user) return;
 
-      if (session?.user && cache?.verified) {
+      // Verify admin role from DB, not just cache
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (data) {
+        setAdminCache(session.user.id);
         navigate('/admin', { replace: true });
       }
     };
@@ -47,11 +56,29 @@ export default function AdminLoginPage() {
 
       if (error) throw error;
 
-      if (data.session) {
-        // Optimistically set admin cache before navigating to prevent race with AdminAuthContext
-        setAdminCache(data.session.user.id);
-        navigate('/admin', { replace: true });
+      if (!data.session) {
+        setError('Sign in failed');
+        setIsLoading(false);
+        return;
       }
+
+      // Verify admin role BEFORE navigating
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', data.session.user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (!roleData) {
+        await supabase.auth.signOut();
+        setError('You do not have admin access');
+        setIsLoading(false);
+        return;
+      }
+
+      setAdminCache(data.session.user.id);
+      navigate('/admin', { replace: true });
     } catch (err: any) {
       setError(err.message || 'Failed to sign in');
     } finally {
@@ -64,8 +91,6 @@ export default function AdminLoginPage() {
       {/* Left Side - Decorative */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-primary/5 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-amber-500/10" />
-
-        {/* Decorative Elements */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
@@ -75,7 +100,6 @@ export default function AdminLoginPage() {
               <img src="/logo.png" alt="Logo" className="h-full w-full object-contain" />
             </div>
           </div>
-
           <h2 className="text-4xl font-bold mb-6 text-foreground/90">
             Ancient Wisdom, <br />
             <span className="text-gradient">Modern Administration</span>
@@ -89,7 +113,6 @@ export default function AdminLoginPage() {
       {/* Right Side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md space-y-8">
-          {/* Mobile Logo */}
           <div className="lg:hidden flex justify-center mb-8">
             <div className="relative flex h-16 w-16 items-center justify-center">
               <img src="/logo.png" alt="Logo" className="h-full w-full object-contain" />
@@ -101,7 +124,6 @@ export default function AdminLoginPage() {
             <p className="text-muted-foreground">Sign in to access the control panel</p>
           </div>
 
-          {/* Error message */}
           {error && (
             <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-3 text-destructive animate-fade-in">
               <AlertCircle className="h-5 w-5 flex-shrink-0" />
@@ -147,11 +169,7 @@ export default function AdminLoginPage() {
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
                   disabled={isLoading}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </div>
@@ -167,9 +185,7 @@ export default function AdminLoginPage() {
                   Verifying Access...
                 </>
               ) : (
-                <>
-                  Sign In
-                </>
+                'Sign In'
               )}
             </Button>
           </form>
