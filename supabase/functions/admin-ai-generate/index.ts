@@ -19,7 +19,8 @@ type GenerationType =
   | "suggest_story_type"
   | "chapter_description"
   | "suggest_problems"
-  | "generate_seo";
+  | "generate_seo"
+  | "blog_post";
 
 interface GenerationRequest {
   type: GenerationType;
@@ -37,6 +38,9 @@ interface GenerationRequest {
   page_title?: string;
   page_content?: string;
   page_url?: string;
+  blog_topic?: string;
+  blog_tone?: string;
+  blog_length?: string;
 }
 
 // Build verse context string
@@ -126,6 +130,21 @@ Rules:
 - meta_keywords: 5-8 relevant keywords as comma-separated list
 Return ONLY valid JSON in this exact format:
 {"meta_title": "...", "meta_description": "...", "meta_keywords": ["keyword1", "keyword2", ...]}`,
+
+    blog_post: `You are a skilled spiritual blog writer for Bhagavad Gita Gyan (bhagavadgitagyan.com).
+Write engaging, insightful blog posts about Bhagavad Gita teachings, Hindu philosophy, and spiritual wisdom.
+Your writing style should be warm, accessible, and practical — connecting ancient wisdom to modern life.
+Use Markdown formatting: headings (##), bold, lists, and blockquotes for verses.
+Return ONLY valid JSON in this exact format:
+{
+  "title": "Compelling blog title",
+  "excerpt": "2-3 sentence summary for preview cards",
+  "content": "Full markdown blog post content (800-1500 words)",
+  "tags": ["tag1", "tag2", "tag3"],
+  "meta_title": "SEO title under 60 chars",
+  "meta_description": "SEO description under 155 chars",
+  "meta_keywords": ["keyword1", "keyword2", "keyword3"]
+}`,
   };
 
   return prompts[type];
@@ -183,6 +202,9 @@ function buildUserPrompt(request: GenerationRequest): string {
 
     case "generate_seo":
       return `Generate SEO metadata for this page:\nPage Title: ${request.page_title || "Untitled"}\nPage URL: ${request.page_url || ""}\nPage Content: ${request.page_content || verse_content || english_meaning || sanskrit_text || chapter_title || "No content provided"}\n\nReturn JSON with meta_title, meta_description, and meta_keywords.`;
+
+    case "blog_post":
+      return `Write a blog post about: "${request.blog_topic || "Bhagavad Gita wisdom"}"\nTone: ${request.blog_tone || "informative and inspiring"}\nTarget length: ${request.blog_length || "1000-1200 words"}\n\nReturn the complete blog post as JSON with title, excerpt, content (markdown), tags, meta_title, meta_description, and meta_keywords.`;
 
     default:
       return verse_content || english_meaning || sanskrit_text || "";
@@ -269,7 +291,7 @@ serve(async (req) => {
           }],
           generationConfig: {
             temperature,
-            maxOutputTokens: type === "modern_story" ? maxTokens : Math.min(maxTokens, 500),
+            maxOutputTokens: (type === "modern_story" || type === "blog_post") ? Math.max(maxTokens, 4000) : Math.min(maxTokens, 500),
           }
         }),
       });
@@ -299,7 +321,7 @@ serve(async (req) => {
             { role: "user", content: userPrompt },
           ],
           temperature,
-          max_tokens: type === "modern_story" ? maxTokens : Math.min(maxTokens, 500),
+          max_tokens: (type === "modern_story" || type === "blog_post") ? Math.max(maxTokens, 4000) : Math.min(maxTokens, 500),
         }),
       });
 
@@ -381,6 +403,22 @@ function handleContentResponse(type: GenerationType, content: string, corsHeader
       }
     } catch (parseError) {
       console.error("Failed to parse SEO JSON:", parseError);
+    }
+  }
+
+  // Special handling for blog_post - parse JSON
+  if (type === "blog_post") {
+    try {
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const blog = JSON.parse(jsonMatch[0]);
+        return new Response(
+          JSON.stringify({ content, ...blog }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } catch (parseError) {
+      console.error("Failed to parse blog JSON:", parseError);
     }
   }
 
