@@ -9,7 +9,9 @@ import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Loader2, X, Eye } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Save, Loader2, X, Sparkles, Wand2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface BlogFormData {
@@ -49,6 +51,12 @@ export default function AdminBlogForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [tagInput, setTagInput] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
+
+  // AI generation state
+  const [aiTopic, setAiTopic] = useState('');
+  const [aiTone, setAiTone] = useState('informative and inspiring');
+  const [aiLength, setAiLength] = useState('1000-1200 words');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     if (isEditing) {
@@ -121,6 +129,49 @@ export default function AdminBlogForm() {
 
   const removeKeyword = (kw: string) => {
     setForm(prev => ({ ...prev, meta_keywords: prev.meta_keywords.filter(k => k !== kw) }));
+  };
+
+  const handleAIGenerate = async () => {
+    if (!aiTopic.trim()) {
+      toast.error('Please enter a topic for the blog post');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-ai-generate', {
+        body: {
+          type: 'blog_post',
+          blog_topic: aiTopic,
+          blog_tone: aiTone,
+          blog_length: aiLength,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.title) {
+        setForm(prev => ({
+          ...prev,
+          title: data.title || prev.title,
+          slug: generateSlug(data.title || prev.title),
+          excerpt: data.excerpt || prev.excerpt,
+          content: data.content || prev.content,
+          tags: data.tags || prev.tags,
+          meta_title: data.meta_title || prev.meta_title,
+          meta_description: data.meta_description || prev.meta_description,
+          meta_keywords: data.meta_keywords || prev.meta_keywords,
+        }));
+        toast.success('Blog post generated! Review and edit before publishing.');
+      } else {
+        toast.error('AI returned unexpected format. Please try again.');
+      }
+    } catch (err: unknown) {
+      console.error('AI generate error:', err);
+      toast.error(err instanceof Error ? err.message : 'Failed to generate blog post');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleSave = async () => {
@@ -202,6 +253,79 @@ export default function AdminBlogForm() {
           </Button>
         </div>
       </div>
+
+      {/* AI Blog Generator */}
+      <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-amber-500/5">
+        <CardContent className="p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-lg">AI Blog Generator</h3>
+          </div>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-sm">Topic / Title Idea</Label>
+              <Input
+                value={aiTopic}
+                onChange={e => setAiTopic(e.target.value)}
+                placeholder="e.g., How Karma Yoga can transform your work life..."
+                className="mt-1"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-sm">Tone</Label>
+                <Select value={aiTone} onValueChange={setAiTone}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="informative and inspiring">Informative & Inspiring</SelectItem>
+                    <SelectItem value="conversational and relatable">Conversational & Relatable</SelectItem>
+                    <SelectItem value="scholarly and philosophical">Scholarly & Philosophical</SelectItem>
+                    <SelectItem value="practical and actionable">Practical & Actionable</SelectItem>
+                    <SelectItem value="storytelling and narrative">Storytelling & Narrative</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-sm">Length</Label>
+                <Select value={aiLength} onValueChange={setAiLength}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="500-700 words">Short (~600 words)</SelectItem>
+                    <SelectItem value="1000-1200 words">Medium (~1100 words)</SelectItem>
+                    <SelectItem value="1500-2000 words">Long (~1700 words)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <Button
+              onClick={handleAIGenerate}
+              disabled={isGenerating || !aiTopic.trim()}
+              className="w-full gap-2 bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating Blog Post...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="h-4 w-4" />
+                  Generate Blog Post
+                </>
+              )}
+            </Button>
+            {form.content && !isEditing && (
+              <p className="text-xs text-muted-foreground text-center">
+                ⚠️ Generating will overwrite current content
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="content">
         <TabsList>
