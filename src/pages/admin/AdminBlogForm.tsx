@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, X, Sparkles, Wand2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, X, Sparkles, Wand2, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface BlogFormData {
@@ -51,6 +51,7 @@ export default function AdminBlogForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [tagInput, setTagInput] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
+  const [regenerating, setRegenerating] = useState<string | null>(null);
 
   // AI generation state
   const [aiTopic, setAiTopic] = useState('');
@@ -129,6 +130,50 @@ export default function AdminBlogForm() {
 
   const removeKeyword = (kw: string) => {
     setForm(prev => ({ ...prev, meta_keywords: prev.meta_keywords.filter(k => k !== kw) }));
+  };
+
+  const handleRegenerateSection = async (section: 'title' | 'excerpt' | 'seo') => {
+    if (!form.content.trim() && !form.title.trim()) {
+      toast.error('Add some content or title first before regenerating');
+      return;
+    }
+
+    setRegenerating(section);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-ai-generate', {
+        body: {
+          type: 'blog_section',
+          blog_section: section,
+          blog_content: form.content,
+          blog_title: form.title,
+        },
+      });
+
+      if (error) throw error;
+
+      if (section === 'title' && data?.title) {
+        setForm(prev => ({ ...prev, title: data.title, slug: isEditing ? prev.slug : generateSlug(data.title) }));
+        toast.success('Title regenerated!');
+      } else if (section === 'excerpt' && data?.excerpt) {
+        setForm(prev => ({ ...prev, excerpt: data.excerpt }));
+        toast.success('Excerpt regenerated!');
+      } else if (section === 'seo') {
+        setForm(prev => ({
+          ...prev,
+          meta_title: data?.meta_title || prev.meta_title,
+          meta_description: data?.meta_description || prev.meta_description,
+          meta_keywords: data?.meta_keywords || prev.meta_keywords,
+        }));
+        toast.success('SEO fields regenerated!');
+      } else {
+        toast.error('AI returned unexpected format');
+      }
+    } catch (err: unknown) {
+      console.error('Regenerate section error:', err);
+      toast.error(err instanceof Error ? err.message : 'Failed to regenerate');
+    } finally {
+      setRegenerating(null);
+    }
   };
 
   const handleAIGenerate = async () => {
@@ -335,7 +380,20 @@ export default function AdminBlogForm() {
 
         <TabsContent value="content" className="space-y-6 mt-4">
           <div className="space-y-2">
-            <Label>Title</Label>
+            <div className="flex items-center justify-between">
+              <Label>Title</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-xs h-7"
+                disabled={regenerating === 'title' || (!form.content.trim() && !form.title.trim())}
+                onClick={() => handleRegenerateSection('title')}
+              >
+                {regenerating === 'title' ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                Regenerate
+              </Button>
+            </div>
             <Input
               value={form.title}
               onChange={e => handleTitleChange(e.target.value)}
@@ -354,7 +412,20 @@ export default function AdminBlogForm() {
           </div>
 
           <div className="space-y-2">
-            <Label>Excerpt</Label>
+            <div className="flex items-center justify-between">
+              <Label>Excerpt</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-xs h-7"
+                disabled={regenerating === 'excerpt' || (!form.content.trim() && !form.title.trim())}
+                onClick={() => handleRegenerateSection('excerpt')}
+              >
+                {regenerating === 'excerpt' ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                Regenerate
+              </Button>
+            </div>
             <Textarea
               value={form.excerpt}
               onChange={e => setForm(prev => ({ ...prev, excerpt: e.target.value }))}
@@ -417,6 +488,19 @@ export default function AdminBlogForm() {
         </TabsContent>
 
         <TabsContent value="seo" className="space-y-6 mt-4">
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              disabled={regenerating === 'seo' || (!form.content.trim() && !form.title.trim())}
+              onClick={() => handleRegenerateSection('seo')}
+            >
+              {regenerating === 'seo' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+              Regenerate All SEO
+            </Button>
+          </div>
           <div className="space-y-2">
             <Label>Meta Title</Label>
             <Input

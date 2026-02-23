@@ -20,7 +20,8 @@ type GenerationType =
   | "chapter_description"
   | "suggest_problems"
   | "generate_seo"
-  | "blog_post";
+  | "blog_post"
+  | "blog_section";
 
 interface GenerationRequest {
   type: GenerationType;
@@ -41,6 +42,9 @@ interface GenerationRequest {
   blog_topic?: string;
   blog_tone?: string;
   blog_length?: string;
+  blog_section?: "title" | "excerpt" | "seo";
+  blog_content?: string;
+  blog_title?: string;
 }
 
 // Build verse context string
@@ -145,6 +149,10 @@ Return ONLY valid JSON in this exact format:
   "meta_description": "SEO description under 155 chars",
   "meta_keywords": ["keyword1", "keyword2", "keyword3"]
 }`,
+
+    blog_section: `You are an expert content and SEO specialist for Bhagavad Gita Gyan (bhagavadgitagyan.com).
+You regenerate specific sections of blog posts while maintaining consistency with existing content.
+Return ONLY valid JSON.`,
   };
 
   return prompts[type];
@@ -205,6 +213,24 @@ function buildUserPrompt(request: GenerationRequest): string {
 
     case "blog_post":
       return `Write a blog post about: "${request.blog_topic || "Bhagavad Gita wisdom"}"\nTone: ${request.blog_tone || "informative and inspiring"}\nTarget length: ${request.blog_length || "1000-1200 words"}\n\nReturn the complete blog post as JSON with title, excerpt, content (markdown), tags, meta_title, meta_description, and meta_keywords.`;
+
+    case "blog_section": {
+      const section = request.blog_section || "title";
+      const title = request.blog_title || "Untitled";
+      const content = request.blog_content || "";
+      const excerpt = content.substring(0, 300);
+      
+      if (section === "title") {
+        return `Given this blog post content:\n\n${excerpt}...\n\nGenerate 1 compelling, click-worthy blog title (under 80 chars). Return JSON: {"title": "..."}`;
+      }
+      if (section === "excerpt") {
+        return `Blog title: "${title}"\nContent preview:\n${excerpt}...\n\nWrite a compelling 2-3 sentence excerpt/summary for preview cards. Return JSON: {"excerpt": "..."}`;
+      }
+      if (section === "seo") {
+        return `Blog title: "${title}"\nContent preview:\n${excerpt}...\n\nGenerate SEO metadata. Return JSON: {"meta_title": "under 60 chars", "meta_description": "under 155 chars", "meta_keywords": ["kw1","kw2","kw3"]}`;
+      }
+      return `Regenerate the ${section} section.`;
+    }
 
     default:
       return verse_content || english_meaning || sanskrit_text || "";
@@ -291,7 +317,7 @@ serve(async (req) => {
           }],
           generationConfig: {
             temperature,
-            maxOutputTokens: (type === "modern_story" || type === "blog_post") ? Math.max(maxTokens, 4000) : Math.min(maxTokens, 500),
+            maxOutputTokens: (type === "modern_story" || type === "blog_post") ? Math.max(maxTokens, 4000) : (type === "blog_section") ? 500 : Math.min(maxTokens, 500),
           }
         }),
       });
@@ -321,7 +347,7 @@ serve(async (req) => {
             { role: "user", content: userPrompt },
           ],
           temperature,
-          max_tokens: (type === "modern_story" || type === "blog_post") ? Math.max(maxTokens, 4000) : Math.min(maxTokens, 500),
+          max_tokens: (type === "modern_story" || type === "blog_post") ? Math.max(maxTokens, 4000) : (type === "blog_section") ? 500 : Math.min(maxTokens, 500),
         }),
       });
 
@@ -419,6 +445,22 @@ function handleContentResponse(type: GenerationType, content: string, corsHeader
       }
     } catch (parseError) {
       console.error("Failed to parse blog JSON:", parseError);
+    }
+  }
+
+  // Special handling for blog_section - parse JSON
+  if (type === "blog_section") {
+    try {
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const section = JSON.parse(jsonMatch[0]);
+        return new Response(
+          JSON.stringify(section),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } catch (parseError) {
+      console.error("Failed to parse blog section JSON:", parseError);
     }
   }
 
