@@ -17,7 +17,10 @@ import {
   ChevronDown,
   ChevronUp,
   Globe,
-  History
+  History,
+  Flame,
+  Shield,
+  Zap
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
@@ -51,9 +54,9 @@ const MAX_CHARS = 500;
 const COLLAPSE_THRESHOLD = 800;
 
 const typingMessages = [
-  "Krishna is thinking...",
-  "Finding a verse for you...",
-  "Preparing wisdom...",
+  "Krishna is contemplating...",
+  "Finding the perfect verse...",
+  "Drawing from ancient wisdom...",
   "Consulting the Gita...",
 ];
 
@@ -67,20 +70,19 @@ function getScriptFontClass(langCode: string): string {
   return scriptFonts[langCode] || '';
 }
 
-// Custom markdown components for richer formatting
 const markdownComponents = {
   p: ({ children }: { children?: React.ReactNode }) =>
-    <p className="text-[15px] leading-[1.75] text-foreground/90 mb-2.5 last:mb-0">{children}</p>,
+    <p className="text-[15px] leading-[1.8] text-foreground/90 mb-3 last:mb-0">{children}</p>,
   a: ({ href, children }: { href?: string; children?: React.ReactNode }) =>
     href?.startsWith('/')
       ? <Link to={href} className="text-primary font-semibold underline decoration-primary/40 hover:decoration-primary underline-offset-2 transition-all hover:text-primary/80">{children}</Link>
       : <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline decoration-primary/40 hover:decoration-primary underline-offset-2 transition-all">{children}</a>,
   strong: ({ children }: { children?: React.ReactNode }) =>
-    <strong className="font-bold text-foreground bg-primary/[0.06] px-0.5 rounded">{children}</strong>,
+    <strong className="font-bold text-foreground">{children}</strong>,
   em: ({ children }: { children?: React.ReactNode }) =>
-    <em className="italic text-foreground/80 not-italic border-l-2 border-primary/30 pl-2">{children}</em>,
+    <em className="italic text-foreground/80 not-italic border-l-2 border-primary/30 pl-2 inline-block">{children}</em>,
   blockquote: ({ children }: { children?: React.ReactNode }) =>
-    <blockquote className="border-l-[3px] border-primary/50 pl-4 my-3 text-foreground/80 bg-primary/[0.04] py-2.5 pr-4 rounded-r-xl italic">{children}</blockquote>,
+    <blockquote className="relative border-l-[3px] border-primary/40 pl-4 my-4 text-foreground/85 bg-primary/[0.04] py-3 pr-4 rounded-r-xl italic">{children}</blockquote>,
   code: ({ children, className }: { children?: React.ReactNode; className?: string }) => {
     const isInline = !className;
     return isInline
@@ -88,23 +90,23 @@ const markdownComponents = {
       : <code className={cn("block bg-muted/80 p-4 rounded-xl text-sm font-mono overflow-x-auto border border-border/50", className)}>{children}</code>;
   },
   h1: ({ children }: { children?: React.ReactNode }) =>
-    <h1 className="text-xl font-extrabold mt-5 mb-3 text-foreground bg-gradient-to-r from-primary to-amber-600 bg-clip-text text-transparent">{children}</h1>,
+    <h1 className="text-xl font-extrabold mt-6 mb-3 text-foreground">{children}</h1>,
   h2: ({ children }: { children?: React.ReactNode }) =>
-    <h2 className="text-lg font-bold mt-5 mb-2.5 text-foreground flex items-center gap-2">
-      <span className="w-1.5 h-5 bg-gradient-to-b from-primary to-amber-500 rounded-full inline-block" />
+    <h2 className="text-lg font-bold mt-6 mb-3 text-foreground flex items-center gap-2">
+      <span className="w-1.5 h-5 bg-gradient-to-b from-primary to-amber-500 rounded-full inline-block flex-shrink-0" />
       {children}
     </h2>,
   h3: ({ children }: { children?: React.ReactNode }) =>
-    <h3 className="text-base font-bold mt-4 mb-2 text-foreground flex items-center gap-2">
-      <span className="w-1 h-4 bg-primary rounded-full inline-block" />
+    <h3 className="text-base font-bold mt-5 mb-2 text-foreground flex items-center gap-2">
+      <span className="w-1 h-4 bg-primary rounded-full inline-block flex-shrink-0" />
       {children}
     </h3>,
   h4: ({ children }: { children?: React.ReactNode }) =>
-    <h4 className="text-sm font-bold mt-3 mb-1.5 text-foreground uppercase tracking-wide text-primary/80">{children}</h4>,
+    <h4 className="text-sm font-bold mt-4 mb-1.5 text-foreground uppercase tracking-wide text-primary/80">{children}</h4>,
   ul: ({ children }: { children?: React.ReactNode }) =>
-    <ul className="space-y-2 my-3 ml-1">{children}</ul>,
+    <ul className="space-y-2.5 my-4 ml-1">{children}</ul>,
   ol: ({ children }: { children?: React.ReactNode }) =>
-    <ol className="space-y-2.5 my-3 ml-1 counter-reset-list">{children}</ol>,
+    <ol className="space-y-3 my-4 ml-1 counter-reset-list">{children}</ol>,
   li: ({ children, ...props }: { children?: React.ReactNode; ordered?: boolean }) => {
     const isOrdered = (props as any).ordered;
     return isOrdered ? (
@@ -119,7 +121,7 @@ const markdownComponents = {
       </li>
     );
   },
-  hr: () => <hr className="my-5 border-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />,
+  hr: () => <hr className="my-6 border-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />,
 };
 
 export default function ChatPage() {
@@ -181,7 +183,7 @@ export default function ChatPage() {
     const interval = setInterval(() => {
       index = (index + 1) % typingMessages.length;
       setTypingMessage(typingMessages[index]);
-    }, 2000);
+    }, 2500);
     return () => clearInterval(interval);
   }, [isLoading]);
 
@@ -382,26 +384,33 @@ export default function ChatPage() {
         keywords={['talk to Krishna', 'Gita guidance', 'wisdom chat', 'personal guide', 'life advice']}
       />
 
-      {/* Hero Header */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-3 md:py-4 border-b border-border/50">
-        <div className="container mx-auto px-3 sm:px-6 lg:px-8 relative">
-          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/30">
-                <span className="text-lg sm:text-2xl">🙏</span>
-                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 border-background" />
+      {/* Compact Header Bar */}
+      <section className="relative overflow-hidden border-b border-border/40 bg-gradient-to-r from-primary/[0.04] via-background to-amber-500/[0.04]">
+        <div className="container mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto flex items-center justify-between gap-3 h-14 md:h-16">
+            {/* Left: Identity */}
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/25">
+                  <Flame className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
               </div>
-              <div>
-                <h1 className="text-lg md:text-2xl font-bold">
+              <div className="hidden sm:block">
+                <h1 className="text-base font-bold leading-tight">
                   Talk to <span className="text-gradient">Krishna</span>
                 </h1>
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  {user ? `Hare Krishna! Ask anything about life.` : 'Ask Krishna for guidance from the Gita'}
+                <p className="text-xs text-muted-foreground leading-tight">
+                  Personal wisdom guide • 700+ verses
                 </p>
               </div>
+              <h1 className="sm:hidden text-base font-bold">
+                <span className="text-gradient">Krishna</span>
+              </h1>
             </div>
             
-            <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-end">
+            {/* Right: Actions */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <EnhancedLanguageSelector
                 selectedLanguage={preferredLanguage}
                 onLanguageChange={setPreferredLanguage}
@@ -410,25 +419,23 @@ export default function ChatPage() {
               />
               {user && (
                 <>
-                  {/* Desktop history button */}
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
                     size="sm" 
                     onClick={() => setShowHistory(!showHistory)}
                     className={cn(
-                      "gap-2 transition-all hidden md:flex",
-                      showHistory && "bg-primary/10 border-primary/30 text-primary"
+                      "gap-1.5 h-9 hidden md:flex text-muted-foreground",
+                      showHistory && "bg-primary/10 text-primary"
                     )}
                   >
                     <History className="h-4 w-4" />
-                    <span className="hidden lg:inline">History</span>
+                    <span className="hidden lg:inline text-xs">History</span>
                   </Button>
-                  {/* Mobile history button */}
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
                     size="icon" 
                     onClick={() => setMobileHistoryOpen(true)}
-                    className="md:hidden h-8 w-8"
+                    className="md:hidden h-9 w-9 text-muted-foreground"
                   >
                     <History className="h-4 w-4" />
                   </Button>
@@ -436,13 +443,13 @@ export default function ChatPage() {
               )}
               {messages.length > 0 && (
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm" 
                   onClick={handleClearChat}
-                  className="gap-1.5 sm:gap-2 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all h-8 sm:h-9"
+                  className="gap-1.5 text-muted-foreground hover:text-foreground h-9"
                 >
-                  <RotateCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">New Chat</span>
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline text-xs">New</span>
                 </Button>
               )}
             </div>
@@ -471,7 +478,7 @@ export default function ChatPage() {
         </SheetContent>
       </Sheet>
 
-      <div className="container mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-4 h-[calc(100vh-9rem)] sm:h-[calc(100vh-12rem)]">
+      <div className="container mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-3 h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)]">
         <div className="max-w-5xl mx-auto h-full flex gap-4">
           {/* Chat History Sidebar */}
           <ChatHistorySidebar
@@ -484,15 +491,15 @@ export default function ChatPage() {
           />
 
           {/* Chat Area */}
-          <Card className="flex-1 flex flex-col overflow-hidden border-border/50 shadow-xl shadow-primary/5 relative">
+          <div className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm shadow-xl shadow-primary/[0.03] relative">
             <ScrollArea 
-              className="flex-1 p-4 md:p-6 relative chat-bg-pattern" 
+              className="flex-1 p-3 md:p-6 relative" 
               ref={scrollRef}
             >
               {messages.length === 0 ? (
                 <MultiLanguageStarters onSelect={handleQuickAction} selectedLanguage={preferredLanguage} />
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-5 md:space-y-6 max-w-3xl mx-auto">
                   {messages.map((message, index) => {
                     const isLongMessage = message.role === 'assistant' && message.content.length > COLLAPSE_THRESHOLD;
                     const isCollapsed = collapsedMessages.has(index);
@@ -501,22 +508,34 @@ export default function ChatPage() {
                       <div
                         key={index}
                         className={cn(
-                          "flex gap-2 md:gap-3 group animate-fade-in",
+                          "flex gap-2.5 md:gap-3 group animate-fade-in",
                           message.role === 'user' ? 'justify-end' : ''
                         )}
                       >
+                        {/* Krishna avatar */}
                         {message.role === 'assistant' && (
-                          <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30 shadow-sm">
-                            <span className="text-base md:text-lg">🙏</span>
+                          <div className="flex-shrink-0 mt-1">
+                            <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-amber-500/15 flex items-center justify-center border border-primary/20">
+                              <Flame className="h-4 w-4 text-primary" />
+                            </div>
                           </div>
                         )}
-                        <div className="flex flex-col max-w-[92%] sm:max-w-[85%]">
+                        
+                        <div className="flex flex-col max-w-[88%] sm:max-w-[80%]">
+                          {/* Message label */}
+                          <span className={cn(
+                            "text-[10px] font-semibold uppercase tracking-wider mb-1 px-1",
+                            message.role === 'user' ? 'text-right text-muted-foreground/60' : 'text-primary/60'
+                          )}>
+                            {message.role === 'user' ? 'You' : 'Krishna'}
+                          </span>
+                          
                           <div
                             className={cn(
-                              "rounded-2xl backdrop-blur-sm",
+                              "rounded-2xl",
                               message.role === 'user'
-                                ? 'bg-gradient-to-r from-primary to-amber-500 text-white shadow-lg shadow-primary/20 bubble-tail-right px-4 py-3 text-[15px] leading-relaxed font-medium'
-                                : 'bg-gradient-to-br from-card via-card to-muted/20 border border-border/50 shadow-sm bubble-tail-left px-5 py-4'
+                                ? 'bg-gradient-to-br from-primary to-amber-500 text-primary-foreground shadow-lg shadow-primary/15 px-4 py-3 text-[15px] leading-relaxed'
+                                : 'bg-gradient-to-br from-background via-card to-muted/30 border border-border/50 shadow-sm px-4 md:px-5 py-4'
                             )}
                           >
                             {message.role === 'assistant' ? (
@@ -538,12 +557,12 @@ export default function ChatPage() {
                                       variant="ghost"
                                       size="sm"
                                       onClick={() => toggleMessageCollapse(index)}
-                                      className="mt-2 gap-1 text-xs text-primary hover:text-primary/80"
+                                      className="mt-2 gap-1.5 text-xs text-primary hover:text-primary/80 hover:bg-primary/5"
                                     >
                                       {isCollapsed ? (
                                         <>
                                           <ChevronDown className="h-3 w-3" />
-                                          Read more
+                                          Continue reading
                                         </>
                                       ) : (
                                         <>
@@ -566,10 +585,12 @@ export default function ChatPage() {
                               <p className="text-[15px] leading-relaxed">{message.content}</p>
                             )}
                           </div>
+                          
+                          {/* Meta row */}
                           <div className="flex items-center justify-between mt-1.5 px-1 gap-2">
                             <div className="flex items-center gap-2">
                               {message.timestamp && (
-                                <span className="text-xs text-muted-foreground/80">
+                                <span className="text-[10px] text-muted-foreground/60">
                                   {formatDistanceToNow(message.timestamp, { addSuffix: true })}
                                 </span>
                               )}
@@ -589,26 +610,37 @@ export default function ChatPage() {
                             )}
                           </div>
                         </div>
+                        
+                        {/* User avatar */}
                         {message.role === 'user' && (
-                          <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/20">
-                            <User className="h-4 w-4 md:h-5 md:w-5 text-white" />
+                          <div className="flex-shrink-0 mt-1">
+                            <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-md shadow-primary/15">
+                              <User className="h-4 w-4 text-primary-foreground" />
+                            </div>
                           </div>
                         )}
                       </div>
                     );
                   })}
+                  
+                  {/* Typing indicator */}
                   {isLoading && messages[messages.length - 1]?.role === 'user' && (
-                    <div className="flex gap-3 animate-fade-in">
-                      <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-primary/20 to-amber-500/20 flex items-center justify-center border border-primary/30">
-                        <span className="text-base md:text-lg animate-pulse">🙏</span>
-                      </div>
-                      <div className="bg-gradient-to-br from-card to-muted/30 border border-border/50 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm backdrop-blur-sm">
-                        <div className="flex gap-1">
-                          <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                          <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                          <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-amber-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className="flex gap-2.5 md:gap-3 animate-fade-in">
+                      <div className="flex-shrink-0 mt-1">
+                        <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-amber-500/15 flex items-center justify-center border border-primary/20">
+                          <Flame className="h-4 w-4 text-primary animate-pulse" />
                         </div>
-                        <span className="text-sm text-muted-foreground">{typingMessage}</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-semibold uppercase tracking-wider mb-1 px-1 text-primary/60">Krishna</span>
+                        <div className="bg-gradient-to-br from-background via-card to-muted/30 border border-border/50 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm">
+                          <div className="flex gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+                            <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+                          </div>
+                          <span className="text-xs text-muted-foreground/70 italic">{typingMessage}</span>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -616,62 +648,56 @@ export default function ChatPage() {
               )}
             </ScrollArea>
 
-            {/* Scroll to bottom button */}
+            {/* Scroll to bottom */}
             {showScrollButton && (
-              <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-10">
+              <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-10">
                 <Button
                   variant="secondary"
                   size="sm"
                   onClick={scrollToBottom}
-                  className="rounded-full shadow-lg gap-2 bg-background/95 backdrop-blur-sm border border-primary/30 hover:border-primary/50 transition-all"
+                  className="rounded-full shadow-lg gap-1.5 bg-background/95 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all text-xs"
                 >
-                  <ArrowDown className="h-4 w-4" />
-                  New messages
+                  <ArrowDown className="h-3.5 w-3.5" />
+                  Scroll down
                 </Button>
               </div>
             )}
 
-            {/* Modern Composer Input */}
-            <div className="p-2.5 sm:p-4 relative">
-              {/* Quick actions only show when no messages */}
+            {/* Composer */}
+            <div className="border-t border-border/30 bg-gradient-to-t from-card via-card to-transparent p-3 sm:p-4">
+              {/* Quick actions mid-conversation */}
               {messages.length > 0 && (
-                <div className="mb-3">
+                <div className="mb-2.5">
                   <QuickActionsBar onQuickAction={handleQuickAction} disabled={isLoading} />
                 </div>
               )}
               
               <form onSubmit={handleSubmit} className="relative">
-                {/* Glow ring on focus */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-amber-500/20 to-orange-500/20 rounded-2xl blur-md opacity-0 focus-within:opacity-100 transition-opacity pointer-events-none" />
-                
-                <div className="relative flex items-end gap-1.5 sm:gap-2 bg-card/80 backdrop-blur-md border-2 border-border/50 focus-within:border-primary/40 rounded-2xl px-2 sm:px-3 py-1.5 sm:py-2 shadow-lg transition-all">
-                  {/* Voice button */}
+                <div className="relative flex items-end gap-1.5 sm:gap-2 bg-background/80 backdrop-blur-md border border-border/60 focus-within:border-primary/40 focus-within:shadow-[0_0_0_3px_hsl(var(--primary)/0.08)] rounded-2xl px-2 sm:px-3 py-1.5 sm:py-2 transition-all duration-200">
                   <VoiceInputButton 
                     onTranscript={handleVoiceTranscript} 
                     disabled={isLoading}
-                    className="h-9 w-9 md:h-10 md:w-10 flex-shrink-0 rounded-xl"
+                    className="h-9 w-9 md:h-10 md:w-10 flex-shrink-0 rounded-xl text-muted-foreground hover:text-foreground"
                   />
                   
-                  {/* Expandable text input */}
                   <Textarea
                     ref={textareaRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Ask Krishna anything about life..."
+                    placeholder="Share what's on your mind..."
                     className={cn(
-                      "min-h-[44px] max-h-[120px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent px-2 py-2.5 text-base",
+                      "min-h-[44px] max-h-[120px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent px-1 py-2.5 text-[15px] placeholder:text-muted-foreground/50",
                       isOverLimit && "text-destructive"
                     )}
                     disabled={isLoading}
                   />
                   
-                  {/* Character count + Send button */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-1.5 flex-shrink-0 pb-0.5">
                     {charCount > 400 && (
                       <span className={cn(
-                        "text-xs hidden md:inline",
-                        isOverLimit ? "text-destructive font-medium" : "text-muted-foreground/60"
+                        "text-[10px] hidden md:inline tabular-nums",
+                        isOverLimit ? "text-destructive font-medium" : "text-muted-foreground/40"
                       )}>
                         {charCount}/{MAX_CHARS}
                       </span>
@@ -680,8 +706,8 @@ export default function ChatPage() {
                       type="submit"
                       size="icon"
                       className={cn(
-                        "h-9 w-9 md:h-10 md:w-10 rounded-xl bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-md transition-all",
-                        input.trim() && !isOverLimit ? "opacity-100 scale-100" : "opacity-50 scale-95"
+                        "h-9 w-9 md:h-10 md:w-10 rounded-xl bg-gradient-to-br from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-md shadow-primary/20 transition-all duration-200",
+                        input.trim() && !isOverLimit ? "opacity-100 scale-100" : "opacity-40 scale-95"
                       )}
                       disabled={!input.trim() || isLoading || isOverLimit}
                     >
@@ -694,16 +720,22 @@ export default function ChatPage() {
                   </div>
                 </div>
                 
-                {/* Helper text - hidden on mobile */}
+                {/* Footer meta */}
                 <div className="hidden sm:flex items-center justify-between mt-1.5 px-3">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground/50">
-                    <Keyboard className="h-3 w-3" />
-                    <span>Enter to send · Shift+Enter for new line</span>
+                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground/40">
+                    <span className="flex items-center gap-1">
+                      <Keyboard className="h-3 w-3" />
+                      Enter to send · Shift+Enter for new line
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground/40">
+                    <Shield className="h-3 w-3" />
+                    <span>Private & secure</span>
                   </div>
                 </div>
               </form>
             </div>
-          </Card>
+          </div>
         </div>
       </div>
     </Layout>
