@@ -282,13 +282,15 @@ export default function ContactPage() {
                     <h3 className="font-bold text-sm mb-3">Follow Us</h3>
                     <div className="flex items-center gap-2">
                       {[
-                        { icon: Twitter, label: 'Twitter' },
-                        { icon: Github, label: 'GitHub' },
-                        { icon: Mail, label: 'Email' },
+                        { icon: Twitter, label: 'Twitter', href: 'https://twitter.com/bhagavadgitagyan' },
+                        { icon: Github, label: 'GitHub', href: 'https://github.com/bhagavadgitagyan' },
+                        { icon: Mail, label: 'Email', href: 'mailto:contact@bhagavadgitagyan.com' },
                       ].map((social) => (
                         <a
                           key={social.label}
-                          href="#"
+                          href={social.href}
+                          target={social.label !== 'Email' ? '_blank' : undefined}
+                          rel={social.label !== 'Email' ? 'noopener noreferrer' : undefined}
                           className="w-10 h-10 rounded-xl border-2 border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 hover:scale-110 transition-all duration-200"
                           aria-label={social.label}
                         >

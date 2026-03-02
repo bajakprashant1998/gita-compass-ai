@@ -22,12 +22,13 @@ interface StatItemProps {
   icon: React.ReactNode;
   value: number | string;
   label: string;
-  color?: string;
 }
 
 function StatItem({ icon, value, label }: StatItemProps) {
   return (
-    <div className="metric-card flex flex-col items-center gap-2 p-3 sm:p-4 hover-lift cursor-default animate-fade-in">
+    <div className="group relative flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5 transition-all duration-300 cursor-default animate-fade-in overflow-hidden">
+      {/* Top gradient bar */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-amber-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
         {icon}
       </div>
