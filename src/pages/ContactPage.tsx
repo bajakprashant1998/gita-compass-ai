@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const contactFormSchema = z.object({
   name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100, 'Name must be less than 100 characters'),
@@ -75,10 +76,19 @@ export default function ContactPage() {
 
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    toast.success('Message sent successfully! We\'ll get back to you soon. 🙏');
-    form.reset();
-    setIsSubmitting(false);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('contact-form', {
+        body: data,
+      });
+      if (error) throw error;
+      toast.success('Message sent successfully! We\'ll get back to you soon. 🙏');
+      form.reset();
+    } catch (err) {
+      console.error('Contact form error:', err);
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
