@@ -10,10 +10,12 @@ import {
   Home,
   Grid3X3,
   Heart,
-  CalendarDays
+  CalendarDays,
+  Download,
 } from 'lucide-react';
 import { BhagwaFlag } from '@/components/ui/bhagwa-flag';
 import { useAuth } from '@/hooks/useAuth';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { cn } from '@/lib/utils';
 import { getSettingByKey } from '@/lib/adminSettings';
 
@@ -22,6 +24,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [showDonate, setShowDonate] = useState(true);
   const { user, loading } = useAuth();
+  const { isInstallable, isInstalled, promptInstall } = useInstallPrompt();
   const location = useLocation();
 
   // Handle scroll effect
@@ -225,6 +228,23 @@ export function Header() {
 
               {/* Bottom Actions (part of layout, not overlaying links) */}
               <div className="mt-auto p-4 space-y-2 border-t border-border bg-background pb-safe">
+                {isInstallable && !isInstalled && (
+                  <Button
+                    onClick={() => { promptInstall(); setMobileMenuOpen(false); }}
+                    className="w-full h-11 gap-2 text-sm font-semibold rounded-xl bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90"
+                  >
+                    <Download className="h-4 w-4" />
+                    Install App
+                  </Button>
+                )}
+                {!isInstallable && !isInstalled && (
+                  <Link to="/install" onClick={() => setMobileMenuOpen(false)} className="block">
+                    <Button variant="outline" className="w-full h-11 gap-2 text-sm font-semibold rounded-xl border-primary/30 text-primary">
+                      <Download className="h-4 w-4" />
+                      Install App
+                    </Button>
+                  </Link>
+                )}
                 {showDonate && (
                   <Link to="/donate" onClick={() => setMobileMenuOpen(false)} className="block">
                     <Button className="w-full h-11 gap-2 text-sm font-semibold rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600">

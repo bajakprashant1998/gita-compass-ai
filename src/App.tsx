@@ -32,6 +32,7 @@ const MoodFinderPage = lazy(() => import("./pages/MoodFinderPage"));
 const BlogPage = lazy(() => import("./pages/BlogPage"));
 const BlogPostPage = lazy(() => import("./pages/BlogPostPage"));
 const StudyGroupsPage = lazy(() => import("./pages/StudyGroupsPage"));
+const InstallPage = lazy(() => import("./pages/InstallPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminRoutes = lazy(() => import("@/components/admin/AdminRoutes").then(m => ({ default: m.AdminRoutes })));
 
@@ -84,6 +85,7 @@ const App = () => (
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/blog/:slug" element={<BlogPostPage />} />
                 <Route path="/study-groups" element={<StudyGroupsPage />} />
+                <Route path="/install" element={<InstallPage />} />
 
                 {/* Admin Routes - handles its own layout and protection */}
                 <Route path="/admin/*" element={<AdminRoutes />} />
