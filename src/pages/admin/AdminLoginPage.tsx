@@ -47,34 +47,13 @@ export default function AdminLoginPage() {
     }
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-
-      if (!data.session) {
-        setError('Sign in failed');
-        setIsLoading(false);
-        return;
-      }
-
-      const { data: roleData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', data.session.user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-
-      if (!roleData) {
-        await supabase.auth.signOut();
-        setError('You do not have admin access');
-        setIsLoading(false);
-        return;
-      }
-
-      setAdminCache(data.session.user.id);
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError) throw authError;
+      // Let AdminAuthContext handle role verification after navigation
       navigate('/admin', { replace: true });
     } catch (err: any) {
+      console.error('Admin login error:', err);
       setError(err.message || 'Failed to sign in');
-    } finally {
       setIsLoading(false);
     }
   };
