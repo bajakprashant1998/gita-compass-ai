@@ -55,11 +55,25 @@
   "categories": ["education", "lifestyle"],
   "screenshots": [
     {
-      "src": "/logo.png",
-      "sizes": "512x512",
+      "src": "/screenshots/screenshot-home.png",
+      "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Bhagavad Gita Gyan - Home"
+    },
+    {
+      "src": "/screenshots/screenshot-chat.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Talk to Krishna - AI Chat"
+    },
+    {
+      "src": "/screenshots/screenshot-chapters.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Browse Chapters"
     }
   ]
 }
