@@ -14,6 +14,7 @@ import {
   LogOut,
   Search,
   PenSquare,
+  BarChart3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BhagwaFlag } from '@/components/ui/bhagwa-flag';
@@ -94,6 +95,12 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
             to="/admin"
             icon={<LayoutDashboard className="w-5 h-5" />}
             label="Dashboard"
+            collapsed={collapsed}
+          />
+          <NavItem
+            to="/admin/analytics"
+            icon={<BarChart3 className="w-5 h-5" />}
+            label="Analytics"
             collapsed={collapsed}
           />
 
