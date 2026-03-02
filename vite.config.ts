@@ -17,17 +17,15 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' && componentTagger(),
     VitePWA({
-      // 'prompt' means: install SW silently but do NOT auto-reload tabs
-      // when a new version is found. The old SW keeps serving until the
-      // user navigates or closes the tab — preventing the "auto refresh" bug.
       registerType: 'prompt',
       includeAssets: ['logo.png', 'offline.html'],
-      manifest: false, // Using public/manifest.json
+      manifest: false,
       workbox: {
         globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
-        // Serve offline.html when navigation fails (no network)
         navigateFallback: '/offline.html',
         navigateFallbackDenylist: [/^\/~oauth/, /^\/admin/],
+        // Import push notification handlers into the service worker
+        importScripts: ['/sw-push.js'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/glxupcdgtzqkaxcgezeu\.supabase\.co\/rest\/v1\/(chapters|shloks|problems)/,
