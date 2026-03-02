@@ -26,23 +26,37 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     const mountedRef = useRef(true);
     const tabHiddenAt = useRef<number | null>(null);
 
-    const checkAdminRole = useCallback(async (userId: string): Promise<boolean> => {
+    const checkAdminRole = useCallback(async (userId: string, accessToken?: string): Promise<boolean> => {
         try {
             const cache = getAdminCache();
             if (cache && cache.userId === userId && cache.verified) {
                 return true;
             }
 
-            const { data, error } = await supabase
-                .from("user_roles")
-                .select("role")
-                .eq("user_id", userId)
-                .eq("role", "admin")
-                .maybeSingle();
+            // Use direct fetch to avoid supabase client session race conditions
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+            const apiKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+            
+            // Get token from param or current session
+            let token = accessToken;
+            if (!token) {
+                const { data: { session } } = await supabase.auth.getSession();
+                token = session?.access_token;
+            }
+            if (!token) return false;
 
-            if (error) throw error;
+            const resp = await fetch(
+                `${supabaseUrl}/rest/v1/user_roles?select=role&user_id=eq.${userId}&role=eq.admin`,
+                {
+                    headers: {
+                        'apikey': apiKey,
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+            const data = await resp.json();
 
-            const verified = !!data;
+            const verified = Array.isArray(data) && data.length > 0;
             if (verified) {
                 setAdminCache(userId);
             } else {
@@ -72,7 +86,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
             if (!mountedRef.current) return;
 
             if (session?.user) {
-                const verified = await checkAdminRole(session.user.id);
+                const verified = await checkAdminRole(session.user.id, session.access_token);
                 if (mountedRef.current) {
                     setUser(session.user);
                     setIsAdmin(verified);
@@ -124,7 +138,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             if (session?.user) {
-                const verified = await checkAdminRole(session.user.id);
+                const verified = await checkAdminRole(session.user.id, session.access_token);
                 if (mountedRef.current) {
                     setUser(session.user);
                     setIsAdmin(verified);
