@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import { FloatingChatButton } from "./components/chat/FloatingChatButton";
+import { MobileInstallGate } from "./components/MobileInstallGate";
 
 // Eager load the index page for best LCP
 import Index from "./pages/Index";
@@ -61,40 +62,42 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<Index />} />
-                <Route path="/chapters" element={<ChaptersPage />} />
-                <Route path="/chapters/:chapterNumber" element={<ChapterDetailPage />} />
-                <Route path="/chapters/:chapterNumber/verse/:verseNumber" element={<ShlokDetailPage />} />
-                <Route path="/chapter/:chapterNumber/verse/:verseNumber" element={<ShlokByVerseRedirect />} />
-                <Route path="/shlok/:shlokId" element={<ShlokByVerseRedirect />} />
-                <Route path="/problems" element={<ProblemsPage />} />
-                <Route path="/problems/:slug" element={<ProblemDetailPage />} />
-                <Route path="/chat" element={<ChatPage />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/donate" element={<DonatePage />} />
-                <Route path="/reading-plans" element={<ReadingPlansPage />} />
-                <Route path="/reading-plans/:planId" element={<ReadingPlanDetailPage />} />
-                <Route path="/badges" element={<BadgesPage />} />
-                <Route path="/compare" element={<CompareVersesPage />} />
-                <Route path="/mood" element={<MoodFinderPage />} />
-                <Route path="/blog" element={<BlogPage />} />
-                <Route path="/blog/:slug" element={<BlogPostPage />} />
-                <Route path="/study-groups" element={<StudyGroupsPage />} />
-                <Route path="/install" element={<InstallPage />} />
+            <MobileInstallGate>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/chapters" element={<ChaptersPage />} />
+                  <Route path="/chapters/:chapterNumber" element={<ChapterDetailPage />} />
+                  <Route path="/chapters/:chapterNumber/verse/:verseNumber" element={<ShlokDetailPage />} />
+                  <Route path="/chapter/:chapterNumber/verse/:verseNumber" element={<ShlokByVerseRedirect />} />
+                  <Route path="/shlok/:shlokId" element={<ShlokByVerseRedirect />} />
+                  <Route path="/problems" element={<ProblemsPage />} />
+                  <Route path="/problems/:slug" element={<ProblemDetailPage />} />
+                  <Route path="/chat" element={<ChatPage />} />
+                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/donate" element={<DonatePage />} />
+                  <Route path="/reading-plans" element={<ReadingPlansPage />} />
+                  <Route path="/reading-plans/:planId" element={<ReadingPlanDetailPage />} />
+                  <Route path="/badges" element={<BadgesPage />} />
+                  <Route path="/compare" element={<CompareVersesPage />} />
+                  <Route path="/mood" element={<MoodFinderPage />} />
+                  <Route path="/blog" element={<BlogPage />} />
+                  <Route path="/blog/:slug" element={<BlogPostPage />} />
+                  <Route path="/study-groups" element={<StudyGroupsPage />} />
+                  <Route path="/install" element={<InstallPage />} />
 
-                {/* Admin Routes - handles its own layout and protection */}
-                <Route path="/admin/*" element={<AdminRoutes />} />
+                  {/* Admin Routes - handles its own layout and protection */}
+                  <Route path="/admin/*" element={<AdminRoutes />} />
 
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-            {/* Floating chat button - visible on all pages except /chat */}
-            <FloatingChatButton />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+              {/* Floating chat button - visible on all pages except /chat */}
+              <FloatingChatButton />
+            </MobileInstallGate>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
