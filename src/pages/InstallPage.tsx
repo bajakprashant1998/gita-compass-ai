@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
@@ -24,6 +26,16 @@ const benefits = [
 
 export default function InstallPage() {
   const { isInstallable, isInstalled, promptInstall } = useInstallPrompt();
+  const [skipped, setSkipped] = useState(false);
+  const navigate = useNavigate();
+
+  // If user skipped or app is installed, store flag and redirect
+  if (skipped || isInstalled) {
+    if (skipped) sessionStorage.setItem('install-skipped', '1');
+    if (!isInstalled && skipped) {
+      // Allow browsing for this session
+    }
+  }
 
   return (
     <Layout>
@@ -130,6 +142,23 @@ export default function InstallPage() {
             </ol>
           </CardContent>
         </Card>
+        {/* Skip / Continue without installing */}
+        {!isInstalled && (
+          <div className="text-center pt-2 pb-4">
+            <button
+              onClick={() => {
+                sessionStorage.setItem('install-skipped', '1');
+                navigate('/');
+              }}
+              className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+            >
+              Continue without installing →
+            </button>
+            <p className="text-xs text-muted-foreground/60 mt-2">
+              Some features may be limited in the browser
+            </p>
+          </div>
+        )}
       </div>
     </Layout>
   );

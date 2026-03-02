@@ -24,8 +24,9 @@ export function MobileInstallGate({ children }: { children: React.ReactNode }) {
 
   // Allow desktop users, installed PWA users, admin routes, and the install page itself
   const isExemptRoute = location.pathname === '/install' || location.pathname.startsWith('/admin');
+  const isSkipped = typeof window !== 'undefined' && sessionStorage.getItem('install-skipped') === '1';
 
-  if (isMobile && !isInstalled && !isExemptRoute) {
+  if (isMobile && !isInstalled && !isExemptRoute && !isSkipped) {
     return <Navigate to="/install" replace />;
   }
 
