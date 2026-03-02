@@ -21,16 +21,12 @@ export default defineConfig(({ mode }) => ({
       // when a new version is found. The old SW keeps serving until the
       // user navigates or closes the tab — preventing the "auto refresh" bug.
       registerType: 'prompt',
-      includeAssets: ['logo.png'],
+      includeAssets: ['logo.png', 'offline.html'],
       manifest: false, // Using public/manifest.json
       workbox: {
-        // Only cache static assets — NOT HTML navigation requests.
-        // This prevents the SW from intercepting page navigations and
-        // issuing surprise reloads when the cache becomes stale.
         globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
-        // Prevent Workbox from generating a navigateFallback handler
-        // which can cause infinite redirect loops on some hosts.
-        navigateFallback: null,
+        // Serve offline.html when navigation fails (no network)
+        navigateFallback: '/offline.html',
         navigateFallbackDenylist: [/^\/~oauth/, /^\/admin/],
         runtimeCaching: [
           {
