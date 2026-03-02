@@ -22,6 +22,7 @@ import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 /**
  * Admin routes wrapper that provides AdminAuthContext.
  * All routes except /admin/login are protected and require admin authentication.
+ * Includes analytics dashboard for user engagement metrics.
  */
 export function AdminRoutes() {
   return (
