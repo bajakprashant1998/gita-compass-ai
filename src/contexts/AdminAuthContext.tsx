@@ -63,22 +63,10 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         try {
             setError(null);
 
-            // Add timeout to prevent infinite loading
-            const sessionPromise = supabase.auth.getSession();
-            const timeoutPromise = new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error('Session check timed out')), 8000)
-            );
-
-            const { data: { session }, error: sessionError } = await Promise.race([
-                sessionPromise,
-                timeoutPromise,
-            ]).catch((err) => {
-                console.error("AdminAuthContext: getSession failed/timed out", err);
-                return { data: { session: null }, error: err };
-            }) as any;
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
             if (sessionError) {
-                console.error("AdminAuthContext: getSession error", sessionError);
+                console.warn("AdminAuthContext: getSession error", sessionError);
             }
 
             if (!mountedRef.current) return;
@@ -101,7 +89,13 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
             }
         } catch (err: any) {
             console.error("AdminAuthContext: Init error", err);
-            if (mountedRef.current) setError(err.message);
+            if (mountedRef.current) {
+                setError(null);
+                setUser(null);
+                setIsAdmin(false);
+                setIsReady(false);
+                clearAdminCache();
+            }
         } finally {
             if (mountedRef.current) setIsLoading(false);
         }

@@ -35,7 +35,7 @@ const BlogPostPage = lazy(() => import("./pages/BlogPostPage"));
 const StudyGroupsPage = lazy(() => import("./pages/StudyGroupsPage"));
 const InstallPage = lazy(() => import("./pages/InstallPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const AdminRoutes = lazy(() => import("@/components/admin/AdminRoutes").then(m => ({ default: m.AdminRoutes })));
+const AdminRoutes = lazy(() => import("@/components/admin/AdminRoutes").then(m => ({ default: m.AdminRoutes as React.ComponentType })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
