@@ -21,9 +21,9 @@ export default defineConfig(({ mode }) => ({
       includeAssets: ['logo.png', 'offline.html'],
       manifest: false,
       workbox: {
-        globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
-        navigateFallback: '/offline.html',
-        navigateFallbackDenylist: [/^\/~oauth/, /^\/admin/],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/~oauth/],
         // Import push notification handlers into the service worker
         importScripts: ['/sw-push.js'],
         runtimeCaching: [
