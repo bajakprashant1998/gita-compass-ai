@@ -109,6 +109,22 @@
   <!-- End Google Tag Manager (noscript) -->
 
   <div id="root"></div>
+  <script>
+    // Unregister any stale service workers that may be serving offline pages
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        registrations.forEach(function(registration) {
+          registration.unregister();
+        });
+      });
+      // Clear all caches
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          names.forEach(function(name) { caches.delete(name); });
+        });
+      }
+    }
+  </script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 
