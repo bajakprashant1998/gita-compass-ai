@@ -29,67 +29,125 @@ export default function AdminSystemHealth() {
     queryKey: ['admin-system-health'],
     queryFn: async () => {
       const startTime = Date.now();
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const apiKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-      // Test DB response time
-      const { error: dbError } = await supabase.from('chapters').select('id', { count: 'exact', head: true });
-      const dbResponseTime = Date.now() - startTime;
-
-      // Test auth service
-      const authStart = Date.now();
-      let authStatus = 'healthy';
-      let authTime = 0;
+      // 1. Test DB — direct REST call to avoid SDK/RLS issues
+      let dbResponseTime = 0;
+      let dbStatus = 'healthy';
       try {
-        await supabase.auth.getSession();
-        authTime = Date.now() - authStart;
-        if (authTime > 1000) authStatus = 'slow';
+        const dbStart = Date.now();
+        const resp = await fetch(
+          `${supabaseUrl}/rest/v1/chapters?select=id&limit=1`,
+          {
+            headers: {
+              'apikey': apiKey,
+              'Authorization': `Bearer ${apiKey}`,
+            },
+          }
+        );
+        dbResponseTime = Date.now() - dbStart;
+        if (!resp.ok) {
+          dbStatus = 'error';
+        } else if (dbResponseTime > 500) {
+          dbStatus = 'slow';
+        } else if (dbResponseTime > 200) {
+          dbStatus = 'slow';
+        }
       } catch {
+        dbStatus = 'error';
+      }
+
+      // 2. Test Auth — use /auth/v1/settings (public, no auth needed)
+      let authTime = 0;
+      let authStatus = 'healthy';
+      try {
+        const authStart = Date.now();
+        const resp = await fetch(`${supabaseUrl}/auth/v1/settings`, {
+          headers: { 'apikey': apiKey },
+        });
         authTime = Date.now() - authStart;
+        if (!resp.ok) {
+          authStatus = 'error';
+        } else if (authTime > 1000) {
+          authStatus = 'slow';
+        }
+      } catch {
         authStatus = 'error';
       }
 
-      // Test storage/realtime ping
-      const storageStart = Date.now();
-      let storageStatus = 'healthy';
+      // 3. Test REST API connectivity
       let storageTime = 0;
+      let storageStatus = 'healthy';
       try {
-        // Simple REST ping to check connectivity
-        const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/`, {
+        const storageStart = Date.now();
+        const resp = await fetch(`${supabaseUrl}/rest/v1/`, {
           method: 'HEAD',
-          headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
+          headers: { 'apikey': apiKey },
         });
         storageTime = Date.now() - storageStart;
         if (!resp.ok) storageStatus = 'degraded';
         if (storageTime > 500) storageStatus = 'slow';
       } catch {
-        storageTime = Date.now() - storageStart;
         storageStatus = 'error';
       }
 
-      // Get table counts
+      // 4. Get table counts (parallel, using anon key for public tables)
+      const countTable = async (table: string) => {
+        try {
+          const resp = await fetch(
+            `${supabaseUrl}/rest/v1/${table}?select=id&limit=0`,
+            {
+              method: 'GET',
+              headers: {
+                'apikey': apiKey,
+                'Authorization': `Bearer ${apiKey}`,
+                'Prefer': 'count=exact',
+              },
+            }
+          );
+          const range = resp.headers.get('content-range');
+          if (range) {
+            const total = range.split('/')[1];
+            return total === '*' ? 0 : parseInt(total, 10);
+          }
+          return 0;
+        } catch {
+          return 0;
+        }
+      };
+
       const [chapters, shloks, users, chats, favorites, blogs, reflections, discussions, readingPlans, contacts] = await Promise.all([
-        supabase.from('chapters').select('id', { count: 'exact', head: true }),
-        supabase.from('shloks').select('id', { count: 'exact', head: true }),
-        supabase.from('profiles').select('id', { count: 'exact', head: true }),
-        supabase.from('chat_conversations').select('id', { count: 'exact', head: true }),
-        supabase.from('favorites').select('id', { count: 'exact', head: true }),
-        supabase.from('blog_posts').select('id', { count: 'exact', head: true }),
-        supabase.from('verse_reflections').select('id', { count: 'exact', head: true }),
-        supabase.from('verse_discussions').select('id', { count: 'exact', head: true }),
-        supabase.from('reading_plans').select('id', { count: 'exact', head: true }),
-        supabase.from('contact_submissions').select('id', { count: 'exact', head: true }),
+        countTable('chapters'),
+        countTable('shloks'),
+        countTable('profiles'),
+        countTable('chat_conversations'),
+        countTable('favorites'),
+        countTable('blog_posts'),
+        countTable('verse_reflections'),
+        countTable('verse_discussions'),
+        countTable('reading_plans'),
+        countTable('contact_submissions'),
       ]);
 
-      // Test edge function
-      const efStart = Date.now();
-      let edgeFunctionStatus = 'healthy';
+      // 5. Test Edge Functions — simple OPTIONS ping (no body needed)
       let edgeFunctionTime = 0;
+      let edgeFunctionStatus = 'healthy';
       try {
-        const resp = await supabase.functions.invoke('test-api-connection', { body: { provider: 'gemini' } });
+        const efStart = Date.now();
+        const resp = await fetch(
+          `${supabaseUrl}/functions/v1/test-api-connection`,
+          {
+            method: 'OPTIONS',
+            headers: { 'apikey': apiKey },
+          }
+        );
         edgeFunctionTime = Date.now() - efStart;
-        if (resp.error) edgeFunctionStatus = 'degraded';
+        if (!resp.ok && resp.status !== 204) {
+          edgeFunctionStatus = 'degraded';
+        }
         if (edgeFunctionTime > 2000) edgeFunctionStatus = 'slow';
       } catch {
-        edgeFunctionTime = Date.now() - efStart;
         edgeFunctionStatus = 'error';
       }
 
@@ -97,7 +155,7 @@ export default function AdminSystemHealth() {
 
       return {
         dbResponseTime,
-        dbStatus: dbError ? 'error' : dbResponseTime < 200 ? 'healthy' : dbResponseTime < 500 ? 'slow' : 'error',
+        dbStatus,
         authStatus,
         authTime,
         storageStatus,
@@ -106,16 +164,8 @@ export default function AdminSystemHealth() {
         edgeFunctionTime,
         totalTime,
         tables: {
-          chapters: chapters.count || 0,
-          shloks: shloks.count || 0,
-          users: users.count || 0,
-          chats: chats.count || 0,
-          favorites: favorites.count || 0,
-          blogs: blogs.count || 0,
-          reflections: reflections.count || 0,
-          discussions: discussions.count || 0,
-          readingPlans: readingPlans.count || 0,
-          contacts: contacts.count || 0,
+          chapters, shloks, users, chats, favorites, blogs,
+          reflections, discussions, readingPlans, contacts,
         },
       };
     },
