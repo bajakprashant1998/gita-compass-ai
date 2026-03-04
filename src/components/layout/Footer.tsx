@@ -222,7 +222,7 @@ export const Footer = forwardRef<HTMLElement, object>(function Footer(_props, re
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="pt-8 pb-20 md:pb-0 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} Bhagavad Gita Gyan. All rights reserved.
           </p>
