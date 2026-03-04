@@ -128,10 +128,10 @@ export function MultiLanguageStarters({ onSelect, selectedLanguage }: MultiLangu
       {/* Daily verse — compact */}
       <div className="relative overflow-hidden rounded-xl bg-primary/[0.05] border border-primary/10 px-4 py-3 animate-fade-in" style={{ animationDelay: '200ms' }}>
         <div className="absolute top-1 right-2 text-4xl text-primary/[0.06] font-serif select-none">ॐ</div>
-        <div className="flex items-center gap-3">
-          <BookOpen className="w-4 h-4 text-primary flex-shrink-0" />
+        <div className="flex items-start gap-3">
+          <BookOpen className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm text-foreground/85 italic leading-snug truncate">"{dailyVerse.text}"</p>
+            <p className="text-sm text-foreground/85 italic leading-relaxed break-words">"{dailyVerse.text}"</p>
             <p className="text-[10px] text-muted-foreground/60 mt-0.5">Gita {dailyVerse.ref}</p>
           </div>
         </div>
