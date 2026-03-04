@@ -98,6 +98,8 @@ export default function DashboardPage() {
             displayName={profile?.display_name}
             memberSince={profile?.created_at}
             onSignOut={handleSignOut}
+            currentStreak={progress?.currentStreak || 0}
+            versesRead={progress?.shloksRead.length || 0}
           />
 
           {/* Stats */}
