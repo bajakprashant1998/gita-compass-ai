@@ -15,6 +15,8 @@ import AdminActivityLog from "@/pages/admin/AdminActivityLog";
 import AdminSettings from "@/pages/admin/AdminSettings";
 import AdminSEOPages from "@/pages/admin/AdminSEOPages";
 import AdminLoginPage from "@/pages/admin/AdminLoginPage";
+import AdminForgotPasswordPage from "@/pages/admin/AdminForgotPasswordPage";
+import AdminResetPasswordPage from "@/pages/admin/AdminResetPasswordPage";
 import AdminBlogList from "@/pages/admin/AdminBlogList";
 import AdminBlogForm from "@/pages/admin/AdminBlogForm";
 import AdminAnalytics from "@/pages/admin/AdminAnalytics";
@@ -28,6 +30,8 @@ export default function AdminRoutes() {
     <AdminAuthProvider>
       <Routes>
         <Route path="login" element={<AdminLoginPage />} />
+        <Route path="forgot-password" element={<AdminForgotPasswordPage />} />
+        <Route path="reset-password" element={<AdminResetPasswordPage />} />
 
         <Route element={<AdminLayout />}>
           <Route path="" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
