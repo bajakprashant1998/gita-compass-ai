@@ -18,6 +18,7 @@ import AdminLoginPage from "@/pages/admin/AdminLoginPage";
 import AdminBlogList from "@/pages/admin/AdminBlogList";
 import AdminBlogForm from "@/pages/admin/AdminBlogForm";
 import AdminAnalytics from "@/pages/admin/AdminAnalytics";
+import AdminUsers from "@/pages/admin/AdminUsers";
 
 /**
  * Admin routes wrapper that provides AdminAuthContext.
@@ -47,6 +48,7 @@ export default function AdminRoutes() {
           <Route path="activity" element={<AdminProtectedRoute><AdminActivityLog /></AdminProtectedRoute>} />
           <Route path="settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
           <Route path="analytics" element={<AdminProtectedRoute><AdminAnalytics /></AdminProtectedRoute>} />
+          <Route path="users" element={<AdminProtectedRoute><AdminUsers /></AdminProtectedRoute>} />
           <Route path="seo" element={<AdminProtectedRoute><AdminSEOPages /></AdminProtectedRoute>} />
           <Route path="blog" element={<AdminProtectedRoute><AdminBlogList /></AdminProtectedRoute>} />
           <Route path="blog/create" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
