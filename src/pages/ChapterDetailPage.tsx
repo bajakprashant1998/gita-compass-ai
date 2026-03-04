@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { SEOHead, generateBreadcrumbSchema } from '@/components/SEOHead';
+import { SEOHead, generateBreadcrumbSchema, generateChapterSchema } from '@/components/SEOHead';
 import { Layout } from '@/components/layout/Layout';
 import { getChapter, getShloksByChapter } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
@@ -147,11 +147,20 @@ export default function ChapterDetailPage() {
         description={(chapter as any).meta_description || chapter.description_english || `Explore Chapter ${chapterNum} of the Bhagavad Gita`}
         canonicalUrl={`https://www.bhagavadgitagyan.com/chapters/${chapterNum}`}
         keywords={(chapter as any).meta_keywords || ['Bhagavad Gita', `Chapter ${chapterNum}`, chapter.theme]}
-        structuredData={generateBreadcrumbSchema([
-          { name: 'Home', url: 'https://www.bhagavadgitagyan.com' },
-          { name: 'Chapters', url: 'https://www.bhagavadgitagyan.com/chapters' },
-          { name: `Chapter ${chapterNum}`, url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}` },
-        ])}
+        structuredData={[
+          generateChapterSchema({
+            chapter_number: chapterNum,
+            title_english: chapter.title_english,
+            description_english: chapter.description_english || undefined,
+            theme: chapter.theme,
+            verse_count: chapter.verse_count || undefined,
+          }),
+          generateBreadcrumbSchema([
+            { name: 'Home', url: 'https://www.bhagavadgitagyan.com' },
+            { name: 'Chapters', url: 'https://www.bhagavadgitagyan.com/chapters' },
+            { name: `Chapter ${chapterNum}: ${chapter.title_english}`, url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}` },
+          ]),
+        ]}
       />
 
       {/* ── Hero Section ── */}

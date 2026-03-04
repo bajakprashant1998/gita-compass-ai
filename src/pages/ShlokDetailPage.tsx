@@ -205,16 +205,17 @@ export default function ShlokDetailPage() {
     chapter_number: chapterNum,
     verse_number: verseNum,
     english_meaning: shlok.english_meaning,
+    sanskrit_text: shlok.sanskrit_text,
     life_application: shlok.life_application || undefined,
+    updated_at: shlok.updated_at || undefined,
   });
 
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Home', url: 'https://www.bhagavadgitagyan.com' },
+    { name: 'Chapters', url: 'https://www.bhagavadgitagyan.com/chapters' },
     { name: `Chapter ${chapterNum}`, url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}` },
     { name: `Verse ${verseNum}`, url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}/verse/${verseNum}` },
   ]);
-
-  const combinedSchema = { '@context': 'https://schema.org', '@graph': [articleSchema, breadcrumbSchema] };
   const wordCount = shlok.english_meaning.split(/\s+/).length + (shlok.life_application?.split(/\s+/).length || 0) + (shlok.modern_story?.split(/\s+/).length || 0);
   const readTime = Math.max(3, Math.ceil(wordCount / 200));
 
@@ -227,7 +228,7 @@ export default function ShlokDetailPage() {
         description={(shlok as any).meta_description || shlok.english_meaning.substring(0, 155) + '...'}
         canonicalUrl={`https://www.bhagavadgitagyan.com/chapters/${chapterNum}/verse/${verseNum}`}
         keywords={(shlok as any).meta_keywords || ['Bhagavad Gita', `Chapter ${chapterNum}`, `Verse ${verseNum}`, 'wisdom', 'guidance']}
-        structuredData={combinedSchema}
+        structuredData={[articleSchema, breadcrumbSchema]}
         type="article"
       />
 

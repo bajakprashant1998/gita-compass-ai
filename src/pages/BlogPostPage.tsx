@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { SEOHead } from '@/components/SEOHead';
+import { SEOHead, generateBlogPostSchema, generateBreadcrumbSchema } from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -599,6 +599,17 @@ export default function BlogPostPage() {
         description={post.meta_description || post.excerpt || post.title}
         keywords={post.meta_keywords || post.tags || []}
         type="article"
+        publishedTime={post.created_at}
+        modifiedTime={post.updated_at}
+        author={post.author}
+        structuredData={[
+          generateBlogPostSchema(post),
+          generateBreadcrumbSchema([
+            { name: 'Home', url: 'https://www.bhagavadgitagyan.com/' },
+            { name: 'Blog', url: 'https://www.bhagavadgitagyan.com/blog' },
+            { name: post.title, url: `https://www.bhagavadgitagyan.com/blog/${post.slug}` },
+          ]),
+        ]}
       />
 
       <ReadingProgressBar />
