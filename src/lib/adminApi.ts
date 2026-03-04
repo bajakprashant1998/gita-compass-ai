@@ -88,27 +88,20 @@ export async function generateAIContentWithMeta(
 // ============================================
 
 export async function getAdminStats(): Promise<AdminStats> {
-  const [chaptersRes, shloksRes, problemsRes, languagesRes] = await Promise.all([
+  const [chaptersRes, totalShloksRes, publishedRes, draftRes, problemsRes, languagesRes] = await Promise.all([
     supabase.from('chapters').select('id', { count: 'exact', head: true }),
-    supabase.from('shloks').select('id, status'),
+    supabase.from('shloks').select('id', { count: 'exact', head: true }),
+    supabase.from('shloks').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+    supabase.from('shloks').select('id', { count: 'exact', head: true }).eq('status', 'draft'),
     supabase.from('problems').select('id', { count: 'exact', head: true }),
     supabase.from('languages').select('id', { count: 'exact', head: true }).eq('enabled', true),
   ]);
 
-  if (chaptersRes.error) throw new Error(`Chapters Error: ${chaptersRes.error.message}`);
-  if (shloksRes.error) throw new Error(`Shloks Error: ${shloksRes.error.message}`);
-  if (problemsRes.error) throw new Error(`Problems Error: ${problemsRes.error.message}`);
-  if (languagesRes.error) throw new Error(`Languages Error: ${languagesRes.error.message}`);
-
-  const shloks = shloksRes.data || [];
-  const publishedCount = shloks.filter(s => s.status === 'published').length;
-  const draftCount = shloks.filter(s => s.status === 'draft').length;
-
   return {
     totalChapters: chaptersRes.count || 0,
-    totalShloks: shloks.length,
-    publishedShloks: publishedCount,
-    draftShloks: draftCount,
+    totalShloks: totalShloksRes.count || 0,
+    publishedShloks: publishedRes.count || 0,
+    draftShloks: draftRes.count || 0,
     totalProblems: problemsRes.count || 0,
     activeLanguages: languagesRes.count || 0,
   };

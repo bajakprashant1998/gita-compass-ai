@@ -49,40 +49,46 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<ExtendedStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-
-  const loadStats = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const [baseStats, usersRes, chatsRes, favoritesRes, blogRes, activityRes] = await Promise.all([
-        getAdminStats(),
-        supabase.from('profiles').select('id', { count: 'exact', head: true }),
-        supabase.from('chat_conversations').select('id', { count: 'exact', head: true }),
-        supabase.from('favorites').select('id', { count: 'exact', head: true }),
-        supabase.from('blog_posts').select('id', { count: 'exact', head: true }).eq('published', true),
-        supabase.from('admin_activity_log').select('id, action, entity_type, entity_id, created_at').order('created_at', { ascending: false }).limit(5),
-      ]);
-
-      setStats({
-        ...baseStats,
-        totalUsers: usersRes.count || 0,
-        totalChats: chatsRes.count || 0,
-        totalFavorites: favoritesRes.count || 0,
-        totalBlogPosts: blogRes.count || 0,
-        recentActivity: (activityRes.data || []) as any,
-      });
-    } catch (error: any) {
-      console.error('Failed to load admin stats:', error);
-      setError(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     if (!isReady) return;
+
+    let cancelled = false;
+    const loadStats = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const [baseStats, usersRes, chatsRes, favoritesRes, blogRes, activityRes] = await Promise.all([
+          getAdminStats(),
+          supabase.from('profiles').select('id', { count: 'exact', head: true }),
+          supabase.from('chat_conversations').select('id', { count: 'exact', head: true }),
+          supabase.from('favorites').select('id', { count: 'exact', head: true }),
+          supabase.from('blog_posts').select('id', { count: 'exact', head: true }).eq('published', true),
+          supabase.from('admin_activity_log').select('id, action, entity_type, entity_id, created_at').order('created_at', { ascending: false }).limit(5),
+        ]);
+
+        if (cancelled) return;
+        setStats({
+          ...baseStats,
+          totalUsers: usersRes.count || 0,
+          totalChats: chatsRes.count || 0,
+          totalFavorites: favoritesRes.count || 0,
+          totalBlogPosts: blogRes.count || 0,
+          recentActivity: (activityRes.data || []) as any,
+        });
+      } catch (error: any) {
+        if (cancelled) return;
+        console.error('Failed to load admin stats:', error);
+        setError(error);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
     loadStats();
-  }, [isReady]);
+    return () => { cancelled = true; };
+  }, [isReady, retryCount]);
 
   const getTimeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -140,7 +146,7 @@ export default function AdminDashboard() {
         <div className="p-6 border border-destructive/20 bg-destructive/5 rounded-2xl text-destructive flex items-center gap-3 mb-8">
           <div className="h-5 w-5 border-2 border-destructive rounded-full flex items-center justify-center font-bold text-xs">!</div>
           <p className="flex-1 text-sm">Failed to load dashboard data: {error.message}</p>
-          <Button variant="outline" size="sm" onClick={loadStats}>Retry</Button>
+          <Button variant="outline" size="sm" onClick={() => setRetryCount(c => c + 1)}>Retry</Button>
         </div>
       ) : (
         <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 mb-8">
