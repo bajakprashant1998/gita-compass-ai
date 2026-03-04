@@ -1,38 +1,65 @@
 
 
-## Plan: Android App via PWA with Mobile Optimization
+## Admin Panel Loading Issues - Full Debugging Audit & Fix Plan
 
-Your project already has a solid PWA foundation (manifest, service worker, vite-plugin-pwa). To make it a polished installable Android app, here's what needs to be done:
+### Root Cause Analysis
 
-### 1. Add PWA Install Prompt & `/install` Page
-- Create `src/pages/InstallPage.tsx` with step-by-step install instructions for Android (and iOS)
-- Create `src/hooks/useInstallPrompt.ts` to capture the `beforeinstallprompt` event and trigger native install dialog
-- Add an "Install App" button in the Header and a smart banner that appears on mobile devices
+The console logs reveal the exact failure chain:
 
-### 2. Enhance manifest.json for Android
-- Add `maskable` icon entries (required for Android adaptive icons)
-- Add `screenshots` array for richer install UI on Android
-- Add `shortcuts` for quick actions (Chat, Chapters, Problems)
-- Set `"id": "/"` for stable PWA identity
+```text
+Login Flow (broken):
+1. signInWithPassword → 200 OK ✅
+2. navigate('/admin') → AdminAuthProvider mounts
+3. initAuth() → getSession() HANGS (known Supabase race condition)
+4. 8-second timeout fires → checks sessionStorage cache → EMPTY
+5. Sets isLoading=false, isReady=false, user=null
+6. AdminProtectedRoute sees no user → redirects to /admin/login
+7. onAuthStateChange fires AFTER redirect (too late)
 
-### 3. Mobile UI Polish
-- Add `viewport-fit=cover` meta tag for edge-to-edge display
-- Add `apple-mobile-web-app-title` meta tag
-- Ensure the status bar blends with the app theme using proper `theme-color`
-- Add a standalone-mode CSS check to hide browser-specific UI when running as installed app
+Result: Login stuck in redirect loop, dashboard never loads
+```
 
-### 4. Add Route for Install Page
-- Register `/install` route in `App.tsx`
+**Why `getSession()` hangs**: The Supabase client is still processing the `signInWithPassword` token internally when `getSession()` is called immediately after navigation. This is a known race condition.
 
-### Files
-| Action | File |
-|--------|------|
-| Create | `src/pages/InstallPage.tsx` |
-| Create | `src/hooks/useInstallPrompt.ts` |
-| Edit | `public/manifest.json` — add maskable icons, shortcuts, screenshots |
-| Edit | `index.html` — add `viewport-fit=cover`, standalone detection |
-| Edit | `src/App.tsx` — add `/install` route |
-| Edit | `src/components/layout/Header.tsx` — add "Install App" CTA on mobile |
+**Why cache fallback fails**: `AdminLoginPage.handleSubmit` does NOT set the admin cache before navigating. Only the `useEffect` (existing session check) sets it. So after fresh login + timeout, cache is empty.
 
-No backend changes needed.
+### Fix Plan (3 files)
+
+#### 1. Fix `AdminLoginPage.tsx` - Verify admin role & set cache BEFORE navigating
+
+- After `signInWithPassword` succeeds, use the returned session to verify admin role via direct REST fetch (same pattern as `checkAdminRole`)
+- Set admin cache with `setAdminCache(userId)` on success
+- Only navigate to `/admin` after verification passes
+- Show "Access denied" if user is not an admin instead of navigating
+
+#### 2. Fix `AdminAuthContext.tsx` - Make auth initialization resilient
+
+- **Remove the problematic `getSession()` call with timeout** as the primary mechanism
+- Instead, use `onAuthStateChange` as the SOLE auth mechanism (Supabase docs recommend this pattern)
+- On mount: check cache first for immediate rendering, then let `onAuthStateChange` (which fires on mount with `INITIAL_SESSION` event) handle the real verification
+- When `onAuthStateChange` fires with a session, verify admin role and update state
+- When it fires with no session and no cache, redirect to login
+- Add a shorter safety timeout (3s) that only applies if NO auth event has been received at all
+
+#### 3. Fix `AdminProtectedRoute.tsx` - Remove React ref warning
+
+- The console shows "Function components cannot be given refs" for `Navigate` component - minor cleanup
+
+### Technical Details
+
+The key architectural change is switching from:
+```text
+OLD: initAuth() → getSession() [hangs] → timeout → give up
+```
+to:
+```text
+NEW: onMount → check cache for instant UI → onAuthStateChange fires → verify role → update state
+```
+
+This eliminates the `getSession()` hanging issue entirely since `onAuthStateChange` is event-driven and doesn't hang. The Supabase client guarantees it fires at least once on setup with `INITIAL_SESSION`.
+
+### Files to modify
+- `src/pages/admin/AdminLoginPage.tsx` - Add admin verification before navigation
+- `src/contexts/AdminAuthContext.tsx` - Rewrite to use onAuthStateChange-first pattern
+- `src/components/admin/AdminProtectedRoute.tsx` - Minor cleanup
 
