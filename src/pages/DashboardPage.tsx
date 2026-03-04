@@ -15,6 +15,7 @@ import { ReadingPlansWidget } from '@/components/dashboard/ReadingPlansWidget';
 import { PreferencesCard } from '@/components/dashboard/PreferencesCard';
 import { StreakCalendar } from '@/components/dashboard/StreakCalendar';
 import { DailyAffirmation } from '@/components/dashboard/DailyAffirmation';
+import { RecentlyReadWidget } from '@/components/dashboard/RecentlyReadWidget';
 import { RadialGlow, FloatingOm } from '@/components/ui/decorative-elements';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
@@ -133,8 +134,12 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-5 sm:mb-6">
-            <ReadingPlansWidget userId={user.id} />
+            <RecentlyReadWidget shloksRead={progress?.shloksRead || []} />
             <QuickActionsCard />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-5 sm:mb-6">
+            <ReadingPlansWidget userId={user.id} />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 pb-safe">
