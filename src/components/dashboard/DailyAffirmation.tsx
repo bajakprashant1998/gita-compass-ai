@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Sparkles, RefreshCw, Loader2 } from 'lucide-react';
+import { Sparkles, RefreshCw, Loader2, Quote } from 'lucide-react';
+import { GradientBorderCard } from '@/components/ui/decorative-elements';
 import { toast } from 'sonner';
 
 interface DailyAffirmationProps {
@@ -18,7 +18,6 @@ export function DailyAffirmation({ userId, versesRead }: DailyAffirmationProps) 
   const { data: affirmation, isLoading } = useQuery({
     queryKey: ['daily-affirmation', userId, today, refreshKey],
     queryFn: async () => {
-      // Get a random recent verse the user has read for context
       let context = 'the teachings of the Bhagavad Gita';
       if (versesRead.length > 0) {
         const randomId = versesRead[Math.floor(Math.random() * Math.min(versesRead.length, 10))];
@@ -32,7 +31,6 @@ export function DailyAffirmation({ userId, versesRead }: DailyAffirmationProps) 
         }
       }
 
-      // Call AI to generate affirmation
       const { data, error } = await supabase.functions.invoke('gita-coach', {
         body: {
           messages: [
@@ -46,53 +44,61 @@ export function DailyAffirmation({ userId, versesRead }: DailyAffirmationProps) 
 
       if (error) throw error;
 
-      // Handle streaming response
       if (typeof data === 'string') {
         return data.trim();
       }
 
       return data?.choices?.[0]?.message?.content?.trim() || 'I embrace the wisdom of the Gita and walk my path with clarity and courage.';
     },
-    staleTime: 60 * 60 * 1000, // Cache for 1 hour
+    staleTime: 60 * 60 * 1000,
     retry: 1,
   });
 
   return (
-    <Card className="overflow-hidden border-primary/20 hover:border-primary/40 transition-all">
-      <div className="h-1 bg-gradient-to-r from-primary via-amber-500 to-orange-500" />
-      <CardContent className="p-5 sm:p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-amber-500 text-white">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <div>
-              <h3 className="font-bold text-sm">Today's Affirmation</h3>
-              <p className="text-[10px] text-muted-foreground">Personalized from your reading</p>
-            </div>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setRefreshKey(k => k + 1)}
-            disabled={isLoading}
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          </Button>
+    <GradientBorderCard>
+      <div className="relative overflow-hidden">
+        {/* Decorative quote marks */}
+        <div className="absolute top-3 left-4 text-primary/5 pointer-events-none select-none" aria-hidden="true">
+          <Quote className="h-16 w-16 rotate-180" />
+        </div>
+        <div className="absolute bottom-3 right-4 text-primary/5 pointer-events-none select-none" aria-hidden="true">
+          <Quote className="h-16 w-16" />
         </div>
 
-        {isLoading ? (
-          <div className="flex items-center gap-2 py-4 justify-center text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm">Generating your affirmation...</span>
+        <div className="p-5 sm:p-6 relative z-10">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-gradient-to-br from-primary to-amber-500">
+                <Sparkles className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm">Today's Affirmation</h3>
+                <p className="text-[10px] text-muted-foreground">Personalized from your reading</p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hover:bg-primary/10"
+              onClick={() => setRefreshKey(k => k + 1)}
+              disabled={isLoading}
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            </Button>
           </div>
-        ) : (
-          <blockquote className="text-base sm:text-lg font-medium text-foreground leading-relaxed italic text-center py-2">
-            "{affirmation}"
-          </blockquote>
-        )}
-      </CardContent>
-    </Card>
+
+          {isLoading ? (
+            <div className="flex items-center gap-2 py-6 justify-center text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span className="text-sm">Generating your affirmation...</span>
+            </div>
+          ) : (
+            <blockquote className="text-base sm:text-lg md:text-xl font-medium text-foreground leading-relaxed italic text-center py-4 px-4 sm:px-8">
+              "{affirmation}"
+            </blockquote>
+          )}
+        </div>
+      </div>
+    </GradientBorderCard>
   );
 }
