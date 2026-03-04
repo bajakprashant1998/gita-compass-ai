@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { HeroSection } from '@/components/home/HeroSection';
-import { SEOHead, generateWebsiteSchema } from '@/components/SEOHead';
+import { SEOHead, generateWebsiteSchema, generateOrganizationSchema, generateFAQSchema, generateHowToSchema } from '@/components/SEOHead';
 
 // Lazy load below-the-fold components for faster initial paint
 const StatsSection = lazy(() => import('@/components/home/StatsSection').then(m => ({ default: m.StatsSection })));
@@ -45,8 +45,28 @@ const Index = () => {
         title="Bhagavad Gita Gyan - Ancient Wisdom for Modern Problems"
         description="Transform your struggles into strength with AI-powered guidance from the Bhagavad Gita. Find timeless solutions for anxiety, fear, confusion, and life decisions."
         canonicalUrl="https://www.bhagavadgitagyan.com/"
-        keywords={['Bhagavad Gita', 'wisdom', 'anxiety help', 'fear', 'confusion', 'life advice', 'AI guidance', 'ancient wisdom']}
-        structuredData={generateWebsiteSchema()}
+        keywords={['Bhagavad Gita', 'Bhagavad Gita online', 'Gita wisdom', 'anxiety help', 'fear', 'confusion', 'life advice', 'AI spiritual guidance', 'ancient wisdom', 'Bhagavad Gita in English', 'Bhagavad Gita meaning']}
+        structuredData={[
+          generateWebsiteSchema(),
+          generateOrganizationSchema(),
+          generateFAQSchema([
+            { question: 'What is Bhagavad Gita Gyan?', answer: 'Bhagavad Gita Gyan is an AI-powered platform that applies ancient wisdom from the Bhagavad Gita to solve modern life problems like anxiety, fear, confusion, and career challenges.' },
+            { question: 'How can the Bhagavad Gita help with anxiety?', answer: 'The Bhagavad Gita teaches detachment from outcomes (Nishkama Karma), equanimity of mind, and meditation techniques that directly address anxiety and stress.' },
+            { question: 'Can I talk to an AI about my problems using the Bhagavad Gita?', answer: 'Yes! Our Talk to Krishna AI counselor uses deep knowledge of all 700+ verses to provide personalized guidance based on your specific life situation.' },
+            { question: 'Is Bhagavad Gita Gyan free to use?', answer: 'Yes, all core features including reading verses, AI counseling, and reading plans are completely free.' },
+            { question: 'How many chapters are in the Bhagavad Gita?', answer: 'The Bhagavad Gita has 18 chapters and 700+ verses, each addressing different aspects of life, duty, knowledge, and devotion.' },
+          ]),
+          generateHowToSchema(
+            'How to Find Guidance from the Bhagavad Gita',
+            'Use AI-powered Bhagavad Gita wisdom to find solutions to your life problems.',
+            [
+              { name: 'Identify Your Problem', text: 'Browse life problem categories like anxiety, fear, confusion, relationships, or career challenges.' },
+              { name: 'Explore Relevant Verses', text: 'Read curated Bhagavad Gita verses with meaning, life applications, and modern stories related to your situation.' },
+              { name: 'Talk to Krishna AI', text: 'Use the AI counselor for personalized, in-depth guidance based on your specific situation and the Gita teachings.' },
+              { name: 'Follow an Action Plan', text: 'Get a structured 7-day action plan with daily verses, reflection prompts, and practical steps.' },
+            ]
+          ),
+        ]}
       />
       {/* Critical above-the-fold content - loaded eagerly */}
       <HeroSection />

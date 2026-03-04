@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { BookOpen, Sparkles, Target, Clock, Compass } from 'lucide-react';
 import { ChapterFilters } from '@/components/chapters/ChapterFilters';
 import { ChapterCard } from '@/components/chapters/ChapterCard';
-import { SEOHead, generateBreadcrumbSchema } from '@/components/SEOHead';
+import { SEOHead, generateBreadcrumbSchema, generateCollectionPageSchema } from '@/components/SEOHead';
 import { RadialGlow } from '@/components/ui/decorative-elements';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -104,7 +104,17 @@ export default function ChaptersPage() {
         description="Explore all 18 chapters of the Bhagavad Gita. From Arjuna's despair to ultimate liberation, discover the spiritual journey and key teachings of each chapter."
         canonicalUrl="https://www.bhagavadgitagyan.com/chapters"
         keywords={['Bhagavad Gita chapters', '18 chapters', 'Gita summary', 'chapter guide', 'spiritual journey']}
-        structuredData={generateBreadcrumbSchema(breadcrumbs)}
+        structuredData={[
+          generateBreadcrumbSchema(breadcrumbs),
+          generateCollectionPageSchema(
+            '18 Chapters of Bhagavad Gita',
+            'Complete guide to all 18 chapters of the Bhagavad Gita with meaning, stories, and life applications.',
+            (chapters || []).map(ch => ({
+              name: `Chapter ${ch.chapter_number}: ${ch.title_english}`,
+              url: `https://www.bhagavadgitagyan.com/chapters/${ch.chapter_number}`,
+            }))
+          ),
+        ]}
       />
 
       {/* ── Hero Section ── */}
