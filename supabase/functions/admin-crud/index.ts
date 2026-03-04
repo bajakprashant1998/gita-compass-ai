@@ -14,7 +14,9 @@ type TableName =
   | "ai_search_rules"
   | "shlok_problems"
   | "admin_activity_log"
-  | "page_seo_metadata";
+  | "page_seo_metadata"
+  | "blog_posts"
+  | "contact_submissions";
 
 type Operation = "create" | "update" | "delete" | "bulk_update" | "upsert";
 
@@ -57,6 +59,8 @@ Deno.serve(async (req) => {
       "shlok_problems",
       "admin_activity_log",
       "page_seo_metadata",
+      "blog_posts",
+      "contact_submissions",
     ];
 
     if (!allowedTables.includes(table)) {
