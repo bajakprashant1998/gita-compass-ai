@@ -1,5 +1,6 @@
 import { useAdminAuthContext } from "@/contexts/AdminAuthContext";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { ShieldAlert } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,6 @@ function AdminLoadingSkeleton() {
                 <Skeleton className="h-8 w-48 mb-2" />
                 <Skeleton className="h-4 w-72" />
             </div>
-
-            {/* Stats grid skeleton */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                 {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="p-6 border rounded-lg bg-card">
@@ -21,8 +20,6 @@ function AdminLoadingSkeleton() {
                     </div>
                 ))}
             </div>
-
-            {/* Cards skeleton */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {Array.from({ length: 3 }).map((_, i) => (
                     <div key={i} className="p-6 border rounded-lg bg-card space-y-4">
@@ -38,6 +35,13 @@ function AdminLoadingSkeleton() {
 
 export function AdminProtectedRoute({ children }: { children: React.ReactNode }) {
     const { isAdmin, isLoading, user, error, retry, signOut } = useAdminAuthContext();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!isLoading && !user && !error) {
+            navigate("/admin/login", { replace: true });
+        }
+    }, [isLoading, user, error, navigate]);
 
     if (isLoading) {
         return <AdminLoadingSkeleton />;
@@ -57,7 +61,8 @@ export function AdminProtectedRoute({ children }: { children: React.ReactNode })
                 </div>
             );
         }
-        return <Navigate to="/admin/login" replace />;
+        // Navigating to login via useEffect above
+        return <AdminLoadingSkeleton />;
     }
 
     return <>{children}</>;
