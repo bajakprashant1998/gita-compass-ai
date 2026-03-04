@@ -202,7 +202,7 @@ async function findRelevantProblems(text: string, supabase: any): Promise<string
     const categoryKeywords: Record<string, string[]> = {
       mental: ['stress', 'anxious', 'anxiety', 'depress', 'overthink', 'worry', 'peace', 'calm', 'mind', 'mental', 'sleep', 'restless'],
       relationships: ['relationship', 'family', 'friend', 'love', 'marriage', 'parent', 'partner', 'conflict', 'forgive', 'trust', 'lonely'],
-      career: ['career', 'job', 'work', 'business', 'money', 'success', 'failure', 'promotion', 'purpose', 'passion', 'stuck', 'direction'],
+      career: ['career', 'job', 'work', 'business', 'money', 'success', 'failure', 'promotion', 'purpose', 'passion', 'stuck', 'direction', 'financial', 'finance', 'debt', 'salary', 'income', 'wealth', 'poor', 'rich', 'loan', 'saving', 'expense', 'budget', 'bankrupt', 'paisa', 'rupee'],
       leadership: ['leader', 'manage', 'team', 'responsible', 'duty', 'decision', 'authority', 'power', 'guide', 'influence'],
       spiritual: ['spiritual', 'meaning', 'life', 'death', 'soul', 'god', 'karma', 'dharma', 'meditation', 'prayer', 'faith', 'believe'],
       ethics: ['right', 'wrong', 'moral', 'honest', 'lie', 'cheat', 'integrity', 'ethics', 'guilt', 'conscience', 'justice'],
