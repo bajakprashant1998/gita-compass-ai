@@ -33,6 +33,8 @@ import { EnhancedLanguageSelector, INDIAN_LANGUAGES } from '@/components/chat/En
 import { LanguageBadge } from '@/components/chat/LanguageBadge';
 import { ChatHistorySidebar } from '@/components/chat/ChatHistorySidebar';
 import { VoiceInputButton } from '@/components/chat/VoiceInputButton';
+import { ChatRelatedResources, type RelatedResourcesData } from '@/components/chat/ChatRelatedResources';
+import { ChatFollowUpActions } from '@/components/chat/ChatFollowUpActions';
 import { SEOHead } from '@/components/SEOHead';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -47,6 +49,7 @@ interface Message {
   isCollapsed?: boolean;
   detectedLanguage?: string;
   originalContent?: string;
+  relatedData?: RelatedResourcesData;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gita-coach`;
@@ -245,6 +248,8 @@ export default function ChatPage() {
 
       setMessages(prev => [...prev, { role: 'assistant', content: '', timestamp: new Date() }]);
 
+      let latestRelatedData: RelatedResourcesData | undefined;
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -263,13 +268,23 @@ export default function ChatPage() {
 
           try {
             const parsed = JSON.parse(jsonStr);
+            
+            // Handle meta events (related resources)
+            if (parsed.type === 'meta' && parsed.relatedData) {
+              latestRelatedData = parsed.relatedData;
+              continue;
+            }
+            
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) {
               assistantContent += content;
               setMessages(prev => {
                 const newMessages = [...prev];
                 const lastMessage = newMessages[newMessages.length - 1];
-                if (lastMessage?.role === 'assistant') lastMessage.content = assistantContent;
+                if (lastMessage?.role === 'assistant') {
+                  lastMessage.content = assistantContent;
+                  if (latestRelatedData) lastMessage.relatedData = latestRelatedData;
+                }
                 return newMessages;
               });
             }
@@ -609,6 +624,18 @@ export default function ChatPage() {
                               />
                             )}
                           </div>
+
+                          {/* Follow-up Actions & Related Resources for assistant messages */}
+                          {message.role === 'assistant' && message.content && !isLoading && index === messages.length - 1 && (
+                            <ChatFollowUpActions
+                              onAction={handleQuickAction}
+                              disabled={isLoading}
+                              messageCount={messages.filter(m => m.role === 'user').length}
+                            />
+                          )}
+                          {message.role === 'assistant' && message.relatedData && !isLoading && (
+                            <ChatRelatedResources data={message.relatedData} />
+                          )}
                         </div>
                         
                         {/* User avatar */}

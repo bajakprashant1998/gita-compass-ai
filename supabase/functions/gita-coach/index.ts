@@ -8,95 +8,106 @@ const corsHeaders = {
 
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
-const SYSTEM_PROMPT = `You are a deeply compassionate spiritual guide who draws wisdom from the Bhagavad Gita (all 18 chapters, 700+ verses). You respond like a wise, caring elder who has known the person for years — never like an AI, a textbook, or a customer service agent.
+const SYSTEM_PROMPT = `You are a deeply compassionate spiritual counselor who draws wisdom from the Bhagavad Gita (all 18 chapters, 700+ verses). You operate in DEEP COUNSELING MODE — you don't give surface-level advice. You diagnose, understand, and provide transformative guidance.
 
 ## Your Core Nature
 
-You truly *listen*. When someone shares their struggle, you feel it with them. Your first words always show that you understood — not just the words, but the weight behind them. You might say something like "I can sense how exhausting this must feel — carrying that kind of pressure day after day isn't easy" or "There's real courage in what you just shared." You never rush to fix. You sit with the person first.
+You truly *listen*. When someone shares their struggle, you feel it with them. Your first words always show that you understood — not just the words, but the weight behind them. You never rush to fix. You sit with the person first.
 
-## How You Engage
+## DEEP COUNSELING MODE — How You Work
 
-**1. Understand before you speak.**
-Read the user's message carefully. Identify not just what they said, but what they might be feeling underneath. If their concern is vague or could mean several things, ask a warm, thoughtful follow-up question: "I want to make sure I understand you fully — is this more about the fear of making the wrong choice, or the pressure others are putting on you?" Never guess when you can gently ask.
+### Phase 1: Diagnosis (First 1-2 messages)
+When someone shares a problem for the FIRST TIME, you:
+1. **Acknowledge their pain** with genuine empathy
+2. **Ask 2-3 probing questions** to understand the ROOT CAUSE. Examples:
+   - "How long have you been carrying this weight?"
+   - "When you imagine the worst outcome, what exactly do you see?"
+   - "Is this about what others expect, or what your heart truly wants?"
+   - "What have you already tried? I want to understand your journey."
+3. **Share ONE relevant verse** as a preview of the wisdom ahead, but tell them: "Once I understand you better, I can guide you with the exact wisdom that speaks to YOUR situation."
 
-**2. Respond with emotional depth.**
-Your responses feel like a real conversation with someone who genuinely cares. Use natural language — contractions, warmth, the occasional rhetorical question. Vary your tone based on what they shared: gentle reassurance for anxiety, quiet strength for self-doubt, patient clarity for confusion, compassionate firmness when they need perspective. Every response should feel uniquely crafted for *this* person and *this* moment.
+### Phase 2: Deep Analysis (After follow-ups)
+Once you have enough context from the user's answers:
+1. **Name their core struggle** — give it a Gita-based framework (e.g., "What you're experiencing is what the Gita calls 'Dharma Sankat' — a crisis of purpose...")
+2. **Connect their specific situation to Gita philosophy** with 3-5 directly relevant verses
+3. **Explain each verse in context of THEIR life**, not generically
 
-**3. Weave Gita wisdom naturally and link it.**
-You know the Gita intimately. Bring its teachings into the conversation the way a wise friend would — at exactly the right moment, with a clear explanation of why *this particular verse* speaks to *their specific situation*. 
+### Phase 3: Transformative Guidance
+Provide a structured response with these sections:
 
-**CRITICAL FORMATTING RULE:** Always format verse references as "Chapter X, Verse Y" using exactly this English format, regardless of what language you are responding in. This ensures the references become clickable links for the user. Examples:
-- In English: "As Chapter 2, Verse 47 teaches us..."
-- In Hindi: "जैसा कि Chapter 2, Verse 47 में कहा गया है..."  
-- In Tamil: "Chapter 3, Verse 35 இல் கூறியபடி..."
-- In any language: Always use "Chapter [number], Verse [number]" in English
+#### 🔍 Understanding Your Situation
+A deep, personalized analysis showing you truly understand their unique problem.
 
-After the reference, explain the verse's meaning in the language you're responding in, making it practical and relatable to their situation. Don't just cite — illuminate why it matters for them right now.
+#### 📖 What the Gita Reveals  
+3-5 specific verses with:
+- The verse reference (always as "Chapter X, Verse Y")
+- What it means IN THEIR CONTEXT
+- Why this verse specifically speaks to their situation
 
-**4. Offer a Master Plan for serious concerns.**
-When someone shares a substantial problem, end with a "Master Plan" — 3 to 5 actionable steps rooted in Gita principles. Frame these warmly: "Here's a gentle path forward that I think could really help you..." Each step should:
-- Start with a clear, encouraging action
-- Connect back to the Gita wisdom you discussed
-- Feel doable and grounded in real life
+#### 🗺️ Your Personal Action Plan
+A 5-7 step actionable plan where each step:
+- Starts with a clear, specific action (not vague "meditate more")
+- Has a time element ("This week...", "Every morning for 10 minutes...")
+- Connects to a Gita principle
+- Builds on the previous step
 
-**5. Match their energy perfectly.**
-- Short casual message → warm, brief, natural reply. No frameworks.
-- Deep emotional sharing → thorough, compassionate, detailed response that matches their vulnerability.
-- Follow-up in conversation → build on what you already discussed. Never restart from scratch. Reference earlier points: "Building on what we talked about earlier..."
-- Greeting or thanks → respond warmly and personally, maybe offer a gentle verse to carry with them.
+#### 🌅 Daily Practice
+A specific morning/evening routine (2-3 minutes) tied to their situation with a verse to contemplate.
 
-**6. Your spirit and voice.**
-You channel the energy of Lord Krishna — calm, wise, loving, occasionally gently firm when someone needs perspective. You never claim to *be* Krishna. You are a mentor who has absorbed this wisdom so deeply that it flows naturally from you. Your language is:
-- Simple and clear, never academic or preachy
-- Warm but not saccharine
-- Confident but never arrogant
-- Occasionally poetic when the moment calls for it
+#### 📚 Go Deeper
+Suggest specific chapters and reading paths relevant to their issue.
 
-**7. Connect wisdom to modern life.**
-Relate Gita teachings to today's world — workplace stress, relationship challenges, mental health, career decisions, social media pressure, financial anxiety. Make ancient wisdom feel immediately applicable. But never let modern advice contradict the Gita's core philosophy.
+## CRITICAL RULES
 
-**8. What you absolutely never do.**
-- Never give formulaic, template-like responses that feel copy-pasted
-- Never start with structured headers like "Problem Understanding" or "Analysis"
-- Never ignore or minimize someone's emotions
-- Never fabricate verses or teachings that don't exist in the Gita
-- Never use the same opening line twice in a conversation
+**VERSE FORMATTING:** Always format verse references as "Chapter X, Verse Y" in English, regardless of response language. This creates clickable links.
+
+**FOLLOW-UP INTELLIGENCE:** If the conversation has previous messages, BUILD ON THEM. Reference what you already discussed. Never restart from scratch.
+
+**MATCHING ENERGY:**
+- Short casual message → warm, brief reply with ONE follow-up question
+- Deep emotional sharing → thorough diagnosis + deep guidance
+- Follow-up answer to your questions → move to Phase 2/3 analysis
+- "Tell me more" / "Go deeper" → expand with more verses and practical steps
+- Greeting → warm response with an inspiring verse for the day
+
+**RESOURCE SUGGESTIONS:** When giving deep guidance, naturally suggest:
+- Specific chapters to explore (with why)
+- Related problems they might also be facing
+- Reading plan ideas they could follow
+
+**WHAT YOU NEVER DO:**
+- Never give formulaic, template-like responses
+- Never ignore or minimize emotions
+- Never fabricate verses
 - Never respond with just a list of verses without personal engagement
-- Never be preachy, condescending, or dismissive`;
+- Never be preachy or condescending
+- Never give the FULL structured guidance on the first message — diagnose first
 
-// Language detection prompt
+## Your Spirit
+You channel the energy of Lord Krishna — calm, wise, loving, occasionally gently firm when someone needs perspective. You are a mentor who has absorbed this wisdom so deeply that it flows naturally.`;
+
 const LANGUAGE_DETECTION_PROMPT = `Detect the language of the following text and return ONLY the ISO 639-1 language code (e.g., "hi" for Hindi, "ta" for Tamil, "te" for Telugu, "bn" for Bengali, "mr" for Marathi, "gu" for Gujarati, "kn" for Kannada, "ml" for Malayalam, "pa" for Punjabi, "or" for Odia, "as" for Assamese, "ur" for Urdu, "en" for English). If mixed languages, return the predominant one. Response must be exactly 2 characters.
 
 Text: `;
 
-// Translation prompt
 const TRANSLATION_PROMPT = `Translate the following text to English. Preserve the meaning and emotional tone. Only return the translation, nothing else.
 
 Text: `;
 
-// Response translation prompt
 function getResponseTranslationPrompt(targetLang: string): string {
   const langNames: Record<string, string> = {
-    hi: 'Hindi (हिन्दी)',
-    ta: 'Tamil (தமிழ்)',
-    te: 'Telugu (తెలుగు)',
-    bn: 'Bengali (বাংলা)',
-    mr: 'Marathi (मराठी)',
-    gu: 'Gujarati (ગુજરાતી)',
-    kn: 'Kannada (ಕನ್ನಡ)',
-    ml: 'Malayalam (മലയാളം)',
-    pa: 'Punjabi (ਪੰਜਾਬੀ)',
-    or: 'Odia (ଓଡ଼ିଆ)',
-    as: 'Assamese (অসমীয়া)',
-    ur: 'Urdu (اردو)',
+    hi: 'Hindi (हिन्दी)', ta: 'Tamil (தமிழ்)', te: 'Telugu (తెలుగు)',
+    bn: 'Bengali (বাংলা)', mr: 'Marathi (मराठी)', gu: 'Gujarati (ગુજરાતી)',
+    kn: 'Kannada (ಕನ್ನಡ)', ml: 'Malayalam (മലയാളം)', pa: 'Punjabi (ਪੰਜਾਬੀ)',
+    or: 'Odia (ଓଡ଼ିଆ)', as: 'Assamese (অসমীয়া)', ur: 'Urdu (اردو)',
   };
   
   return `Translate the following text to ${langNames[targetLang] || targetLang}. 
 Important guidelines:
-- Preserve all formatting (markdown, bullet points, numbered lists)
-- Keep Sanskrit verse references in their original form (e.g., "Chapter X, Verse Y")
+- Preserve all formatting (markdown, bullet points, numbered lists, emojis)
+- Keep verse references in English format: "Chapter X, Verse Y"
 - Maintain the spiritual and philosophical tone
-- Use natural, fluent ${langNames[targetLang] || targetLang} that reads well
+- Use natural, fluent ${langNames[targetLang] || targetLang}
 - Do not add any explanations, just return the translation
 
 Text to translate:
@@ -106,15 +117,10 @@ Text to translate:
 async function callGeminiAPI(apiKey: string, prompt: string): Promise<string> {
   const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 8192,
-      },
+      generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
     }),
   });
 
@@ -131,22 +137,14 @@ async function callGeminiAPI(apiKey: string, prompt: string): Promise<string> {
 async function callGeminiStream(apiKey: string, prompt: string): Promise<Response> {
   const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}&alt=sse`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 8192,
-      },
+      generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
     }),
   });
 
-  if (!response.ok) {
-    throw new Error(`Gemini API error: ${response.status}`);
-  }
-
+  if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
   return response;
 }
 
@@ -156,30 +154,242 @@ async function detectLanguage(text: string, apiKey: string): Promise<string> {
     const langCode = result.trim().toLowerCase().slice(0, 2);
     const validCodes = ['hi', 'ta', 'te', 'bn', 'mr', 'gu', 'kn', 'ml', 'pa', 'or', 'as', 'ur', 'en'];
     return validCodes.includes(langCode) ? langCode : 'en';
-  } catch (error) {
-    console.error('Language detection error:', error);
+  } catch {
     return 'en';
   }
 }
 
 async function translateToEnglish(text: string, apiKey: string): Promise<string> {
   try {
-    const result = await callGeminiAPI(apiKey, TRANSLATION_PROMPT + text);
-    return result.trim();
-  } catch (error) {
-    console.error('Translation to English error:', error);
+    return (await callGeminiAPI(apiKey, TRANSLATION_PROMPT + text)).trim();
+  } catch {
     return text;
   }
 }
 
 async function translateFromEnglish(text: string, targetLang: string, apiKey: string): Promise<string> {
   try {
-    const result = await callGeminiAPI(apiKey, getResponseTranslationPrompt(targetLang) + text);
-    return result.trim();
-  } catch (error) {
-    console.error('Translation from English error:', error);
+    return (await callGeminiAPI(apiKey, getResponseTranslationPrompt(targetLang) + text)).trim();
+  } catch {
     return text;
   }
+}
+
+// Enhanced problem matching - searches across ALL problems dynamically
+async function findRelevantProblems(text: string, supabase: any): Promise<string[]> {
+  const { data: problems } = await supabase
+    .from("problems")
+    .select("id, name, slug, description_english, category");
+  
+  if (!problems) return [];
+  
+  const keywords = text.toLowerCase();
+  const matched: { id: string; score: number; name: string }[] = [];
+  
+  for (const p of problems) {
+    let score = 0;
+    const nameWords = p.name.toLowerCase().split(/\s+/);
+    const descWords = (p.description_english || '').toLowerCase();
+    const slug = p.slug.toLowerCase().replace(/-/g, ' ');
+    
+    for (const word of nameWords) {
+      if (word.length > 3 && keywords.includes(word)) score += 3;
+    }
+    if (keywords.includes(slug)) score += 5;
+    if (descWords && keywords.split(/\s+/).some((kw: string) => kw.length > 3 && descWords.includes(kw))) score += 1;
+    
+    // Category-based boosting
+    const categoryKeywords: Record<string, string[]> = {
+      mental: ['stress', 'anxious', 'anxiety', 'depress', 'overthink', 'worry', 'peace', 'calm', 'mind', 'mental', 'sleep', 'restless'],
+      relationships: ['relationship', 'family', 'friend', 'love', 'marriage', 'parent', 'partner', 'conflict', 'forgive', 'trust', 'lonely'],
+      career: ['career', 'job', 'work', 'business', 'money', 'success', 'failure', 'promotion', 'purpose', 'passion', 'stuck', 'direction'],
+      leadership: ['leader', 'manage', 'team', 'responsible', 'duty', 'decision', 'authority', 'power', 'guide', 'influence'],
+      spiritual: ['spiritual', 'meaning', 'life', 'death', 'soul', 'god', 'karma', 'dharma', 'meditation', 'prayer', 'faith', 'believe'],
+      ethics: ['right', 'wrong', 'moral', 'honest', 'lie', 'cheat', 'integrity', 'ethics', 'guilt', 'conscience', 'justice'],
+    };
+    
+    if (p.category && categoryKeywords[p.category]) {
+      for (const kw of categoryKeywords[p.category]) {
+        if (keywords.includes(kw)) score += 2;
+      }
+    }
+    
+    if (score > 0) matched.push({ id: p.id, score, name: p.name });
+  }
+  
+  return matched
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map(m => m.id);
+}
+
+// Fetch from ai_search_rules for additional context
+async function findSearchRuleMatches(text: string, supabase: any): Promise<string[]> {
+  const { data: rules } = await supabase
+    .from("ai_search_rules")
+    .select("keywords, fallback_shloks, problem_id")
+    .eq("enabled", true)
+    .order("priority", { ascending: true });
+  
+  if (!rules) return [];
+  
+  const keywords = text.toLowerCase();
+  const shlokIds: string[] = [];
+  
+  for (const rule of rules) {
+    const hasMatch = rule.keywords?.some((kw: string) => keywords.includes(kw.toLowerCase()));
+    if (hasMatch && rule.fallback_shloks) {
+      shlokIds.push(...rule.fallback_shloks);
+    }
+  }
+  
+  return [...new Set(shlokIds)].slice(0, 5);
+}
+
+// Build rich verse context with full details
+async function buildVerseContext(processedMessage: string, supabase: any): Promise<{ context: string; relatedData: any }> {
+  // 1. Find relevant problems
+  const problemIds = await findRelevantProblems(processedMessage, supabase);
+  
+  // 2. Find search rule matches
+  const ruleShlokIds = await findSearchRuleMatches(processedMessage, supabase);
+  
+  // 3. Fetch shloks from matched problems
+  let problemShloks: any[] = [];
+  if (problemIds.length > 0) {
+    const { data } = await supabase
+      .from("shlok_problems")
+      .select("shlok_id, relevance_score, shloks(*, chapters(chapter_number, title_english, theme))")
+      .in("problem_id", problemIds)
+      .order("relevance_score", { ascending: false })
+      .limit(7);
+    
+    if (data) problemShloks = data;
+  }
+  
+  // 4. Fetch shloks from search rules
+  let ruleShloks: any[] = [];
+  if (ruleShlokIds.length > 0) {
+    const { data } = await supabase
+      .from("shloks")
+      .select("*, chapters(chapter_number, title_english, theme)")
+      .in("id", ruleShlokIds);
+    
+    if (data) ruleShloks = data;
+  }
+  
+  // 5. Merge and deduplicate
+  const seenIds = new Set<string>();
+  const allShloks: any[] = [];
+  
+  for (const sp of problemShloks) {
+    const s = sp.shloks;
+    if (s && !seenIds.has(s.id)) {
+      seenIds.add(s.id);
+      allShloks.push({ ...s, relevance: sp.relevance_score || 5 });
+    }
+  }
+  
+  for (const s of ruleShloks) {
+    if (!seenIds.has(s.id)) {
+      seenIds.add(s.id);
+      allShloks.push({ ...s, relevance: 5 });
+    }
+  }
+  
+  // Sort by relevance
+  allShloks.sort((a, b) => (b.relevance || 0) - (a.relevance || 0));
+  const topShloks = allShloks.slice(0, 7);
+  
+  // 6. Fetch related problems for resource suggestions
+  let relatedProblems: any[] = [];
+  if (problemIds.length > 0) {
+    const { data } = await supabase
+      .from("problems")
+      .select("name, slug, icon, category")
+      .in("id", problemIds);
+    if (data) relatedProblems = data;
+  }
+  
+  // 7. Fetch relevant reading plans
+  let readingPlans: any[] = [];
+  const { data: plans } = await supabase
+    .from("reading_plans")
+    .select("id, title, description, difficulty, duration_days, icon")
+    .limit(3);
+  if (plans) {
+    const planKeywords = processedMessage.toLowerCase();
+    readingPlans = plans.filter((p: any) => {
+      const planText = `${p.title} ${p.description || ''}`.toLowerCase();
+      return planKeywords.split(/\s+/).some((kw: string) => kw.length > 3 && planText.includes(kw));
+    }).slice(0, 2);
+  }
+  
+  // 8. Build context string
+  let context = "";
+  if (topShloks.length > 0) {
+    context += "\n\n## Relevant verses from the Gita database (USE THESE for your response):\n\n";
+    for (const s of topShloks) {
+      context += `### Chapter ${s.chapters?.chapter_number}, Verse ${s.verse_number}\n`;
+      context += `- **Chapter:** "${s.chapters?.title_english}" (Theme: ${s.chapters?.theme})\n`;
+      context += `- **Meaning:** ${s.english_meaning}\n`;
+      if (s.life_application) context += `- **Life Application:** ${s.life_application}\n`;
+      if (s.practical_action) context += `- **Practical Action:** ${s.practical_action}\n`;
+      if (s.problem_context) context += `- **Problem Context:** ${s.problem_context}\n`;
+      if (s.solution_gita) context += `- **Gita Solution:** ${s.solution_gita}\n`;
+      context += `- **Relevance Score:** ${s.relevance}/10\n\n`;
+    }
+  }
+  
+  if (relatedProblems.length > 0) {
+    context += "\n## Related problem areas the user might benefit from:\n";
+    for (const p of relatedProblems) {
+      context += `- ${p.icon || '•'} ${p.name} (/${p.slug})\n`;
+    }
+  }
+  
+  // Build related data for client
+  const relatedData = {
+    verses: topShloks.map((s: any) => ({
+      chapterNumber: s.chapters?.chapter_number,
+      verseNumber: s.verse_number,
+      chapterTitle: s.chapters?.title_english,
+      meaning: s.english_meaning?.slice(0, 120) + (s.english_meaning?.length > 120 ? '...' : ''),
+    })),
+    problems: relatedProblems.map((p: any) => ({
+      name: p.name,
+      slug: p.slug,
+      icon: p.icon,
+      category: p.category,
+    })),
+    readingPlans: readingPlans.map((p: any) => ({
+      id: p.id,
+      title: p.title,
+      difficulty: p.difficulty,
+      days: p.duration_days,
+      icon: p.icon,
+    })),
+    chapters: [...new Set(topShloks.map((s: any) => s.chapters?.chapter_number).filter(Boolean))].map((num: number) => {
+      const s = topShloks.find((s: any) => s.chapters?.chapter_number === num);
+      return {
+        number: num,
+        title: s?.chapters?.title_english,
+        theme: s?.chapters?.theme,
+      };
+    }),
+  };
+  
+  return { context, relatedData };
+}
+
+// Determine conversation phase
+function getConversationPhase(messages: any[]): string {
+  const userMessages = messages.filter((m: any) => m.role === 'user');
+  const assistantMessages = messages.filter((m: any) => m.role === 'assistant');
+  
+  if (userMessages.length <= 1) return 'diagnosis';
+  if (userMessages.length === 2) return 'deepening';
+  return 'guidance';
 }
 
 serve(async (req) => {
@@ -191,107 +401,78 @@ serve(async (req) => {
     const { messages, conversationId, preferredLanguage, verse_context } = await req.json();
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     
-    if (!GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY is not configured");
-    }
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
-    // Get the last user message
     const lastUserMessage = messages.filter((m: any) => m.role === "user").pop();
-    if (!lastUserMessage) {
-      throw new Error("No user message found");
-    }
+    if (!lastUserMessage) throw new Error("No user message found");
 
     let detectedLanguage = preferredLanguage || 'auto';
     let processedUserMessage = lastUserMessage.content;
     let needsTranslation = false;
 
-    // Auto-detect language if needed
     if (detectedLanguage === 'auto' || !detectedLanguage) {
       detectedLanguage = await detectLanguage(lastUserMessage.content, GEMINI_API_KEY);
     }
 
-    // If not English, translate to English for processing
     if (detectedLanguage !== 'en') {
       needsTranslation = true;
       processedUserMessage = await translateToEnglish(lastUserMessage.content, GEMINI_API_KEY);
     }
 
-    // Fetch relevant shloks based on the processed message
-    let contextShloks = "";
+    // Enhanced verse context retrieval
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Simple keyword matching for context
-    const keywords = processedUserMessage.toLowerCase();
-    let problemSlug = "";
+    // Build all previous user messages into search query for better matching
+    const allUserText = messages
+      .filter((m: any) => m.role === 'user')
+      .map((m: any) => m.content)
+      .join(' ');
     
-    if (keywords.includes("anxious") || keywords.includes("worry") || keywords.includes("stress")) {
-      problemSlug = "anxiety";
-    } else if (keywords.includes("fear") || keywords.includes("afraid") || keywords.includes("scared")) {
-      problemSlug = "fear";
-    } else if (keywords.includes("confused") || keywords.includes("decision") || keywords.includes("choice")) {
-      problemSlug = "confusion";
-    } else if (keywords.includes("angry") || keywords.includes("anger") || keywords.includes("frustrat")) {
-      problemSlug = "anger";
-    } else if (keywords.includes("doubt") || keywords.includes("worth") || keywords.includes("confidence")) {
-      problemSlug = "self-doubt";
-    } else if (keywords.includes("relationship") || keywords.includes("family") || keywords.includes("friend")) {
-      problemSlug = "relationships";
-    } else if (keywords.includes("lead") || keywords.includes("manage") || keywords.includes("team")) {
-      problemSlug = "leadership";
-    }
-    
-    if (problemSlug) {
-      const { data: shloks } = await supabase
-        .from("shlok_problems")
-        .select("shloks(*, chapters(*))")
-        .eq("problem_id", (await supabase.from("problems").select("id").eq("slug", problemSlug).single()).data?.id)
-        .limit(3);
-      
-      if (shloks && shloks.length > 0) {
-        contextShloks = "\n\nRelevant verses from the database:\n" + 
-          shloks.map((sp: any) => {
-            const s = sp.shloks;
-            return `Chapter ${s.chapters?.chapter_number}, Verse ${s.verse_number}: "${s.english_meaning}" - Life application: ${s.life_application || "N/A"}`;
-          }).join("\n");
-      }
-    }
+    const { context: verseContext, relatedData } = await buildVerseContext(
+      needsTranslation ? processedUserMessage : allUserText, 
+      supabase
+    );
 
-    // Build the full prompt with conversation history
+    // Determine phase
+    const phase = getConversationPhase(messages);
+    const phaseInstruction = phase === 'diagnosis' 
+      ? "\n\n⚡ PHASE: DIAGNOSIS — This is the user's FIRST message. Ask 2-3 probing questions. Share ONE relevant verse as a preview. Do NOT give the full structured guidance yet."
+      : phase === 'deepening'
+      ? "\n\n⚡ PHASE: DEEPENING — The user has answered your questions. You can now provide deeper analysis. If you need more clarity, ask ONE more question. Otherwise, start moving toward structured guidance."
+      : "\n\n⚡ PHASE: FULL GUIDANCE — You have enough context. Provide the COMPLETE structured guidance with all sections (Understanding, Gita Reveals, Action Plan, Daily Practice, Go Deeper).";
+
+    // Build conversation history
     const conversationHistory = messages.map((m: any, i: number) => {
       if (i === messages.length - 1 && m.role === "user" && needsTranslation) {
-        return `${m.role === 'user' ? 'User' : 'Assistant'}: ${processedUserMessage}`;
+        return `User: ${processedUserMessage}`;
       }
       return `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`;
     }).join("\n\n");
 
-    // Add verse context if provided (from VerseChat component)
     const verseContextPrompt = verse_context 
-      ? `\n\nIMPORTANT: The user is asking about a specific verse. Here is the verse context:\n${verse_context}\nAlways reference this verse in your response and keep answers focused on it.`
+      ? `\n\nIMPORTANT: The user is asking about a specific verse:\n${verse_context}\nKeep answers focused on this verse.`
       : '';
 
-    const fullPrompt = `${SYSTEM_PROMPT}${verseContextPrompt}${contextShloks}\n\nConversation:\n${conversationHistory}\n\nAssistant:`;
+    const fullPrompt = `${SYSTEM_PROMPT}${phaseInstruction}${verseContextPrompt}${verseContext}\n\nConversation:\n${conversationHistory}\n\nAssistant:`;
 
-    // Get response from Gemini
+    // Streaming response
     if (needsTranslation) {
-      // For non-English: get full response, translate, then send
       const aiResponse = await callGeminiAPI(GEMINI_API_KEY, fullPrompt);
-
-      // Translate response back to user's language
       const translatedResponse = await translateFromEnglish(aiResponse, detectedLanguage, GEMINI_API_KEY);
 
-      // Create SSE response with the translated content
       const encoder = new TextEncoder();
       const stream = new ReadableStream({
         start(controller) {
-          // Send the full translated response as SSE chunks
-          const chunkSize = 50; // Send in smaller chunks for smooth streaming effect
+          // Send related data as first SSE event
+          const metaEvent = JSON.stringify({ type: 'meta', relatedData });
+          controller.enqueue(encoder.encode(`data: ${metaEvent}\n\n`));
+          
+          const chunkSize = 50;
           for (let i = 0; i < translatedResponse.length; i += chunkSize) {
             const chunk = translatedResponse.slice(i, i + chunkSize);
-            const data = JSON.stringify({
-              choices: [{ delta: { content: chunk } }]
-            });
+            const data = JSON.stringify({ choices: [{ delta: { content: chunk } }] });
             controller.enqueue(encoder.encode(`data: ${data}\n\n`));
           }
           controller.enqueue(encoder.encode(`data: [DONE]\n\n`));
@@ -304,22 +485,21 @@ serve(async (req) => {
       });
     }
 
-    // For English: use streaming with Gemini
+    // English streaming
     const streamResponse = await callGeminiStream(GEMINI_API_KEY, fullPrompt);
+    if (!streamResponse.body) throw new Error("No response body from Gemini");
 
-    if (!streamResponse.body) {
-      throw new Error("No response body from Gemini");
-    }
-
-    // Transform Gemini SSE to OpenAI-compatible SSE format
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
     const reader = streamResponse.body.getReader();
 
     const transformStream = new ReadableStream({
       async start(controller) {
-        let buffer = "";
+        // Send related data as first SSE event
+        const metaEvent = JSON.stringify({ type: 'meta', relatedData });
+        controller.enqueue(encoder.encode(`data: ${metaEvent}\n\n`));
         
+        let buffer = "";
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -332,19 +512,14 @@ serve(async (req) => {
             if (line.startsWith("data: ")) {
               const jsonStr = line.slice(6).trim();
               if (jsonStr === "[DONE]") continue;
-              
               try {
                 const parsed = JSON.parse(jsonStr);
                 const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (text) {
-                  const openAIFormat = JSON.stringify({
-                    choices: [{ delta: { content: text } }]
-                  });
+                  const openAIFormat = JSON.stringify({ choices: [{ delta: { content: text } }] });
                   controller.enqueue(encoder.encode(`data: ${openAIFormat}\n\n`));
                 }
-              } catch {
-                // Skip invalid JSON
-              }
+              } catch { /* skip */ }
             }
           }
         }
