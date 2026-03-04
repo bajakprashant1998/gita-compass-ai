@@ -7,7 +7,7 @@ export default function AdminLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
       <AdminSidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -19,7 +19,7 @@ export default function AdminLayout() {
           sidebarCollapsed ? "ml-[60px]" : "ml-60"
         )}
       >
-        <div className="p-6 max-w-[1400px]">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-[1400px]">
           <Outlet />
         </div>
       </main>
