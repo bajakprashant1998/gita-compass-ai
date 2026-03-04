@@ -138,6 +138,12 @@ export default function AdminLoginPage() {
               </div>
             </div>
 
+            <div className="flex justify-end">
+              <Link to="/admin/forgot-password" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                Forgot password?
+              </Link>
+            </div>
+
             <Button type="submit" className="w-full h-11 text-sm font-semibold shadow-lg shadow-primary/15 hover:shadow-xl hover:shadow-primary/25 transition-all duration-300" disabled={isLoading}>
               {isLoading ? (<><Loader2 className="h-4 w-4 mr-2 animate-spin" />Verifying...</>) : 'Sign In'}
             </Button>
