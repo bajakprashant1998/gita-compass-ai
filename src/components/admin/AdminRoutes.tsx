@@ -19,20 +19,16 @@ import AdminBlogList from "@/pages/admin/AdminBlogList";
 import AdminBlogForm from "@/pages/admin/AdminBlogForm";
 import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 import AdminUsers from "@/pages/admin/AdminUsers";
+import AdminContactSubmissions from "@/pages/admin/AdminContactSubmissions";
+import AdminScheduleCalendar from "@/pages/admin/AdminScheduleCalendar";
+import AdminSystemHealth from "@/pages/admin/AdminSystemHealth";
 
-/**
- * Admin routes wrapper that provides AdminAuthContext.
- * All routes except /admin/login are protected and require admin authentication.
- * Includes analytics dashboard for user engagement metrics.
- */
 export default function AdminRoutes() {
   return (
     <AdminAuthProvider>
       <Routes>
-        {/* Public admin route - login page */}
         <Route path="login" element={<AdminLoginPage />} />
 
-        {/* Protected admin routes - require authentication and use Layout */}
         <Route element={<AdminLayout />}>
           <Route path="" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
           <Route path="shloks" element={<AdminProtectedRoute><AdminShlokList /></AdminProtectedRoute>} />
@@ -49,6 +45,9 @@ export default function AdminRoutes() {
           <Route path="settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
           <Route path="analytics" element={<AdminProtectedRoute><AdminAnalytics /></AdminProtectedRoute>} />
           <Route path="users" element={<AdminProtectedRoute><AdminUsers /></AdminProtectedRoute>} />
+          <Route path="contacts" element={<AdminProtectedRoute><AdminContactSubmissions /></AdminProtectedRoute>} />
+          <Route path="schedule" element={<AdminProtectedRoute><AdminScheduleCalendar /></AdminProtectedRoute>} />
+          <Route path="health" element={<AdminProtectedRoute><AdminSystemHealth /></AdminProtectedRoute>} />
           <Route path="seo" element={<AdminProtectedRoute><AdminSEOPages /></AdminProtectedRoute>} />
           <Route path="blog" element={<AdminProtectedRoute><AdminBlogList /></AdminProtectedRoute>} />
           <Route path="blog/create" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />

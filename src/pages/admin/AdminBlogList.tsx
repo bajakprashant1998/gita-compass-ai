@@ -5,27 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Search, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, EyeOff, PenSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 
 interface BlogPost {
   id: string;
@@ -39,6 +30,7 @@ interface BlogPost {
 }
 
 export default function AdminBlogList() {
+  const { isReady } = useAdminAuthContext();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -61,32 +53,37 @@ export default function AdminBlogList() {
   };
 
   useEffect(() => {
+    if (!isReady) return;
     fetchPosts();
-  }, []);
+  }, [isReady]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    const { error } = await supabase.from('blog_posts').delete().eq('id', deleteId);
-    if (error) {
-      toast.error('Failed to delete post');
-    } else {
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-crud', {
+        body: { table: 'blog_posts', operation: 'delete', id: deleteId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
       toast.success('Post deleted');
       setPosts(prev => prev.filter(p => p.id !== deleteId));
+    } catch (err) {
+      toast.error('Failed to delete post');
     }
     setDeleteId(null);
   };
 
   const togglePublish = async (post: BlogPost) => {
-    const { error } = await supabase
-      .from('blog_posts')
-      .update({ published: !post.published })
-      .eq('id', post.id);
-
-    if (error) {
-      toast.error('Failed to update post');
-    } else {
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-crud', {
+        body: { table: 'blog_posts', operation: 'update', id: post.id, data: { published: !post.published } },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
       setPosts(prev => prev.map(p => p.id === post.id ? { ...p, published: !p.published } : p));
       toast.success(post.published ? 'Post unpublished' : 'Post published');
+    } catch (err) {
+      toast.error('Failed to update post');
     }
   };
 
@@ -97,37 +94,32 @@ export default function AdminBlogList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Blog Posts</h1>
-          <p className="text-muted-foreground">{posts.length} total posts</p>
-        </div>
-        <Button asChild>
-          <Link to="/admin/blog/create">
-            <Plus className="w-4 h-4 mr-2" />
-            New Post
-          </Link>
-        </Button>
-      </div>
+      <AdminHeader
+        title="Blog Posts"
+        subtitle={`${posts.length} total posts`}
+        icon={<PenSquare className="w-5 h-5" />}
+        actions={
+          <Button asChild>
+            <Link to="/admin/blog/create">
+              <Plus className="w-4 h-4 mr-2" /> New Post
+            </Link>
+          </Button>
+        }
+      />
 
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search posts..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="pl-9"
-        />
+        <Input placeholder="Search posts..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 rounded-xl" />
       </div>
 
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 w-full" />
+            <Skeleton key={i} className="h-16 w-full rounded-xl" />
           ))}
         </div>
       ) : (
-        <div className="border rounded-lg">
+        <div className="border border-border/60 rounded-2xl overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -142,18 +134,14 @@ export default function AdminBlogList() {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    No blog posts found
-                  </TableCell>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No blog posts found</TableCell>
                 </TableRow>
               ) : (
                 filtered.map(post => (
                   <TableRow key={post.id}>
                     <TableCell className="font-medium max-w-[250px] truncate">{post.title}</TableCell>
                     <TableCell>
-                      <Badge variant={post.published ? 'default' : 'secondary'}>
-                        {post.published ? 'Published' : 'Draft'}
-                      </Badge>
+                      <Badge variant={post.published ? 'default' : 'secondary'}>{post.published ? 'Published' : 'Draft'}</Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{post.author}</TableCell>
                     <TableCell>
@@ -163,9 +151,7 @@ export default function AdminBlogList() {
                         ))}
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
-                      {format(new Date(post.updated_at), 'MMM d, yyyy')}
-                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{format(new Date(post.updated_at), 'MMM d, yyyy')}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Button variant="ghost" size="icon" onClick={() => togglePublish(post)} title={post.published ? 'Unpublish' : 'Publish'}>

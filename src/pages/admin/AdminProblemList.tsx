@@ -4,18 +4,14 @@ import { AdminHeader } from '@/components/admin/AdminHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2, Tags } from 'lucide-react';
 import { getAdminProblems, deleteProblem } from '@/lib/adminApi';
 import type { AdminProblem, ProblemCategory } from '@/types/admin';
 import { useToast } from '@/hooks/use-toast';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +33,7 @@ const categoryColors: Record<ProblemCategory, string> = {
 };
 
 export default function AdminProblemList() {
+  const { isReady } = useAdminAuthContext();
   const [problems, setProblems] = useState<AdminProblem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -61,8 +58,9 @@ export default function AdminProblemList() {
   };
 
   useEffect(() => {
+    if (!isReady) return;
     loadProblems();
-  }, []);
+  }, [isReady]);
 
   const handleDelete = async () => {
     if (!deleteId) return;

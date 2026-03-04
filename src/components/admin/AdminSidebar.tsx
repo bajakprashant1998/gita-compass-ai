@@ -18,6 +18,9 @@ import {
   LogOut,
   Users,
   Sparkles,
+  Mail,
+  CalendarDays,
+  Activity,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
@@ -150,12 +153,15 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
 
         <SectionLabel label="Management" collapsed={collapsed} />
         <NavItem to="/admin/users" icon={<Users className="w-[18px] h-[18px]" />} label="Users" collapsed={collapsed} badge="New" />
+        <NavItem to="/admin/contacts" icon={<Mail className="w-[18px] h-[18px]" />} label="Contacts" collapsed={collapsed} />
+        <NavItem to="/admin/schedule" icon={<CalendarDays className="w-[18px] h-[18px]" />} label="Schedule" collapsed={collapsed} />
 
         <SectionLabel label="Configuration" collapsed={collapsed} />
         <NavItem to="/admin/ai-rules" icon={<Bot className="w-[18px] h-[18px]" />} label="AI Rules" collapsed={collapsed} />
         <NavItem to="/admin/languages" icon={<Languages className="w-[18px] h-[18px]" />} label="Languages" collapsed={collapsed} />
         <NavItem to="/admin/seo" icon={<Search className="w-[18px] h-[18px]" />} label="SEO" collapsed={collapsed} />
         <NavItem to="/admin/activity" icon={<History className="w-[18px] h-[18px]" />} label="Activity Log" collapsed={collapsed} />
+        <NavItem to="/admin/health" icon={<Activity className="w-[18px] h-[18px]" />} label="System Health" collapsed={collapsed} />
         <NavItem to="/admin/settings" icon={<Settings className="w-[18px] h-[18px]" />} label="Settings" collapsed={collapsed} />
       </nav>
 
