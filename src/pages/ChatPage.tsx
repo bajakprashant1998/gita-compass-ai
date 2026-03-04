@@ -391,7 +391,7 @@ export default function ChatPage() {
   const isOverLimit = charCount > MAX_CHARS;
 
   return (
-    <Layout>
+    <Layout hideFooter={isMobile} hideHeader={isMobile}>
       <SEOHead
         title="Talk to Krishna - Personal Wisdom Guide"
         description="Talk to Krishna and receive personalized wisdom from the Bhagavad Gita. Get guidance for anxiety, decision-making, and life challenges."
@@ -399,17 +399,23 @@ export default function ChatPage() {
         keywords={['talk to Krishna', 'Gita guidance', 'wisdom chat', 'personal guide', 'life advice']}
       />
 
-      {/* Compact Header Bar */}
-      <section className="relative overflow-hidden border-b border-border/40 bg-gradient-to-r from-primary/[0.04] via-background to-amber-500/[0.04]">
+      {/* Header Bar - compact on mobile, fixed at top */}
+      <section className={cn(
+        "relative overflow-hidden border-b border-border/40 bg-gradient-to-r from-primary/[0.04] via-background to-amber-500/[0.04]",
+        isMobile && "sticky top-0 z-30 backdrop-blur-xl bg-background/90"
+      )}>
         <div className="container mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="max-w-5xl mx-auto flex items-center justify-between gap-3 h-14 md:h-16">
+          <div className="max-w-5xl mx-auto flex items-center justify-between gap-2 h-12 md:h-16">
             {/* Left: Identity */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/25">
-                  <Flame className="h-5 w-5 text-primary-foreground" />
+                <div className={cn(
+                  "rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-lg shadow-primary/25",
+                  isMobile ? "w-8 h-8" : "w-10 h-10"
+                )}>
+                  <Flame className={cn(isMobile ? "h-4 w-4" : "h-5 w-5", "text-primary-foreground")} />
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-background" />
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-base font-bold leading-tight">
@@ -419,13 +425,16 @@ export default function ChatPage() {
                   Personal wisdom guide • 700+ verses
                 </p>
               </div>
-              <h1 className="sm:hidden text-base font-bold">
-                <span className="text-gradient">Krishna</span>
-              </h1>
+              <div className="sm:hidden">
+                <h1 className="text-sm font-bold leading-tight">
+                  <span className="text-gradient">Krishna</span>
+                </h1>
+                <p className="text-[10px] text-muted-foreground leading-none mt-0.5">Online • 700+ verses</p>
+              </div>
             </div>
             
             {/* Right: Actions */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1">
               <EnhancedLanguageSelector
                 selectedLanguage={preferredLanguage}
                 onLanguageChange={setPreferredLanguage}
@@ -450,7 +459,7 @@ export default function ChatPage() {
                     variant="ghost" 
                     size="icon" 
                     onClick={() => setMobileHistoryOpen(true)}
-                    className="md:hidden h-9 w-9 text-muted-foreground"
+                    className="md:hidden h-8 w-8 text-muted-foreground"
                   >
                     <History className="h-4 w-4" />
                   </Button>
@@ -459,12 +468,12 @@ export default function ChatPage() {
               {messages.length > 0 && (
                 <Button 
                   variant="ghost" 
-                  size="sm" 
+                  size="icon"
                   onClick={handleClearChat}
-                  className="gap-1.5 text-muted-foreground hover:text-foreground h-9"
+                  className="h-8 w-8 md:h-9 md:w-auto md:px-3 text-muted-foreground hover:text-foreground"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline text-xs">New</span>
+                  <span className="hidden md:inline text-xs ml-1.5">New</span>
                 </Button>
               )}
             </div>
@@ -493,9 +502,15 @@ export default function ChatPage() {
         </SheetContent>
       </Sheet>
 
-      <div className="container mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-3 h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)]">
+      {/* Main Chat Container - full height on mobile */}
+      <div className={cn(
+        "container mx-auto px-0 sm:px-6 lg:px-8 sm:py-3",
+        isMobile 
+          ? "h-[calc(100dvh-48px)]" // dvh for mobile viewport, minus header
+          : "py-3 h-[calc(100vh-10rem)]"
+      )}>
         <div className="max-w-5xl mx-auto h-full flex gap-4">
-          {/* Chat History Sidebar */}
+          {/* Chat History Sidebar - desktop only */}
           <ChatHistorySidebar
             userId={user?.id}
             isOpen={showHistory}
@@ -506,15 +521,27 @@ export default function ChatPage() {
           />
 
           {/* Chat Area */}
-          <div className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm shadow-xl shadow-primary/[0.03] relative">
+          <div className={cn(
+            "flex-1 flex flex-col overflow-hidden relative",
+            isMobile 
+              ? "bg-background" 
+              : "rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm shadow-xl shadow-primary/[0.03]"
+          )}>
+            {/* Messages Area */}
             <ScrollArea 
-              className="flex-1 p-3 md:p-6 relative" 
+              className={cn(
+                "flex-1 relative",
+                isMobile ? "px-3 pt-2 pb-1" : "p-6"
+              )}
               ref={scrollRef}
             >
               {messages.length === 0 ? (
                 <MultiLanguageStarters onSelect={handleQuickAction} selectedLanguage={preferredLanguage} />
               ) : (
-                <div className="space-y-5 md:space-y-6 max-w-3xl mx-auto">
+                <div className={cn(
+                  "max-w-3xl mx-auto",
+                  isMobile ? "space-y-3" : "space-y-6"
+                )}>
                   {messages.map((message, index) => {
                     const isLongMessage = message.role === 'assistant' && message.content.length > COLLAPSE_THRESHOLD;
                     const isCollapsed = collapsedMessages.has(index);
@@ -523,34 +550,51 @@ export default function ChatPage() {
                       <div
                         key={index}
                         className={cn(
-                          "flex gap-2.5 md:gap-3 group animate-fade-in",
+                          "flex gap-2 md:gap-3 group animate-fade-in",
                           message.role === 'user' ? 'justify-end' : ''
                         )}
                       >
                         {/* Krishna avatar */}
                         {message.role === 'assistant' && (
                           <div className="flex-shrink-0 mt-1">
-                            <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-amber-500/15 flex items-center justify-center border border-primary/20">
-                              <Flame className="h-4 w-4 text-primary" />
+                            <div className={cn(
+                              "rounded-full bg-gradient-to-br from-primary/15 to-amber-500/15 flex items-center justify-center border border-primary/20",
+                              isMobile ? "w-7 h-7" : "w-9 h-9"
+                            )}>
+                              <Flame className={cn(isMobile ? "h-3.5 w-3.5" : "h-4 w-4", "text-primary")} />
                             </div>
                           </div>
                         )}
                         
-                        <div className="flex flex-col max-w-[88%] sm:max-w-[80%]">
-                          {/* Message label */}
-                          <span className={cn(
-                            "text-[10px] font-semibold uppercase tracking-wider mb-1 px-1",
-                            message.role === 'user' ? 'text-right text-muted-foreground/60' : 'text-primary/60'
-                          )}>
-                            {message.role === 'user' ? 'You' : 'Krishna'}
-                          </span>
+                        <div className={cn(
+                          "flex flex-col",
+                          isMobile ? "max-w-[85%]" : "max-w-[80%]"
+                        )}>
+                          {/* Message label - hidden on mobile for cleaner look */}
+                          {!isMobile && (
+                            <span className={cn(
+                              "text-[10px] font-semibold uppercase tracking-wider mb-1 px-1",
+                              message.role === 'user' ? 'text-right text-muted-foreground/60' : 'text-primary/60'
+                            )}>
+                              {message.role === 'user' ? 'You' : 'Krishna'}
+                            </span>
+                          )}
                           
                           <div
                             className={cn(
-                              "rounded-2xl",
                               message.role === 'user'
-                                ? 'bg-gradient-to-br from-primary to-amber-500 text-primary-foreground shadow-lg shadow-primary/15 px-4 py-3 text-[15px] leading-relaxed'
-                                : 'bg-gradient-to-br from-background via-card to-muted/30 border border-border/50 shadow-sm px-4 md:px-5 py-4'
+                                ? cn(
+                                    "bg-gradient-to-br from-primary to-amber-500 text-primary-foreground shadow-md shadow-primary/15 leading-relaxed",
+                                    isMobile 
+                                      ? "rounded-2xl rounded-br-md px-3.5 py-2.5 text-sm" 
+                                      : "rounded-2xl px-4 py-3 text-[15px]"
+                                  )
+                                : cn(
+                                    "bg-gradient-to-br from-background via-card to-muted/30 border border-border/50 shadow-sm",
+                                    isMobile 
+                                      ? "rounded-2xl rounded-bl-md px-3.5 py-3" 
+                                      : "rounded-2xl px-5 py-4"
+                                  )
                             )}
                           >
                             {message.role === 'assistant' ? (
@@ -597,12 +641,15 @@ export default function ChatPage() {
                                 </div>
                               )
                             ) : (
-                              <p className="text-[15px] leading-relaxed">{message.content}</p>
+                              <p className={cn(isMobile ? "text-sm" : "text-[15px]", "leading-relaxed")}>{message.content}</p>
                             )}
                           </div>
                           
-                          {/* Meta row */}
-                          <div className="flex items-center justify-between mt-1.5 px-1 gap-2">
+                          {/* Meta row - compact on mobile */}
+                          <div className={cn(
+                            "flex items-center justify-between px-1 gap-2",
+                            isMobile ? "mt-1" : "mt-1.5"
+                          )}>
                             <div className="flex items-center gap-2">
                               {message.timestamp && (
                                 <span className="text-[10px] text-muted-foreground/60">
@@ -625,7 +672,7 @@ export default function ChatPage() {
                             )}
                           </div>
 
-                          {/* Follow-up Actions & Related Resources for assistant messages */}
+                          {/* Follow-up & Related */}
                           {message.role === 'assistant' && message.content && !isLoading && index === messages.length - 1 && (
                             <ChatFollowUpActions
                               onAction={handleQuickAction}
@@ -641,8 +688,11 @@ export default function ChatPage() {
                         {/* User avatar */}
                         {message.role === 'user' && (
                           <div className="flex-shrink-0 mt-1">
-                            <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-md shadow-primary/15">
-                              <User className="h-4 w-4 text-primary-foreground" />
+                            <div className={cn(
+                              "rounded-full bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center shadow-md shadow-primary/15",
+                              isMobile ? "w-7 h-7" : "w-9 h-9"
+                            )}>
+                              <User className={cn(isMobile ? "h-3.5 w-3.5" : "h-4 w-4", "text-primary-foreground")} />
                             </div>
                           </div>
                         )}
@@ -652,21 +702,24 @@ export default function ChatPage() {
                   
                   {/* Typing indicator */}
                   {isLoading && messages[messages.length - 1]?.role === 'user' && (
-                    <div className="flex gap-2.5 md:gap-3 animate-fade-in">
+                    <div className="flex gap-2 md:gap-3 animate-fade-in">
                       <div className="flex-shrink-0 mt-1">
-                        <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-gradient-to-br from-primary/15 to-amber-500/15 flex items-center justify-center border border-primary/20">
-                          <Flame className="h-4 w-4 text-primary animate-pulse" />
+                        <div className={cn(
+                          "rounded-full bg-gradient-to-br from-primary/15 to-amber-500/15 flex items-center justify-center border border-primary/20",
+                          isMobile ? "w-7 h-7" : "w-9 h-9"
+                        )}>
+                          <Flame className={cn(isMobile ? "h-3.5 w-3.5" : "h-4 w-4", "text-primary animate-pulse")} />
                         </div>
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[10px] font-semibold uppercase tracking-wider mb-1 px-1 text-primary/60">Krishna</span>
-                        <div className="bg-gradient-to-br from-background via-card to-muted/30 border border-border/50 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm">
-                          <div className="flex gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
-                            <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
-                            <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+                        {!isMobile && <span className="text-[10px] font-semibold uppercase tracking-wider mb-1 px-1 text-primary/60">Krishna</span>}
+                        <div className="bg-gradient-to-br from-background via-card to-muted/30 border border-border/50 rounded-2xl rounded-bl-md px-3.5 py-2.5 flex items-center gap-2.5 shadow-sm">
+                          <div className="flex gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
                           </div>
-                          <span className="text-xs text-muted-foreground/70 italic">{typingMessage}</span>
+                          <span className="text-[11px] text-muted-foreground/70 italic">{typingMessage}</span>
                         </div>
                       </div>
                     </div>
@@ -677,34 +730,50 @@ export default function ChatPage() {
 
             {/* Scroll to bottom */}
             {showScrollButton && (
-              <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-10">
+              <div className={cn(
+                "absolute left-1/2 -translate-x-1/2 z-10",
+                isMobile ? "bottom-24" : "bottom-28"
+              )}>
                 <Button
                   variant="secondary"
                   size="sm"
                   onClick={scrollToBottom}
-                  className="rounded-full shadow-lg gap-1.5 bg-background/95 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all text-xs"
+                  className="rounded-full shadow-lg gap-1.5 bg-background/95 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all text-xs h-8"
                 >
-                  <ArrowDown className="h-3.5 w-3.5" />
-                  Scroll down
+                  <ArrowDown className="h-3 w-3" />
+                  {!isMobile && "Scroll down"}
                 </Button>
               </div>
             )}
 
-            {/* Composer */}
-            <div className="border-t border-border/30 bg-gradient-to-t from-card via-card to-transparent p-3 sm:p-4">
+            {/* Composer - optimized for mobile */}
+            <div className={cn(
+              "border-t border-border/30 bg-gradient-to-t from-card via-card to-transparent",
+              isMobile 
+                ? "px-2 py-2 pb-[env(safe-area-inset-bottom,8px)]" 
+                : "p-4"
+            )}>
               {/* Quick actions mid-conversation */}
               {messages.length > 0 && (
-                <div className="mb-2.5">
+                <div className={cn(isMobile ? "mb-1.5" : "mb-2.5")}>
                   <QuickActionsBar onQuickAction={handleQuickAction} disabled={isLoading} />
                 </div>
               )}
               
               <form onSubmit={handleSubmit} className="relative">
-                <div className="relative flex items-end gap-1.5 sm:gap-2 bg-background/80 backdrop-blur-md border border-border/60 focus-within:border-primary/40 focus-within:shadow-[0_0_0_3px_hsl(var(--primary)/0.08)] rounded-2xl px-2 sm:px-3 py-1.5 sm:py-2 transition-all duration-200">
+                <div className={cn(
+                  "relative flex items-end gap-1 bg-background/80 backdrop-blur-md border border-border/60 focus-within:border-primary/40 focus-within:shadow-[0_0_0_3px_hsl(var(--primary)/0.08)] transition-all duration-200",
+                  isMobile 
+                    ? "rounded-xl px-1.5 py-1" 
+                    : "rounded-2xl px-3 py-2"
+                )}>
                   <VoiceInputButton 
                     onTranscript={handleVoiceTranscript} 
                     disabled={isLoading}
-                    className="h-9 w-9 md:h-10 md:w-10 flex-shrink-0 rounded-xl text-muted-foreground hover:text-foreground"
+                    className={cn(
+                      "flex-shrink-0 rounded-lg text-muted-foreground hover:text-foreground",
+                      isMobile ? "h-9 w-9" : "h-10 w-10"
+                    )}
                   />
                   
                   <Textarea
@@ -712,18 +781,19 @@ export default function ChatPage() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Share what's on your mind..."
+                    placeholder={isMobile ? "Ask Krishna..." : "Share what's on your mind..."}
                     className={cn(
-                      "min-h-[44px] max-h-[120px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent px-1 py-2.5 text-[15px] placeholder:text-muted-foreground/50",
+                      "min-h-[44px] max-h-[100px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent px-1 py-2.5 placeholder:text-muted-foreground/50",
+                      isMobile ? "text-[16px]" : "text-[15px]", // 16px prevents iOS zoom
                       isOverLimit && "text-destructive"
                     )}
                     disabled={isLoading}
                   />
                   
-                  <div className="flex items-center gap-1.5 flex-shrink-0 pb-0.5">
-                    {charCount > 400 && (
+                  <div className="flex items-center gap-1 flex-shrink-0 pb-0.5">
+                    {charCount > 400 && !isMobile && (
                       <span className={cn(
-                        "text-[10px] hidden md:inline tabular-nums",
+                        "text-[10px] tabular-nums",
                         isOverLimit ? "text-destructive font-medium" : "text-muted-foreground/40"
                       )}>
                         {charCount}/{MAX_CHARS}
@@ -733,33 +803,36 @@ export default function ChatPage() {
                       type="submit"
                       size="icon"
                       className={cn(
-                        "h-9 w-9 md:h-10 md:w-10 rounded-xl bg-gradient-to-br from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-md shadow-primary/20 transition-all duration-200",
+                        "rounded-lg bg-gradient-to-br from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-md shadow-primary/20 transition-all duration-200",
+                        isMobile ? "h-9 w-9" : "h-10 w-10",
                         input.trim() && !isOverLimit ? "opacity-100 scale-100" : "opacity-40 scale-95"
                       )}
                       disabled={!input.trim() || isLoading || isOverLimit}
                     >
                       {isLoading ? (
-                        <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
+                        <Loader2 className={cn(isMobile ? "h-4 w-4" : "h-5 w-5", "animate-spin")} />
                       ) : (
-                        <Send className="h-4 w-4 md:h-5 md:w-5" />
+                        <Send className={cn(isMobile ? "h-4 w-4" : "h-5 w-5")} />
                       )}
                     </Button>
                   </div>
                 </div>
                 
-                {/* Footer meta */}
-                <div className="hidden sm:flex items-center justify-between mt-1.5 px-3">
-                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground/40">
-                    <span className="flex items-center gap-1">
-                      <Keyboard className="h-3 w-3" />
-                      Enter to send · Shift+Enter for new line
-                    </span>
+                {/* Footer meta - desktop only */}
+                {!isMobile && (
+                  <div className="flex items-center justify-between mt-1.5 px-3">
+                    <div className="flex items-center gap-3 text-[10px] text-muted-foreground/40">
+                      <span className="flex items-center gap-1">
+                        <Keyboard className="h-3 w-3" />
+                        Enter to send · Shift+Enter for new line
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground/40">
+                      <Shield className="h-3 w-3" />
+                      <span>Private & secure</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground/40">
-                    <Shield className="h-3 w-3" />
-                    <span>Private & secure</span>
-                  </div>
-                </div>
+                )}
               </form>
             </div>
           </div>
