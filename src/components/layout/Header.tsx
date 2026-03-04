@@ -118,7 +118,7 @@ function MegaMenuPanel({
   if (type === 'chapters') {
     return (
       <div
-        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[680px] max-w-[92vw] bg-card/98 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl shadow-primary/8 p-5 animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
+        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[680px] max-w-[92vw] bg-card border border-border/50 rounded-2xl shadow-2xl shadow-primary/8 p-5 animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
         onMouseLeave={onClose}
       >
         <div className="flex items-center justify-between mb-4">
@@ -162,7 +162,7 @@ function MegaMenuPanel({
   const categories = [...new Set(problems.map((p: any) => p.category))];
   return (
     <div
-      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[480px] max-w-[92vw] bg-card/98 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl shadow-primary/8 p-5 animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
+      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[480px] max-w-[92vw] bg-card border border-border/50 rounded-2xl shadow-2xl shadow-primary/8 p-5 animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
       onMouseLeave={onClose}
     >
       <div className="flex items-center justify-between mb-4">
