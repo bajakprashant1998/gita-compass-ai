@@ -9,12 +9,18 @@ import { Card, CardContent } from '@/components/ui/card';
 import {
   ChevronLeft, Calendar, User, Clock, BookOpen, Tag,
   ArrowRight, MessageCircle, Eye, ListOrdered, Share2,
-  Heart, ExternalLink, Bookmark, Sparkles, CheckCircle2
+  Heart, ExternalLink, Bookmark, Sparkles, CheckCircle2,
+  ChevronUp, Link2, ThumbsUp, Smile, Flame, Brain,
+  ChevronDown, Minus, Plus, Printer, Copy, Check
 } from 'lucide-react';
 import { format } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import { ShareButtons } from '@/components/ui/share-buttons';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// ─── Utilities ───────────────────────────────────────────
 
 function estimateReadTime(content: string) {
   const words = content.trim().split(/\s+/).length;
@@ -55,8 +61,9 @@ function extractKeyTakeaways(content: string) {
   return takeaways.slice(0, 6);
 }
 
-// Reading Progress Bar
-function ReadingProgressBar() {
+// ─── Reading Progress Bar with Time Remaining ────────────
+
+function ReadingProgressBar({ readTime }: { readTime: number }) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -69,19 +76,57 @@ function ReadingProgressBar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const minutesLeft = Math.max(0, Math.ceil(readTime * (1 - progress / 100)));
+
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-muted/50">
-      <div
-        className="h-full bg-gradient-to-r from-primary to-primary/70 transition-[width] duration-150"
-        style={{ width: `${progress}%` }}
-      />
+    <div className="fixed top-0 left-0 right-0 z-50">
+      <div className="h-1 bg-muted/50">
+        <div
+          className="h-full bg-gradient-to-r from-primary via-primary/80 to-primary/60 transition-[width] duration-150"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      {progress > 5 && progress < 95 && (
+        <div className="absolute right-4 top-2 bg-card/95 backdrop-blur-sm border border-border/60 rounded-full px-3 py-1 text-[11px] text-muted-foreground shadow-sm hidden sm:block">
+          {minutesLeft} min left
+        </div>
+      )}
     </div>
   );
 }
 
-// Floating Social Share Bar (left side)
+// ─── Back to Top Button ──────────────────────────────────
+
+function BackToTopButton() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setVisible(window.scrollY > 600);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <motion.button
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      className="fixed bottom-20 right-6 z-40 w-10 h-10 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
+      aria-label="Back to top"
+    >
+      <ChevronUp className="h-5 w-5" />
+    </motion.button>
+  );
+}
+
+// ─── Floating Social Bar ─────────────────────────────────
+
 function FloatingSocialBar({ title, url }: { title: string; url: string }) {
   const [visible, setVisible] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setVisible(window.scrollY > 400);
@@ -112,27 +157,113 @@ function FloatingSocialBar({ title, url }: { title: string; url: string }) {
         </a>
       ))}
       <button
-        onClick={() => navigator.clipboard?.writeText(url)}
+        onClick={async () => {
+          await navigator.clipboard?.writeText(url);
+          setCopied(true);
+          toast.success('Link copied!');
+          setTimeout(() => setCopied(false), 2000);
+        }}
         className="w-10 h-10 rounded-full bg-card border border-border shadow-sm flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 hover:shadow-md transition-all"
         title="Copy link"
       >
-        <Share2 className="h-4 w-4" />
+        {copied ? <Check className="h-4 w-4 text-green-500" /> : <Share2 className="h-4 w-4" />}
       </button>
     </div>
   );
 }
 
-// Sticky Table of Contents
+// ─── Mobile Sticky ToC ───────────────────────────────────
+
+function MobileTableOfContents({ headings, activeId }: { headings: { text: string; id: string; level: number }[]; activeId: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (headings.length === 0) return null;
+
+  const activeIdx = headings.findIndex(h => h.id === activeId);
+  const activeText = activeIdx >= 0 ? headings[activeIdx].text : 'Table of Contents';
+
+  return (
+    <div className="lg:hidden sticky top-1 z-30 mx-4 mb-6">
+      <div className="bg-card/95 backdrop-blur-md border border-border/60 rounded-2xl shadow-lg overflow-hidden">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-1 rounded-md bg-primary/10 shrink-0">
+              <ListOrdered className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <span className="text-xs font-medium truncate text-muted-foreground">{activeText}</span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">{activeIdx + 1}/{headings.length}</Badge>
+            <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          </div>
+        </button>
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <nav className="px-3 pb-3 max-h-60 overflow-y-auto space-y-0.5 border-t border-border/40 pt-2">
+                {headings.map((h, idx) => (
+                  <a
+                    key={h.id}
+                    href={`#${h.id}`}
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center gap-2 py-1.5 px-2.5 rounded-lg text-xs transition-all ${
+                      activeId === h.id
+                        ? 'text-primary font-semibold bg-primary/5'
+                        : 'text-muted-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    <span className={`shrink-0 text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded ${
+                      activeId === h.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                    }`}>
+                      {idx + 1}
+                    </span>
+                    <span className="truncate">{h.text}</span>
+                  </a>
+                ))}
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+// ─── Sidebar Table of Contents ───────────────────────────
+
 function TableOfContents({ headings, activeId }: { headings: { text: string; id: string; level: number }[]; activeId: string }) {
   if (headings.length === 0) return null;
+  const activeIdx = headings.findIndex(h => h.id === activeId);
+
   return (
     <Card className="border-border/60 bg-card shadow-sm">
       <CardContent className="p-5">
-        <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-border/60">
-          <div className="p-1.5 rounded-lg bg-primary/10">
-            <ListOrdered className="h-4 w-4 text-primary" />
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-border/60">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg bg-primary/10">
+              <ListOrdered className="h-4 w-4 text-primary" />
+            </div>
+            <h3 className="font-bold text-sm">Contents</h3>
           </div>
-          <h3 className="font-bold text-sm">Table of Contents</h3>
+          {activeIdx >= 0 && (
+            <Badge variant="secondary" className="text-[10px]">{activeIdx + 1}/{headings.length}</Badge>
+          )}
+        </div>
+        {/* Progress indicator */}
+        <div className="h-1 bg-muted rounded-full mb-3 overflow-hidden">
+          <div
+            className="h-full bg-primary/50 rounded-full transition-all duration-300"
+            style={{ width: `${headings.length > 0 ? ((activeIdx + 1) / headings.length) * 100 : 0}%` }}
+          />
         </div>
         <nav className="space-y-0.5">
           {headings.map((h, idx) => (
@@ -142,13 +273,13 @@ function TableOfContents({ headings, activeId }: { headings: { text: string; id:
               className={`flex items-start gap-2.5 py-2 px-2.5 rounded-lg text-[13px] transition-all hover:bg-primary/5 ${
                 activeId === h.id
                   ? 'text-primary font-semibold bg-primary/5'
-                  : 'text-muted-foreground'
+                  : idx <= activeIdx ? 'text-foreground/70' : 'text-muted-foreground'
               }`}
             >
-              <span className={`shrink-0 text-[11px] font-bold w-5 h-5 flex items-center justify-center rounded-md ${
-                activeId === h.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+              <span className={`shrink-0 text-[11px] font-bold w-5 h-5 flex items-center justify-center rounded-md transition-colors ${
+                activeId === h.id ? 'bg-primary text-primary-foreground' : idx <= activeIdx ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
               }`}>
-                {idx + 1}
+                {idx <= activeIdx && idx !== activeIdx ? '✓' : idx + 1}
               </span>
               <span className="leading-snug line-clamp-2">{h.text}</span>
             </a>
@@ -159,7 +290,78 @@ function TableOfContents({ headings, activeId }: { headings: { text: string; id:
   );
 }
 
-// Author Card
+// ─── Text Size Controls ──────────────────────────────────
+
+function TextSizeControls({ size, onChange }: { size: number; onChange: (s: number) => void }) {
+  return (
+    <Card className="border-border/60 bg-card shadow-sm">
+      <CardContent className="p-4 flex items-center justify-between">
+        <span className="text-xs font-medium text-muted-foreground">Text Size</span>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onChange(Math.max(14, size - 1))}
+            className="w-7 h-7 rounded-md border border-border hover:bg-muted flex items-center justify-center transition-colors"
+          >
+            <Minus className="h-3 w-3" />
+          </button>
+          <span className="text-xs font-mono w-7 text-center">{size}</span>
+          <button
+            onClick={() => onChange(Math.min(22, size + 1))}
+            className="w-7 h-7 rounded-md border border-border hover:bg-muted flex items-center justify-center transition-colors"
+          >
+            <Plus className="h-3 w-3" />
+          </button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Emoji Reactions ─────────────────────────────────────
+
+function ArticleReactions() {
+  const [reacted, setReacted] = useState<string | null>(null);
+  const reactions = [
+    { emoji: '🙏', label: 'Grateful', icon: ThumbsUp },
+    { emoji: '💡', label: 'Enlightening', icon: Brain },
+    { emoji: '❤️', label: 'Loved it', icon: Heart },
+    { emoji: '🔥', label: 'Inspiring', icon: Flame },
+    { emoji: '😊', label: 'Peaceful', icon: Smile },
+  ];
+
+  return (
+    <div className="mt-10 pt-8 border-t border-border/60">
+      <div className="text-center">
+        <p className="text-sm font-semibold mb-1">How did this article make you feel?</p>
+        <p className="text-xs text-muted-foreground mb-5">Your feedback helps us create better content</p>
+        <div className="flex items-center justify-center gap-3">
+          {reactions.map((r) => (
+            <button
+              key={r.label}
+              onClick={() => {
+                setReacted(r.label);
+                toast.success(`Thank you for your feedback! ${r.emoji}`);
+              }}
+              className={`group flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${
+                reacted === r.label
+                  ? 'bg-primary/10 scale-110 ring-2 ring-primary/20'
+                  : reacted
+                  ? 'opacity-50 hover:opacity-80'
+                  : 'hover:bg-muted hover:scale-105'
+              }`}
+            >
+              <span className="text-2xl group-hover:scale-125 transition-transform">{r.emoji}</span>
+              <span className="text-[10px] text-muted-foreground font-medium">{r.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Author Card ─────────────────────────────────────────
+
 function AuthorCard({ author }: { author: string }) {
   return (
     <Card className="border-border/60 bg-card shadow-sm">
@@ -185,8 +387,12 @@ function AuthorCard({ author }: { author: string }) {
   );
 }
 
-// SEO / Content Score Card
-function ContentScoreCard() {
+// ─── Content Score Card ──────────────────────────────────
+
+function ContentScoreCard({ wordCount, readTime }: { wordCount: number; readTime: number }) {
+  const depthScore = wordCount > 2000 ? 'Excellent' : wordCount > 1000 ? 'Good' : 'Brief';
+  const depthColor = wordCount > 2000 ? 'text-green-600' : wordCount > 1000 ? 'text-primary' : 'text-amber-600';
+
   return (
     <Card className="border-border/60 bg-card shadow-sm">
       <CardContent className="p-5">
@@ -195,15 +401,16 @@ function ContentScoreCard() {
             <CheckCircle2 className="h-4 w-4 text-green-600" />
           </div>
           <div>
-            <h3 className="font-bold text-sm">Content Quality</h3>
-            <p className="text-[11px] text-muted-foreground">Enhanced with spiritual depth</p>
+            <h3 className="font-bold text-sm">Article Quality</h3>
+            <p className="text-[11px] text-muted-foreground">Content analysis</p>
           </div>
         </div>
         <div className="space-y-3">
           {[
-            { label: 'Scripture References', value: '5+', color: 'text-primary' },
-            { label: 'Practical Insights', value: '3-5', color: 'text-primary' },
-            { label: 'Wisdom Score', value: 'Excellent', color: 'text-green-600 font-semibold' },
+            { label: 'Word Count', value: wordCount.toLocaleString(), color: 'text-foreground' },
+            { label: 'Reading Time', value: `${readTime} min`, color: 'text-foreground' },
+            { label: 'Content Depth', value: depthScore, color: `${depthColor} font-semibold` },
+            { label: 'Wisdom Score', value: 'Verified ✓', color: 'text-green-600 font-semibold' },
           ].map((item) => (
             <div key={item.label} className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
@@ -219,7 +426,8 @@ function ContentScoreCard() {
   );
 }
 
-// Need Help CTA Card
+// ─── Need Help CTA Card ──────────────────────────────────
+
 function NeedHelpCard() {
   return (
     <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-card shadow-sm overflow-hidden relative">
@@ -242,14 +450,15 @@ function NeedHelpCard() {
   );
 }
 
-// Related Articles Card
+// ─── Related Articles Card ───────────────────────────────
+
 function RelatedArticlesCard({ currentSlug }: { currentSlug: string }) {
   const { data: related } = useQuery({
     queryKey: ['blog-related', currentSlug],
     queryFn: async () => {
       const { data } = await supabase
         .from('blog_posts')
-        .select('title, slug, tags, created_at')
+        .select('title, slug, tags, created_at, content')
         .eq('published', true)
         .neq('slug', currentSlug)
         .order('created_at', { ascending: false })
@@ -273,44 +482,48 @@ function RelatedArticlesCard({ currentSlug }: { currentSlug: string }) {
           </div>
         </div>
         <div className="space-y-2">
-          {related.map((r: any) => (
-            <Link
-              key={r.slug}
-              to={`/blog/${r.slug}`}
-              className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-primary/5 transition-colors group"
-            >
-              <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mt-0.5">
-                <BookOpen className="h-4 w-4 text-primary/60" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-medium leading-snug line-clamp-2 group-hover:text-primary transition-colors">{r.title}</p>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                    <Clock className="h-3 w-3" /> 5 min read
-                  </span>
-                  {r.tags?.[0] && (
-                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">{r.tags[0]}</Badge>
-                  )}
+          {related.map((r: any) => {
+            const rt = r.content ? estimateReadTime(r.content) : 5;
+            return (
+              <Link
+                key={r.slug}
+                to={`/blog/${r.slug}`}
+                className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-primary/5 transition-colors group"
+              >
+                <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mt-0.5">
+                  <BookOpen className="h-4 w-4 text-primary/60" />
                 </div>
-              </div>
-              <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-primary shrink-0 mt-1 transition-colors" />
-            </Link>
-          ))}
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-medium leading-snug line-clamp-2 group-hover:text-primary transition-colors">{r.title}</p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-3 w-3" /> {rt} min
+                    </span>
+                    {r.tags?.[0] && (
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">{r.tags[0]}</Badge>
+                    )}
+                  </div>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-primary shrink-0 mt-1 transition-colors" />
+              </Link>
+            );
+          })}
         </div>
       </CardContent>
     </Card>
   );
 }
 
-// Cover Image Section
+// ─── Cover Image Section ─────────────────────────────────
+
 function CoverImageSection({ coverImage, readTime, tags }: { coverImage?: string | null; readTime: number; tags: string[] }) {
   if (!coverImage) {
     return (
       <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/15 via-primary/8 to-accent/10 border border-border/50 shadow-lg aspect-[16/7] flex items-center justify-center mb-8">
-        <div className="text-center">
-          <span className="text-6xl opacity-20 select-none">📖</span>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(var(--primary)/0.08),transparent_70%)]" />
+        <div className="text-center relative">
+          <span className="text-7xl opacity-15 select-none">📖</span>
         </div>
-        {/* Overlay badges */}
         <div className="absolute bottom-4 left-4 flex items-center gap-2">
           <Badge className="bg-primary text-primary-foreground border-0 shadow-md gap-1.5 text-xs px-3 py-1">
             <Sparkles className="h-3 w-3" /> Expert Analysis
@@ -332,9 +545,9 @@ function CoverImageSection({ coverImage, readTime, tags }: { coverImage?: string
   }
 
   return (
-    <div className="relative rounded-2xl overflow-hidden shadow-lg mb-8">
-      <img src={coverImage} alt="" className="w-full aspect-[16/7] object-cover" loading="eager" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+    <div className="relative rounded-2xl overflow-hidden shadow-lg mb-8 group">
+      <img src={coverImage} alt="" className="w-full aspect-[16/7] object-cover group-hover:scale-[1.02] transition-transform duration-700" loading="eager" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
       <div className="absolute bottom-4 left-4 flex items-center gap-2">
         <Badge className="bg-primary text-primary-foreground border-0 shadow-md gap-1.5 text-xs px-3 py-1">
           <Sparkles className="h-3 w-3" /> Expert Analysis
@@ -350,14 +563,15 @@ function CoverImageSection({ coverImage, readTime, tags }: { coverImage?: string
   );
 }
 
-// Recommended Reading (full-width bottom section)
+// ─── Recommended Reading ─────────────────────────────────
+
 function RecommendedReading({ currentSlug }: { currentSlug: string }) {
   const { data: posts } = useQuery({
     queryKey: ['blog-recommended', currentSlug],
     queryFn: async () => {
       const { data } = await supabase
         .from('blog_posts')
-        .select('title, slug, tags, created_at, excerpt')
+        .select('title, slug, tags, created_at, excerpt, content')
         .eq('published', true)
         .neq('slug', currentSlug)
         .order('created_at', { ascending: false })
@@ -379,41 +593,45 @@ function RecommendedReading({ currentSlug }: { currentSlug: string }) {
           <p className="text-sm text-muted-foreground mt-2">Explore more articles on ancient wisdom and modern life</p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
-          {posts.map((p: any) => (
-            <Link key={p.slug} to={`/blog/${p.slug}`} className="group">
-              <Card className="h-full border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 overflow-hidden">
-                <div className="aspect-[16/9] bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-                  <BookOpen className="h-8 w-8 text-primary/30" />
-                </div>
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-2 mb-2.5">
-                    {p.tags?.[0] && (
-                      <Badge variant="secondary" className="text-[10px] px-2 py-0 h-5">{p.tags[0]}</Badge>
+          {posts.map((p: any) => {
+            const rt = p.content ? estimateReadTime(p.content) : 5;
+            return (
+              <Link key={p.slug} to={`/blog/${p.slug}`} className="group">
+                <Card className="h-full border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 overflow-hidden">
+                  <div className="aspect-[16/9] bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center relative overflow-hidden">
+                    <BookOpen className="h-8 w-8 text-primary/30 group-hover:scale-110 transition-transform" />
+                  </div>
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-2 mb-2.5">
+                      {p.tags?.[0] && (
+                        <Badge variant="secondary" className="text-[10px] px-2 py-0 h-5">{p.tags[0]}</Badge>
+                      )}
+                      <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> {rt} min
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                      {p.title}
+                    </h3>
+                    {p.excerpt && (
+                      <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">{p.excerpt}</p>
                     )}
-                    <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> 5 min
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-                    {p.title}
-                  </h3>
-                  {p.excerpt && (
-                    <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">{p.excerpt}</p>
-                  )}
-                  <div className="flex items-center gap-1 mt-3 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                    Read article <ArrowRight className="h-3 w-3" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                    <div className="flex items-center gap-1 mt-3 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                      Read article <ArrowRight className="h-3 w-3" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 }
 
-// Related Topics (like DiBull's "Related Services")
+// ─── Related Topics ──────────────────────────────────────
+
 function RelatedTopics() {
   const topics = [
     { icon: '🕉️', title: 'Karma Yoga', desc: 'Action without attachment', link: '/problems' },
@@ -449,7 +667,8 @@ function RelatedTopics() {
   );
 }
 
-// Authority Resources
+// ─── Authority Resources ─────────────────────────────────
+
 function AuthorityResources() {
   const resources = [
     { title: 'Bhagavad Gita - Wikipedia', url: 'https://en.wikipedia.org/wiki/Bhagavad_Gita' },
@@ -492,9 +711,44 @@ function AuthorityResources() {
   );
 }
 
+// ─── Heading with Copy Anchor ────────────────────────────
+
+function HeadingWithAnchor({ id, counter, children }: { id: string; counter: number; children: React.ReactNode }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = useCallback(() => {
+    const url = `${window.location.origin}${window.location.pathname}#${id}`;
+    navigator.clipboard?.writeText(url);
+    setCopied(true);
+    toast.success('Section link copied!');
+    setTimeout(() => setCopied(false), 2000);
+  }, [id]);
+
+  return (
+    <h2 id={id} className="group flex items-start gap-3 text-xl sm:text-2xl font-bold mt-14 mb-5 text-foreground tracking-tight first:mt-0 scroll-mt-24">
+      <span className="shrink-0 w-8 h-8 rounded-lg bg-primary/10 text-primary text-sm font-semibold flex items-center justify-center mt-0.5">
+        {counter}
+      </span>
+      <span className="flex-1">{children}</span>
+      <button
+        onClick={handleCopyLink}
+        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity mt-1.5 p-1 rounded-md hover:bg-muted"
+        title="Copy link to section"
+      >
+        {copied ? <Check className="h-4 w-4 text-green-500" /> : <Link2 className="h-4 w-4 text-muted-foreground" />}
+      </button>
+    </h2>
+  );
+}
+
+// ═════════════════════════════════════════════════════════
+// ─── MAIN COMPONENT ─────────────────────────────────────
+// ═════════════════════════════════════════════════════════
+
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
   const [activeHeadingId, setActiveHeadingId] = useState('');
+  const [textSize, setTextSize] = useState(17);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const { data: post, isLoading } = useQuery({
@@ -515,7 +769,7 @@ export default function BlogPostPage() {
   const headings = useMemo(() => (post ? extractHeadings(post.content) : []), [post]);
   const keyTakeaways = useMemo(() => (post ? extractKeyTakeaways(post.content) : []), [post]);
 
-  // Intersection observer for active heading tracking
+  // Intersection observer for active heading
   useEffect(() => {
     if (!post || headings.length === 0) return;
     const observer = new IntersectionObserver(
@@ -612,8 +866,9 @@ export default function BlogPostPage() {
         ]}
       />
 
-      <ReadingProgressBar />
+      <ReadingProgressBar readTime={readTime} />
       <FloatingSocialBar title={post.title} url={shareUrl} />
+      <BackToTopButton />
 
       {/* ===== HERO HEADER ===== */}
       <div className="relative overflow-hidden bg-gradient-to-b from-primary/8 via-primary/4 to-background">
@@ -623,7 +878,7 @@ export default function BlogPostPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-8 sm:pt-8 sm:pb-10">
           <div className="max-w-4xl">
             {/* Breadcrumbs */}
-            <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+            <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6" aria-label="Breadcrumb">
               <Link to="/" className="hover:text-primary transition-colors">Home</Link>
               <span className="text-muted-foreground/40">›</span>
               <Link to="/blog" className="hover:text-primary transition-colors">Blog</Link>
@@ -678,10 +933,21 @@ export default function BlogPostPage() {
                 <Eye className="h-3.5 w-3.5" />
                 {wordCount.toLocaleString()} words
               </div>
+              {/* Print button */}
+              <button
+                onClick={() => window.print()}
+                className="flex items-center gap-1.5 bg-card border border-border/60 rounded-full px-3 py-2 text-xs text-muted-foreground shadow-sm hover:text-primary hover:border-primary/30 transition-colors"
+              >
+                <Printer className="h-3.5 w-3.5" />
+                Print
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* ===== MOBILE STICKY TOC ===== */}
+      <MobileTableOfContents headings={headings} activeId={activeHeadingId} />
 
       {/* ===== TWO-COLUMN LAYOUT ===== */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
@@ -690,12 +956,17 @@ export default function BlogPostPage() {
           {/* ===== MAIN CONTENT ===== */}
           <article className="min-w-0" ref={contentRef}>
 
-            {/* Cover Image with overlay badges */}
+            {/* Cover Image */}
             <CoverImageSection coverImage={post.cover_image} readTime={readTime} tags={post.tags || []} />
 
-            {/* Key Takeaways Box */}
+            {/* Key Takeaways */}
             {keyTakeaways.length > 0 && (
-              <div className="bg-primary/5 border border-primary/15 rounded-2xl p-6 mb-10">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-primary/5 border border-primary/15 rounded-2xl p-6 mb-10"
+              >
                 <div className="flex items-center gap-2 mb-4">
                   <div className="p-1.5 rounded-lg bg-primary/15">
                     <BookOpen className="h-4 w-4 text-primary" />
@@ -713,7 +984,7 @@ export default function BlogPostPage() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* Introduction label */}
@@ -722,35 +993,21 @@ export default function BlogPostPage() {
               <span className="text-xs font-semibold text-primary uppercase tracking-wider">Introduction</span>
             </div>
 
-            {/* Article body */}
-            <div className="blog-content">
+            {/* Article body with dynamic text size */}
+            <div className="blog-content" style={{ '--blog-text-size': `${textSize}px` } as React.CSSProperties}>
               <ReactMarkdown
                 components={{
                   h1: ({ children }) => {
                     headingCounter++;
                     const text = String(children);
                     const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                    return (
-                      <h2 id={id} className="flex items-start gap-3 text-xl sm:text-2xl font-bold mt-14 mb-5 text-foreground tracking-tight first:mt-0 scroll-mt-24">
-                        <span className="shrink-0 w-8 h-8 rounded-lg bg-primary/10 text-primary text-sm font-semibold flex items-center justify-center mt-0.5">
-                          {headingCounter}
-                        </span>
-                        <span>{children}</span>
-                      </h2>
-                    );
+                    return <HeadingWithAnchor id={id} counter={headingCounter}>{children}</HeadingWithAnchor>;
                   },
                   h2: ({ children }) => {
                     headingCounter++;
                     const text = String(children);
                     const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                    return (
-                      <h2 id={id} className="flex items-start gap-3 text-xl sm:text-2xl font-bold mt-14 mb-5 text-foreground tracking-tight first:mt-0 scroll-mt-24">
-                        <span className="shrink-0 w-8 h-8 rounded-lg bg-primary/10 text-primary text-sm font-semibold flex items-center justify-center mt-0.5">
-                          {headingCounter}
-                        </span>
-                        <span>{children}</span>
-                      </h2>
-                    );
+                    return <HeadingWithAnchor id={id} counter={headingCounter}>{children}</HeadingWithAnchor>;
                   },
                   h3: ({ children }) => {
                     const text = String(children);
@@ -764,9 +1021,23 @@ export default function BlogPostPage() {
                   h4: ({ children }) => (
                     <h4 className="text-base font-semibold mt-8 mb-2 text-foreground">{children}</h4>
                   ),
-                  p: ({ children }) => (
-                    <p className="text-base sm:text-[17px] leading-[1.85] text-muted-foreground mb-6">{children}</p>
-                  ),
+                  p: ({ children, node }) => {
+                    // Drop cap for first paragraph
+                    const isFirst = node && contentRef.current && !contentRef.current.querySelector('.drop-cap-applied');
+                    if (isFirst && typeof children === 'string' && children.length > 50) {
+                      return (
+                        <p className="drop-cap-applied text-muted-foreground mb-6 leading-[1.85]" style={{ fontSize: 'var(--blog-text-size, 17px)' }}>
+                          <span className="float-left text-5xl font-bold text-primary leading-[0.8] mr-2 mt-1.5 font-serif">{children.charAt(0)}</span>
+                          {children.slice(1)}
+                        </p>
+                      );
+                    }
+                    return (
+                      <p className="text-muted-foreground mb-6 leading-[1.85]" style={{ fontSize: 'var(--blog-text-size, 17px)' }}>
+                        {children}
+                      </p>
+                    );
+                  },
                   ul: ({ children }) => (
                     <ul className="space-y-2 mb-6 ml-1">{children}</ul>
                   ),
@@ -780,7 +1051,8 @@ export default function BlogPostPage() {
                     </li>
                   ),
                   blockquote: ({ children }) => (
-                    <blockquote className="border-l-4 border-primary/30 bg-primary/5 rounded-r-xl pl-5 pr-5 py-5 my-8 text-foreground/80">
+                    <blockquote className="relative border-l-4 border-primary/30 bg-primary/5 rounded-r-xl pl-8 pr-5 py-5 my-8 text-foreground/80">
+                      <span className="absolute left-3 top-3 text-3xl text-primary/20 font-serif leading-none select-none">"</span>
                       {children}
                     </blockquote>
                   ),
@@ -842,6 +1114,9 @@ export default function BlogPostPage() {
               </div>
             )}
 
+            {/* Emoji Reactions */}
+            <ArticleReactions />
+
             {/* CTA Card */}
             <div className="mt-10 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl p-6 sm:p-8 border border-primary/15">
               <div className="flex items-start gap-4">
@@ -877,12 +1152,12 @@ export default function BlogPostPage() {
               />
             </div>
 
-            {/* Related Topics (mobile-visible too) */}
+            {/* Related Topics (mobile-visible) */}
             <div className="mt-10">
               <RelatedTopics />
             </div>
 
-            {/* Authority Resources (mobile-visible too) */}
+            {/* Authority Resources (mobile-visible) */}
             <div className="mt-6">
               <AuthorityResources />
             </div>
@@ -891,6 +1166,7 @@ export default function BlogPostPage() {
           {/* ===== SIDEBAR ===== */}
           <aside className="hidden lg:block">
             <div className="sticky top-24 space-y-5">
+              <TextSizeControls size={textSize} onChange={setTextSize} />
               <TableOfContents headings={headings} activeId={activeHeadingId} />
               <AuthorCard author={post.author} />
 
@@ -913,7 +1189,7 @@ export default function BlogPostPage() {
                 </CardContent>
               </Card>
 
-              <ContentScoreCard />
+              <ContentScoreCard wordCount={wordCount} readTime={readTime} />
               <NeedHelpCard />
               <RelatedArticlesCard currentSlug={slug || ''} />
             </div>
