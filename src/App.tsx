@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import { FloatingChatButton } from "./components/chat/FloatingChatButton";
 import { MobileInstallGate } from "./components/MobileInstallGate";
+import { RedirectHandler } from "./components/seo/RedirectHandler";
 
 // Eager load the index page for best LCP
 import Index from "./pages/Index";
@@ -35,6 +36,7 @@ const BlogPostPage = lazy(() => import("./pages/BlogPostPage"));
 const StudyGroupsPage = lazy(() => import("./pages/StudyGroupsPage"));
 const InstallPage = lazy(() => import("./pages/InstallPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const GitaWisdomPage = lazy(() => import("./pages/GitaWisdomPage"));
 const AdminRoutes = lazy(() => import("@/components/admin/AdminRoutes"));
 
 const queryClient = new QueryClient({
@@ -62,6 +64,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
+            <RedirectHandler />
             <MobileInstallGate>
               <Suspense fallback={<PageLoader />}>
                 <Routes>
@@ -88,6 +91,7 @@ const App = () => (
                   <Route path="/blog/:slug" element={<BlogPostPage />} />
                   <Route path="/study-groups" element={<StudyGroupsPage />} />
                   <Route path="/install" element={<InstallPage />} />
+                  <Route path="/bhagavad-gita-on-:topic" element={<GitaWisdomPage />} />
 
                   {/* Admin Routes - handles its own layout and protection */}
                   <Route path="/admin/*" element={<AdminRoutes />} />
