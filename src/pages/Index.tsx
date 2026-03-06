@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { HeroSection } from '@/components/home/HeroSection';
 import { SEOHead, generateWebsiteSchema, generateOrganizationSchema, generateFAQSchema, generateHowToSchema } from '@/components/SEOHead';
+import { generateSiteNavigationSchema, generateBookSchema } from '@/lib/seoSchemas';
 
 // Lazy load below-the-fold components for faster initial paint
 const StatsSection = lazy(() => import('@/components/home/StatsSection').then(m => ({ default: m.StatsSection })));
@@ -49,12 +50,16 @@ const Index = () => {
         structuredData={[
           generateWebsiteSchema(),
           generateOrganizationSchema(),
+          generateSiteNavigationSchema(),
+          generateBookSchema(),
           generateFAQSchema([
             { question: 'What is Bhagavad Gita Gyan?', answer: 'Bhagavad Gita Gyan is an AI-powered platform that applies ancient wisdom from the Bhagavad Gita to solve modern life problems like anxiety, fear, confusion, and career challenges.' },
             { question: 'How can the Bhagavad Gita help with anxiety?', answer: 'The Bhagavad Gita teaches detachment from outcomes (Nishkama Karma), equanimity of mind, and meditation techniques that directly address anxiety and stress.' },
             { question: 'Can I talk to an AI about my problems using the Bhagavad Gita?', answer: 'Yes! Our Talk to Krishna AI counselor uses deep knowledge of all 700+ verses to provide personalized guidance based on your specific life situation.' },
             { question: 'Is Bhagavad Gita Gyan free to use?', answer: 'Yes, all core features including reading verses, AI counseling, and reading plans are completely free.' },
             { question: 'How many chapters are in the Bhagavad Gita?', answer: 'The Bhagavad Gita has 18 chapters and 700+ verses, each addressing different aspects of life, duty, knowledge, and devotion.' },
+            { question: 'What is Nishkama Karma in Bhagavad Gita?', answer: 'Nishkama Karma means selfless action without attachment to results. It is one of the core teachings of the Bhagavad Gita, taught by Lord Krishna to Arjuna.' },
+            { question: 'How to read Bhagavad Gita online for free?', answer: 'You can read all 18 chapters and 700+ verses of the Bhagavad Gita for free on Bhagavad Gita Gyan with Sanskrit text, English meaning, Hindi translation, and modern life applications.' },
           ]),
           generateHowToSchema(
             'How to Find Guidance from the Bhagavad Gita',

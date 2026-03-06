@@ -6,6 +6,8 @@ import { getShlokByChapterAndVerse } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, BookOpen, Lightbulb, MessageSquare, Heart, Sparkles, Share2, Bookmark, Copy, Check, Eye, Clock, ArrowUp, Star, MessageCircle, ExternalLink } from 'lucide-react';
 import { SEOHead, generateArticleSchema, generateBreadcrumbSchema } from '@/components/SEOHead';
+import { generateEnhancedVerseSchema, generateSpeakableSchema } from '@/lib/seoSchemas';
+import { RelatedContentLinks } from '@/components/seo/RelatedContentLinks';
 import { FloatingOm, RadialGlow } from '@/components/ui/decorative-elements';
 import { toast } from 'sonner';
 
@@ -201,12 +203,13 @@ export default function ShlokDetailPage() {
     solutionGita: translatedContent?.solutionGita || shlok.solution_gita,
   };
 
-  const articleSchema = generateArticleSchema({
+  const enhancedVerseSchema = generateEnhancedVerseSchema({
     chapter_number: chapterNum,
     verse_number: verseNum,
     english_meaning: shlok.english_meaning,
     sanskrit_text: shlok.sanskrit_text,
     life_application: shlok.life_application || undefined,
+    practical_action: shlok.practical_action || undefined,
     updated_at: shlok.updated_at || undefined,
   });
 
@@ -216,8 +219,14 @@ export default function ShlokDetailPage() {
     { name: `Chapter ${chapterNum}`, url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}` },
     { name: `Verse ${verseNum}`, url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}/verse/${verseNum}` },
   ]);
+
+  const speakableSchema = generateSpeakableSchema();
+
   const wordCount = shlok.english_meaning.split(/\s+/).length + (shlok.life_application?.split(/\s+/).length || 0) + (shlok.modern_story?.split(/\s+/).length || 0);
   const readTime = Math.max(3, Math.ceil(wordCount / 200));
+
+  // Get problem IDs for internal linking
+  const problemIds = (shlok as any).problems?.map((p: any) => p.problem_id || p.id) || [];
 
   return (
     <Layout>
@@ -228,7 +237,7 @@ export default function ShlokDetailPage() {
         description={(shlok as any).meta_description || shlok.english_meaning.substring(0, 155) + '...'}
         canonicalUrl={`https://www.bhagavadgitagyan.com/chapters/${chapterNum}/verse/${verseNum}`}
         keywords={(shlok as any).meta_keywords || ['Bhagavad Gita', `Chapter ${chapterNum}`, `Verse ${verseNum}`, 'wisdom', 'guidance']}
-        structuredData={[articleSchema, breadcrumbSchema]}
+        structuredData={[enhancedVerseSchema, breadcrumbSchema, speakableSchema]}
         type="article"
       />
 
@@ -618,6 +627,15 @@ export default function ShlokDetailPage() {
             </aside>
           </div>
         </div>
+      </div>
+
+      {/* Internal Linking Engine */}
+      <div className="container mx-auto px-4 max-w-4xl">
+        <RelatedContentLinks
+          currentChapter={chapterNum}
+          currentVerse={verseNum}
+          problemIds={problemIds}
+        />
       </div>
 
       <VerseNavigation chapterNumber={chapterNum} verseNumber={verseNum} />

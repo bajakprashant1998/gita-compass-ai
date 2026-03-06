@@ -2,9 +2,15 @@
 
 User-agent: Googlebot
 Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /auth
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /auth
 
 User-agent: Twitterbot
 Allow: /
@@ -14,9 +20,15 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /auth
 
 # Sitemap
 Sitemap: https://www.bhagavadgitagyan.com/sitemap.xml
 
 # Crawl-delay for polite crawling
 Crawl-delay: 1
+
+# Host
+Host: https://www.bhagavadgitagyan.com

@@ -24,6 +24,7 @@ import AdminUsers from "@/pages/admin/AdminUsers";
 import AdminContactSubmissions from "@/pages/admin/AdminContactSubmissions";
 import AdminScheduleCalendar from "@/pages/admin/AdminScheduleCalendar";
 import AdminSystemHealth from "@/pages/admin/AdminSystemHealth";
+import AdminSEOAudit from "@/pages/admin/AdminSEOAudit";
 
 export default function AdminRoutes() {
   return (
@@ -53,6 +54,7 @@ export default function AdminRoutes() {
           <Route path="schedule" element={<AdminProtectedRoute><AdminScheduleCalendar /></AdminProtectedRoute>} />
           <Route path="health" element={<AdminProtectedRoute><AdminSystemHealth /></AdminProtectedRoute>} />
           <Route path="seo" element={<AdminProtectedRoute><AdminSEOPages /></AdminProtectedRoute>} />
+          <Route path="seo-audit" element={<AdminProtectedRoute><AdminSEOAudit /></AdminProtectedRoute>} />
           <Route path="blog" element={<AdminProtectedRoute><AdminBlogList /></AdminProtectedRoute>} />
           <Route path="blog/create" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
           <Route path="blog/edit/:id" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
