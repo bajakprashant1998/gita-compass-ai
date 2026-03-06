@@ -22,6 +22,7 @@ import {
   CalendarDays,
   Activity,
   TrendingUp,
+  Link2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
@@ -162,6 +163,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
         <NavItem to="/admin/languages" icon={<Languages className="w-[18px] h-[18px]" />} label="Languages" collapsed={collapsed} />
         <NavItem to="/admin/seo" icon={<Search className="w-[18px] h-[18px]" />} label="SEO" collapsed={collapsed} />
         <NavItem to="/admin/seo-audit" icon={<TrendingUp className="w-[18px] h-[18px]" />} label="SEO Audit" collapsed={collapsed} badge="New" />
+        <NavItem to="/admin/redirects" icon={<Link2 className="w-[18px] h-[18px]" />} label="Redirects" collapsed={collapsed} />
         <NavItem to="/admin/activity" icon={<History className="w-[18px] h-[18px]" />} label="Activity Log" collapsed={collapsed} />
         <NavItem to="/admin/health" icon={<Activity className="w-[18px] h-[18px]" />} label="System Health" collapsed={collapsed} />
         <NavItem to="/admin/settings" icon={<Settings className="w-[18px] h-[18px]" />} label="Settings" collapsed={collapsed} />

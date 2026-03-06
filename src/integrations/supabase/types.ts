@@ -742,6 +742,39 @@ export type Database = {
           },
         ]
       }
+      seo_redirects: {
+        Row: {
+          created_at: string
+          from_path: string
+          hit_count: number
+          id: string
+          is_active: boolean
+          redirect_type: number
+          to_path: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          from_path: string
+          hit_count?: number
+          id?: string
+          is_active?: boolean
+          redirect_type?: number
+          to_path: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          from_path?: string
+          hit_count?: number
+          id?: string
+          is_active?: boolean
+          redirect_type?: number
+          to_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       shlok_problems: {
         Row: {
           id: string
