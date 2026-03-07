@@ -109,6 +109,7 @@ const App = () => (
                   <Route path="/hi/chapters/:chapterNumber" element={<HindiChapterPage />} />
                   <Route path="/hi/chapters/:chapterNumber/verse/:verseNumber" element={<HindiVersePage />} />
                   <Route path="/stories/:storySlug" element={<WebStoryPage />} />
+                  <Route path="/embed/verse" element={<EmbedVersePage />} />
 
                   {/* Admin Routes - handles its own layout and protection */}
                   <Route path="/admin/*" element={<AdminRoutes />} />

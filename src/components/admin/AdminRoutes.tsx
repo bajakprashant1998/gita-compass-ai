@@ -61,6 +61,7 @@ export default function AdminRoutes() {
           <Route path="blog" element={<AdminProtectedRoute><AdminBlogList /></AdminProtectedRoute>} />
           <Route path="blog/create" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
           <Route path="blog/edit/:id" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
+          <Route path="web-stories" element={<AdminProtectedRoute><AdminWebStories /></AdminProtectedRoute>} />
         </Route>
       </Routes>
     </AdminAuthProvider>

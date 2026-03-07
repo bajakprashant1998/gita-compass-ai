@@ -23,6 +23,7 @@ import {
   Activity,
   TrendingUp,
   Link2,
+  Layers,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
