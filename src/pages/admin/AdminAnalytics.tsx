@@ -306,10 +306,25 @@ export default function AdminAnalytics() {
           ))
         ) : (
           <>
+            <AdminStatsCard title="Page Views" value={data?.totalPageViews || 0} icon={Eye} className="border-l-4 border-l-violet-500" description="All time" />
+            <AdminStatsCard title="Views Today" value={data?.pageViewsToday || 0} icon={Globe} className="border-l-4 border-l-cyan-500" description="Page views today" />
             <AdminStatsCard title="Conversations" value={data?.totalConversations || 0} icon={MessageSquare} />
             <AdminStatsCard title="Chat Messages" value={data?.totalMessages || 0} icon={MessageSquare} />
+          </>
+        )}
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="p-6"><Skeleton className="h-4 w-20 mb-2" /><Skeleton className="h-8 w-16" /></Card>
+          ))
+        ) : (
+          <>
             <AdminStatsCard title="Favorites" value={data?.totalFavorites || 0} icon={Heart} />
             <AdminStatsCard title="Reflections" value={data?.totalReflections || 0} icon={BookOpen} />
+            <AdminStatsCard title="Total Reading" value={formatMinutes(data?.totalReadingTime || 0)} icon={Clock} description="All users combined" />
+            <AdminStatsCard title="Chat Engagement" value={`${data && data.totalUsers > 0 ? Math.round((data.totalConversations / data.totalUsers) * 100) : 0}%`} icon={TrendingUp} description="Users who chatted" />
           </>
         )}
       </div>
