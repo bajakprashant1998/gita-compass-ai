@@ -232,7 +232,7 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
                 Size
               </p>
               <Tabs value={selectedRatio} onValueChange={(v) => { setSelectedRatio(v as AspectRatio); setBgImageUrl(null); }}>
-                <TabsList className="grid grid-cols-3 h-9">
+              <TabsList className="grid grid-cols-4 h-9">
                   {Object.entries(aspectRatios).map(([key, value]) => (
                     <TabsTrigger key={key} value={key} className="text-xs py-1">
                       {value.label}
