@@ -52,6 +52,15 @@ const features = [
     gradient: 'from-pink-500 to-purple-500',
   },
   {
+    icon: GitCompareArrows,
+    title: 'Compare Verses',
+    description: 'Compare 2-3 verses side-by-side to discover shared themes and deeper connections.',
+    badge: 'NEW',
+    badgeColor: 'bg-blue-500',
+    href: '/compare',
+    gradient: 'from-blue-500 to-cyan-500',
+  },
+  {
     icon: Heart,
     title: 'Save Your Favorites',
     description: 'Build a personal collection of verses that resonate with you for easy reference.',

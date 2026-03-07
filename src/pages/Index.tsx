@@ -116,6 +116,10 @@ const Index = () => {
       </Suspense>
       <SectionDivider />
       <Suspense fallback={<SectionSkeleton />}>
+        <SEOInternalLinks />
+      </Suspense>
+      <SectionDivider />
+      <Suspense fallback={<SectionSkeleton />}>
         <CTASection />
       </Suspense>
       <Suspense fallback={null}>
