@@ -22,6 +22,12 @@ import {
   Sparkles,
   ArrowRight,
   TrendingUp,
+  FileText,
+  Compass,
+  Clock,
+  Flame,
+  ChevronRight,
+  Zap,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -49,7 +55,7 @@ function useMegaMenuData() {
   return { chapters, problems, load };
 }
 
-// --- Search Command ---
+// --- Enhanced Search Command ---
 function HeaderSearch({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -72,38 +78,68 @@ function HeaderSearch({ onClose }: { onClose: () => void }) {
     }
   };
 
+  const quickLinks = [
+    { label: 'What is karma?', icon: Zap },
+    { label: 'How to overcome fear', icon: Flame },
+    { label: 'Purpose of life', icon: Compass },
+    { label: 'Dealing with anger', icon: TrendingUp },
+  ];
+
   return (
     <>
-      <div className="fixed inset-0 z-[200] bg-foreground/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed top-0 left-0 right-0 z-[201] flex justify-center pt-[20vh]">
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-xl mx-4 bg-card border border-border/60 rounded-2xl shadow-2xl shadow-primary/10 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200"
-        >
-          <div className="flex items-center gap-3 px-5 py-4">
-            <Search className="h-5 w-5 text-primary/60 flex-shrink-0" />
-            <input
-              ref={inputRef}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search verses, chapters, life problems..."
-              className="flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground/60"
-            />
-            <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-muted-foreground text-[11px] font-mono border border-border/50">
-              ESC
-            </kbd>
-          </div>
-          <div className="px-5 pb-3 flex items-center gap-2 text-[11px] text-muted-foreground/60">
-            <Sparkles className="h-3 w-3" />
-            <span>Powered by AI • Press Enter to search with Krishna</span>
-          </div>
-        </form>
+      <div className="fixed inset-0 z-[200] bg-foreground/50 backdrop-blur-md" onClick={onClose} />
+      <div className="fixed top-0 left-0 right-0 z-[201] flex justify-center pt-[18vh]">
+        <div className="w-full max-w-2xl mx-4 bg-card border border-border/50 rounded-2xl shadow-2xl shadow-primary/10 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200">
+          <form onSubmit={handleSubmit}>
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-border/30">
+              <Search className="h-5 w-5 text-primary flex-shrink-0" />
+              <input
+                ref={inputRef}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search verses, chapters, life problems..."
+                className="flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground/50"
+              />
+              <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-muted-foreground text-[11px] font-mono border border-border/50">
+                ESC
+              </kbd>
+            </div>
+          </form>
+
+          {/* Quick suggestions */}
+          {!query && (
+            <div className="p-4">
+              <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-wider mb-3">
+                Popular Searches
+              </p>
+              <div className="grid grid-cols-2 gap-1.5">
+                {quickLinks.map((item) => (
+                  <button
+                    key={item.label}
+                    onClick={() => {
+                      navigate(`/chat?q=${encodeURIComponent(item.label)}`);
+                      onClose();
+                    }}
+                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-sm text-foreground/70 hover:bg-primary/5 hover:text-primary transition-all duration-150 group"
+                  >
+                    <item.icon className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary transition-colors" />
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2 text-[11px] text-muted-foreground/50 mt-4 pt-3 border-t border-border/20">
+                <Sparkles className="h-3 w-3" />
+                <span>AI-powered search • Press Enter to ask Krishna</span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
 }
 
-// --- Mega Menu Panel ---
+// --- Enhanced Mega Menu Panel ---
 function MegaMenuPanel({
   type,
   chapters,
@@ -118,91 +154,166 @@ function MegaMenuPanel({
   if (type === 'chapters') {
     return (
       <div
-        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[680px] max-w-[92vw] bg-card border border-border/50 rounded-2xl shadow-2xl shadow-primary/8 p-5 animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
+        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[720px] max-w-[92vw] bg-card/95 backdrop-blur-xl border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
         onMouseLeave={onClose}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-bold text-foreground/80 flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-primary" />
-            18 Chapters of the Bhagavad Gita
-          </h3>
-          <Link
-            to="/chapters"
-            onClick={onClose}
-            className="text-[11px] font-semibold text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
-          >
-            View All <ArrowRight className="h-3 w-3" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-3 gap-1.5">
-          {chapters.map((ch) => (
-            <Link
-              key={ch.chapter_number}
-              to={`/chapters/${ch.chapter_number}`}
-              onClick={onClose}
-              className="group flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-primary/5 transition-all duration-150"
-            >
-              <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-primary/15 to-amber-500/15 flex items-center justify-center text-[11px] font-bold text-primary group-hover:from-primary/25 group-hover:to-amber-500/25 transition-colors">
-                {ch.chapter_number}
-              </span>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-foreground/80 truncate group-hover:text-primary transition-colors">
-                  {ch.title_english}
-                </p>
-                <p className="text-[10px] text-muted-foreground/60 truncate">{ch.theme}</p>
+        {/* Accent bar */}
+        <div className="h-1 bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
+        <div className="p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-foreground/80 flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-primary/10">
+                <BookOpen className="h-4 w-4 text-primary" />
               </div>
+              18 Chapters of the Bhagavad Gita
+            </h3>
+            <Link
+              to="/chapters"
+              onClick={onClose}
+              className="text-[11px] font-semibold text-primary hover:text-primary/80 flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-primary/5 transition-all"
+            >
+              View All <ArrowRight className="h-3 w-3" />
             </Link>
-          ))}
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            {chapters.map((ch) => (
+              <Link
+                key={ch.chapter_number}
+                to={`/chapters/${ch.chapter_number}`}
+                onClick={onClose}
+                className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-primary/5 transition-all duration-150"
+              >
+                <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-primary/15 to-amber-500/15 flex items-center justify-center text-xs font-bold text-primary group-hover:from-primary/25 group-hover:to-amber-500/25 group-hover:shadow-sm transition-all">
+                  {ch.chapter_number}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-foreground/80 truncate group-hover:text-primary transition-colors">
+                    {ch.title_english}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground/50 truncate">{ch.theme}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
   // Problems mega menu
-  const categories = [...new Set(problems.map((p: any) => p.category))];
   return (
     <div
-      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[480px] max-w-[92vw] bg-card border border-border/50 rounded-2xl shadow-2xl shadow-primary/8 p-5 animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
+      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[520px] max-w-[92vw] bg-card/95 backdrop-blur-xl border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
       onMouseLeave={onClose}
     >
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-bold text-foreground/80 flex items-center gap-2">
-          <Grid3X3 className="h-4 w-4 text-primary" />
-          Life Problems
-        </h3>
-        <Link
-          to="/problems"
-          onClick={onClose}
-          className="text-[11px] font-semibold text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
-        >
-          View All <ArrowRight className="h-3 w-3" />
-        </Link>
-      </div>
-      <div className="grid grid-cols-2 gap-1.5">
-        {problems.map((p: any) => (
+      <div className="h-1 bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
+      <div className="p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-bold text-foreground/80 flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-primary/10">
+              <Grid3X3 className="h-4 w-4 text-primary" />
+            </div>
+            Life Problems
+          </h3>
           <Link
-            key={p.slug}
-            to={`/problems/${p.slug}`}
+            to="/problems"
             onClick={onClose}
-            className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-primary/5 transition-all duration-150"
+            className="text-[11px] font-semibold text-primary hover:text-primary/80 flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-primary/5 transition-all"
           >
-            <span className="text-lg">{p.icon === 'Brain' ? '🧠' : p.icon === 'Shield' ? '🛡️' : p.icon === 'HelpCircle' ? '❓' : p.icon === 'Crown' ? '👑' : p.icon === 'Heart' ? '❤️' : p.icon === 'User' ? '👤' : p.icon === 'Flame' ? '🔥' : p.icon === 'GitBranch' ? '🌿' : p.icon === 'Wallet' ? '💰' : '📌'}</span>
-            <span className="text-sm font-medium text-foreground/75 group-hover:text-primary transition-colors">
-              {p.name}
-            </span>
+            View All <ArrowRight className="h-3 w-3" />
           </Link>
-        ))}
+        </div>
+        <div className="grid grid-cols-2 gap-1">
+          {problems.map((p: any) => (
+            <Link
+              key={p.slug}
+              to={`/problems/${p.slug}`}
+              onClick={onClose}
+              className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-primary/5 transition-all duration-150"
+            >
+              <span className="text-lg flex-shrink-0">
+                {p.icon === 'Brain' ? '🧠' : p.icon === 'Shield' ? '🛡️' : p.icon === 'HelpCircle' ? '❓' : p.icon === 'Crown' ? '👑' : p.icon === 'Heart' ? '❤️' : p.icon === 'User' ? '👤' : p.icon === 'Flame' ? '🔥' : p.icon === 'GitBranch' ? '🌿' : p.icon === 'Wallet' ? '💰' : '📌'}
+              </span>
+              <span className="text-sm font-medium text-foreground/75 group-hover:text-primary transition-colors">
+                {p.name}
+              </span>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-4 pt-3 border-t border-border/20">
+          <Link
+            to="/mood"
+            onClick={onClose}
+            className="flex items-center gap-2.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors px-2 py-1.5 rounded-lg hover:bg-primary/5"
+          >
+            <Heart className="h-3.5 w-3.5" />
+            Not sure? Try the Mood Finder
+            <ArrowRight className="h-3 w-3 ml-auto" />
+          </Link>
+        </div>
       </div>
-      <div className="mt-4 pt-3 border-t border-border/30">
-        <Link
-          to="/mood"
-          onClick={onClose}
-          className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
-        >
-          <Heart className="h-3.5 w-3.5" />
-          Not sure? Try the Mood Finder →
-        </Link>
-      </div>
+    </div>
+  );
+}
+
+// --- Notification Dropdown ---
+function NotificationDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const notifications = [
+    { title: '🔥 3-day streak!', desc: 'Keep reading to grow your streak', time: '2h ago' },
+    { title: '📖 New verse published', desc: 'Chapter 4, Verse 18 is now live', time: '5h ago' },
+    { title: '🏆 Badge earned!', desc: 'You earned "Curious Seeker"', time: '1d ago' },
+  ];
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className={cn(
+          "relative p-2 rounded-xl transition-all duration-200 group",
+          open ? "bg-primary/10" : "hover:bg-muted"
+        )}
+      >
+        <Bell className="h-[18px] w-[18px] text-muted-foreground/60 group-hover:text-foreground transition-colors" />
+        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary ring-2 ring-background animate-pulse" />
+      </button>
+
+      {open && (
+        <div className="absolute top-full right-0 mt-2 w-80 bg-card border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]">
+          <div className="h-0.5 bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
+          <div className="px-4 py-3 border-b border-border/20 flex items-center justify-between">
+            <h4 className="text-sm font-bold text-foreground/80">Notifications</h4>
+            <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">3 new</span>
+          </div>
+          <div className="divide-y divide-border/10">
+            {notifications.map((n, i) => (
+              <div key={i} className="px-4 py-3 hover:bg-muted/50 transition-colors cursor-pointer">
+                <p className="text-sm font-medium text-foreground/80">{n.title}</p>
+                <p className="text-xs text-muted-foreground/60 mt-0.5">{n.desc}</p>
+                <p className="text-[10px] text-muted-foreground/40 mt-1 flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {n.time}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="px-4 py-2.5 border-t border-border/20">
+            <Link to="/dashboard" onClick={() => setOpen(false)} className="text-xs font-semibold text-primary hover:text-primary/80 flex items-center gap-1 justify-center">
+              View all in Dashboard <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -231,15 +342,16 @@ function UserAvatarMenu({ user, onSignOut }: { user: any; onSignOut: () => void 
           open ? "bg-primary/10" : "hover:bg-muted"
         )}
       >
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-primary/20">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-primary/20 ring-2 ring-background">
           {initials}
         </div>
         <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform duration-200", open && "rotate-180")} />
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 mt-2 w-56 bg-card border border-border/50 rounded-xl shadow-xl shadow-primary/5 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]">
-          <div className="px-4 py-3 border-b border-border/30">
+        <div className="absolute top-full right-0 mt-2 w-60 bg-card border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]">
+          <div className="h-0.5 bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
+          <div className="px-4 py-3 border-b border-border/20">
             <p className="text-sm font-semibold text-foreground truncate">{user.email}</p>
             <p className="text-[11px] text-muted-foreground">Spiritual seeker ✨</p>
           </div>
@@ -248,23 +360,25 @@ function UserAvatarMenu({ user, onSignOut }: { user: any; onSignOut: () => void 
               { icon: User, label: 'Dashboard', href: '/dashboard' },
               { icon: Bookmark, label: 'Saved Verses', href: '/dashboard' },
               { icon: Award, label: 'My Badges', href: '/badges' },
+              { icon: TrendingUp, label: 'My Progress', href: '/dashboard' },
               { icon: Settings, label: 'Preferences', href: '/dashboard' },
             ].map((item) => (
               <Link
                 key={item.label}
                 to={item.href}
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 px-4 py-2 text-sm text-foreground/75 hover:text-primary hover:bg-primary/5 transition-colors"
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground/75 hover:text-primary hover:bg-primary/5 transition-all"
               >
                 <item.icon className="h-4 w-4" />
                 {item.label}
+                <ChevronRight className="h-3 w-3 ml-auto text-muted-foreground/30" />
               </Link>
             ))}
           </div>
-          <div className="border-t border-border/30 py-1.5">
+          <div className="border-t border-border/20 py-1.5">
             <button
               onClick={() => { setOpen(false); onSignOut(); }}
-              className="flex items-center gap-2.5 px-4 py-2 w-full text-sm text-destructive hover:bg-destructive/5 transition-colors"
+              className="flex items-center gap-2.5 px-4 py-2.5 w-full text-sm text-destructive hover:bg-destructive/5 transition-colors"
             >
               <LogOut className="h-4 w-4" />
               Sign Out
@@ -334,8 +448,14 @@ export function Header() {
     { name: 'Chapters', href: '/chapters', icon: BookOpen, mega: 'chapters' as const },
     { name: 'Life Problems', href: '/problems', icon: Grid3X3, mega: 'problems' as const },
     { name: 'Reading Plans', href: '/reading-plans', icon: CalendarDays },
-    { name: 'Talk to Krishna', href: '/chat', icon: MessageCircle, badge: 'NEW' },
+    { name: 'Talk to Krishna', href: '/chat', icon: MessageCircle, highlight: true },
+    { name: 'Blog', href: '/blog', icon: FileText },
+  ];
+
+  const mobileSecondary = [
     { name: 'Mood Finder', href: '/mood', icon: Heart },
+    { name: 'Badges', href: '/badges', icon: Award },
+    { name: 'Compare Verses', href: '/compare', icon: Compass },
   ];
 
   const isActive = (href: string) => {
@@ -359,12 +479,15 @@ export function Header() {
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5 group">
+            <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
               <div className="relative flex h-10 w-10 items-center justify-center transition-transform duration-300 group-hover:scale-105">
                 <img src="/logo.png" alt="Bhagavad Gita Gyan" className="h-full w-full object-contain" />
               </div>
-              <span className="text-xl font-bold tracking-tight">
+              <span className="text-xl font-bold tracking-tight hidden sm:inline">
                 Bhagavad <span className="text-gradient">GitaGyan</span>
+              </span>
+              <span className="text-xl font-bold tracking-tight sm:hidden">
+                <span className="text-gradient">GitaGyan</span>
               </span>
             </Link>
 
@@ -381,14 +504,18 @@ export function Header() {
                     to={item.href}
                     className={cn(
                       "relative flex items-center gap-1.5 px-3 py-2 text-[13px] font-semibold rounded-lg transition-all duration-200 group",
-                      isActive(item.href)
-                        ? "text-primary"
-                        : "text-muted-foreground hover:text-foreground"
+                      item.highlight && !isActive(item.href)
+                        ? "text-primary hover:text-primary"
+                        : isActive(item.href)
+                          ? "text-primary"
+                          : "text-muted-foreground hover:text-foreground"
                     )}
                   >
                     <item.icon className={cn(
                       "h-4 w-4 transition-colors",
-                      isActive(item.href) ? "text-primary" : "text-muted-foreground/60 group-hover:text-foreground"
+                      item.highlight
+                        ? "text-primary"
+                        : isActive(item.href) ? "text-primary" : "text-muted-foreground/60 group-hover:text-foreground"
                     )} />
                     {item.name}
                     {item.mega && (
@@ -404,9 +531,10 @@ export function Header() {
                       isActive(item.href) ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0 group-hover:opacity-60 group-hover:scale-x-100"
                     )} />
 
-                    {item.badge && (
-                      <span className="absolute -top-1 -right-2 px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-gradient-to-r from-primary to-amber-500 text-white shadow-sm">
-                        {item.badge}
+                    {item.highlight && (
+                      <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
                       </span>
                     )}
                   </Link>
@@ -425,26 +553,21 @@ export function Header() {
             </div>
 
             {/* Right side */}
-            <div className="hidden lg:flex lg:items-center lg:gap-2">
+            <div className="hidden lg:flex lg:items-center lg:gap-1.5">
               {/* Search */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/60 hover:bg-muted border border-border/30 hover:border-border/60 transition-all duration-200 group"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/50 hover:bg-muted border border-border/20 hover:border-border/50 transition-all duration-200 group"
               >
-                <Search className="h-3.5 w-3.5 text-muted-foreground/60 group-hover:text-primary transition-colors" />
-                <span className="text-xs text-muted-foreground/50">Search...</span>
-                <kbd className="hidden xl:inline-flex ml-2 items-center gap-0.5 px-1.5 py-0.5 rounded bg-background text-muted-foreground/40 text-[10px] font-mono border border-border/40">
+                <Search className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                <span className="text-xs text-muted-foreground/40">Search...</span>
+                <kbd className="hidden xl:inline-flex ml-2 items-center gap-0.5 px-1.5 py-0.5 rounded bg-background text-muted-foreground/40 text-[10px] font-mono border border-border/30">
                   ⌘K
                 </kbd>
               </button>
 
               {/* Notification Bell */}
-              {user && (
-                <button className="relative p-2 rounded-xl hover:bg-muted transition-colors group">
-                  <Bell className="h-4.5 w-4.5 text-muted-foreground/60 group-hover:text-foreground transition-colors" />
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary animate-pulse" />
-                </button>
-              )}
+              {user && <NotificationDropdown />}
 
               {/* Donate */}
               {showDonate && (
@@ -478,16 +601,22 @@ export function Header() {
             </div>
 
             {/* Mobile: Search + Menu */}
-            <div className="flex lg:hidden items-center gap-2">
+            <div className="flex lg:hidden items-center gap-1.5">
               <button
                 onClick={() => setSearchOpen(true)}
-                className="p-2.5 rounded-xl border border-border/50 hover:bg-muted transition-all"
+                className="p-2.5 rounded-xl hover:bg-muted transition-all"
               >
-                <Search className="h-4.5 w-4.5 text-muted-foreground" />
+                <Search className="h-[18px] w-[18px] text-muted-foreground" />
               </button>
+              {user && (
+                <button className="relative p-2.5 rounded-xl hover:bg-muted transition-all">
+                  <Bell className="h-[18px] w-[18px] text-muted-foreground" />
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary ring-2 ring-background" />
+                </button>
+              )}
               <button
                 type="button"
-                className="p-2.5 rounded-xl border border-border/50 hover:bg-muted hover:border-primary/30 transition-all duration-200"
+                className="p-2.5 rounded-xl hover:bg-muted transition-all duration-200"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -496,7 +625,7 @@ export function Header() {
           </div>
         </nav>
 
-        {/* Mobile Navigation - Drawer */}
+        {/* Mobile Navigation - Full-screen Drawer */}
         {mobileMenuOpen && (
           <>
             <div
@@ -505,13 +634,13 @@ export function Header() {
               aria-hidden="true"
             />
 
-            <div className="fixed top-0 right-0 z-[101] lg:hidden h-[100dvh] w-[85%] max-w-sm bg-background border-l border-border shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+            <div className="fixed top-0 right-0 z-[101] lg:hidden h-[100dvh] w-[88%] max-w-sm bg-background border-l border-border shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
               {/* Drawer Header */}
-              <div className="flex items-center justify-between p-4 border-b border-border bg-background">
+              <div className="flex items-center justify-between p-4 border-b border-border/50">
                 <Link to="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
                   <img src="/logo.png" alt="Logo" className="h-8 w-8 object-contain" />
-                  <span className="text-base font-semibold tracking-tight">
-                    Bhagavad <span className="text-gradient">GitaGyan</span>
+                  <span className="text-base font-bold tracking-tight">
+                    <span className="text-gradient">GitaGyan</span>
                   </span>
                 </Link>
                 <button
@@ -526,12 +655,12 @@ export function Header() {
 
               {/* User Info (mobile) */}
               {user && (
-                <div className="px-4 py-3 border-b border-border/50 bg-primary/[0.03]">
+                <div className="px-4 py-3 border-b border-border/30 bg-primary/[0.03]">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center text-white font-bold shadow-md">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-background">
                       {(user.email || 'U').charAt(0).toUpperCase()}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-sm font-semibold truncate">{user.email}</p>
                       <p className="text-[11px] text-muted-foreground">Spiritual seeker ✨</p>
                     </div>
@@ -540,39 +669,74 @@ export function Header() {
               )}
 
               {/* Navigation Items */}
-              <div className="flex-1 overflow-y-auto overscroll-contain p-3 pb-6 bg-background">
-                <div className="flex flex-col gap-1">
+              <div className="flex-1 overflow-y-auto overscroll-contain p-3 pb-6">
+                {/* Main Nav */}
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50 px-3 mb-2">
+                  Navigate
+                </p>
+                <div className="flex flex-col gap-0.5 mb-4">
                   {navigation.map((item) => (
                     <Link
                       key={item.name}
                       to={item.href}
                       onClick={() => setMobileMenuOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all",
+                        "flex items-center gap-3 px-3 py-3 text-sm font-medium rounded-xl transition-all",
                         isActive(item.href)
-                          ? "bg-primary/10 text-primary border-l-4 border-primary"
-                          : "text-foreground hover:bg-muted"
+                          ? "bg-primary/10 text-primary"
+                          : "text-foreground/80 hover:bg-muted"
                       )}
                     >
                       <div className={cn(
                         "p-2 rounded-lg",
-                        isActive(item.href) ? "bg-primary/20" : "bg-muted"
+                        isActive(item.href) ? "bg-primary/15" : "bg-muted"
+                      )}>
+                        <item.icon className="h-4 w-4" />
+                      </div>
+                      <span className="flex-1">{item.name}</span>
+                      {item.highlight && (
+                        <span className="flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-primary opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                        </span>
+                      )}
+                      <ChevronRight className="h-4 w-4 text-muted-foreground/30" />
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Explore More */}
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50 px-3 mb-2">
+                  Explore More
+                </p>
+                <div className="flex flex-col gap-0.5">
+                  {mobileSecondary.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-3 text-sm font-medium rounded-xl transition-all",
+                        isActive(item.href)
+                          ? "bg-primary/10 text-primary"
+                          : "text-foreground/80 hover:bg-muted"
+                      )}
+                    >
+                      <div className={cn(
+                        "p-2 rounded-lg",
+                        isActive(item.href) ? "bg-primary/15" : "bg-muted"
                       )}>
                         <item.icon className="h-4 w-4" />
                       </div>
                       <span>{item.name}</span>
-                      {item.badge && (
-                        <span className="ml-auto px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-primary to-amber-500 text-white">
-                          {item.badge}
-                        </span>
-                      )}
+                      <ChevronRight className="h-4 w-4 text-muted-foreground/30 ml-auto" />
                     </Link>
                   ))}
                 </div>
               </div>
 
               {/* Bottom Actions */}
-              <div className="mt-auto p-4 space-y-2 border-t border-border bg-background pb-safe">
+              <div className="mt-auto p-4 space-y-2 border-t border-border/50 pb-safe">
                 {isInstallable && !isInstalled && (
                   <Button
                     onClick={() => { promptInstall(); setMobileMenuOpen(false); }}
