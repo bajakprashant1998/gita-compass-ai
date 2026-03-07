@@ -54,7 +54,7 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
   const theme = themes[selectedTheme];
   const ratio = aspectRatios[selectedRatio];
   const chapterNumber = shlok.chapter?.chapter_number || 1;
-  const displayText = customText || truncateToWords(shlok.life_application || shlok.english_meaning, 40);
+  const displayText = customText || truncateToWords(shlok.english_meaning || shlok.life_application || '', 40);
 
   const generateAIBackground = async () => {
     setIsGeneratingBg(true);
