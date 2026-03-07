@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
     const allowedTables: TableName[] = [
       "shloks", "problems", "chapters", "languages",
       "ai_search_rules", "shlok_problems", "admin_activity_log",
-      "page_seo_metadata", "blog_posts", "contact_submissions",
+      "page_seo_metadata", "blog_posts", "contact_submissions", "web_stories",
     ];
 
     if (!allowedTables.includes(table)) {
