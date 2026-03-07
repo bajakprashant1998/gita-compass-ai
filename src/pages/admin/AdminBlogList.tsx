@@ -101,11 +101,16 @@ export default function AdminBlogList() {
         subtitle={`${posts.length} total posts`}
         icon={<PenSquare className="w-5 h-5" />}
         actions={
-          <Button asChild>
-            <Link to="/admin/blog/create">
-              <Plus className="w-4 h-4 mr-2" /> New Post
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setBulkImageOpen(true)}>
+              <Images className="w-4 h-4 mr-2" /> Bulk Images
+            </Button>
+            <Button asChild>
+              <Link to="/admin/blog/create">
+                <Plus className="w-4 h-4 mr-2" /> New Post
+              </Link>
+            </Button>
+          </div>
         }
       />
 
