@@ -36,6 +36,7 @@ export default function AdminBlogList() {
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [bulkImageOpen, setBulkImageOpen] = useState(false);
 
   const fetchPosts = async () => {
     setIsLoading(true);
