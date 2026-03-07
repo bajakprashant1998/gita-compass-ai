@@ -62,6 +62,30 @@ function extractKeyTakeaways(content: string) {
   return takeaways.slice(0, 6);
 }
 
+function extractFAQsFromContent(content: string): { question: string; answer: string }[] {
+  const faqs: { question: string; answer: string }[] = [];
+  const lines = content.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    // Match headings that end with ?
+    const questionMatch = line.match(/^#{1,3}\s+(.+\?)$/);
+    if (questionMatch) {
+      const question = questionMatch[1];
+      const answerLines: string[] = [];
+      for (let j = i + 1; j < lines.length; j++) {
+        if (lines[j].match(/^#{1,3}\s+/)) break;
+        const trimmed = lines[j].trim();
+        if (trimmed) answerLines.push(trimmed);
+        if (answerLines.length >= 3) break;
+      }
+      if (answerLines.length > 0) {
+        faqs.push({ question, answer: answerLines.join(' ').slice(0, 300) });
+      }
+    }
+  }
+  return faqs.slice(0, 5);
+}
+
 // ─── Reading Progress Bar with Time Remaining ────────────
 
 function ReadingProgressBar({ readTime }: { readTime: number }) {
