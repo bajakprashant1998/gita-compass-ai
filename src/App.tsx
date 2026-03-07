@@ -38,6 +38,13 @@ const StudyGroupsPage = lazy(() => import("./pages/StudyGroupsPage"));
 const InstallPage = lazy(() => import("./pages/InstallPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const GitaWisdomPage = lazy(() => import("./pages/GitaWisdomPage"));
+const AudienceWisdomPage = lazy(() => import("./pages/AudienceWisdomPage"));
+const KrishnaQuotesPage = lazy(() => import("./pages/KrishnaQuotesPage"));
+const VerseShortRedirect = lazy(() => import("./pages/VerseShortRedirect"));
+const HindiHomePage = lazy(() => import("./pages/HindiHomePage"));
+const HindiChapterPage = lazy(() => import("./pages/HindiChapterPage"));
+const HindiVersePage = lazy(() => import("./pages/HindiVersePage"));
+const WebStoryPage = lazy(() => import("./pages/WebStoryPage"));
 const AdminRoutes = lazy(() => import("@/components/admin/AdminRoutes"));
 
 const queryClient = new QueryClient({
