@@ -66,6 +66,7 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <RedirectHandler />
+            <PageViewTracker />
             <MobileInstallGate>
               <Suspense fallback={<PageLoader />}>
                 <Routes>
