@@ -36,6 +36,7 @@ const themes: Record<Theme, { bg: string; accent: string; text: string; name: st
 const aspectRatios: Record<AspectRatio, { width: number; height: number; label: string }> = {
   '1:1': { width: 1080, height: 1080, label: 'Square' },
   '4:5': { width: 1080, height: 1350, label: 'Portrait' },
+  '9:16': { width: 1080, height: 1920, label: 'Story' },
   '16:9': { width: 1920, height: 1080, label: 'Wide' },
 };
 
