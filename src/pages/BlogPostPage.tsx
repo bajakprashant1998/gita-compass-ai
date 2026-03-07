@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { SEOHead, generateBlogPostSchema, generateBreadcrumbSchema } from '@/components/SEOHead';
+import { SEOHead, generateBlogPostSchema, generateBreadcrumbSchema, generateBlogFAQSchema } from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
