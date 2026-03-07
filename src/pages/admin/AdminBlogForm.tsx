@@ -445,17 +445,10 @@ export default function AdminBlogForm() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Cover Image URL</Label>
-            <Input
-              value={form.cover_image}
-              onChange={e => setForm(prev => ({ ...prev, cover_image: e.target.value }))}
-              placeholder="https://..."
-            />
-            {form.cover_image && (
-              <img src={form.cover_image} alt="Cover preview" className="mt-2 h-32 w-auto rounded-lg object-cover border" />
-            )}
-          </div>
+          <CoverImageUploader
+            coverImage={form.cover_image}
+            onChange={(url) => setForm(prev => ({ ...prev, cover_image: url }))}
+          />
 
           <div className="space-y-2">
             <Label>Author</Label>
