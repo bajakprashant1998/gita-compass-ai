@@ -41,6 +41,7 @@ function getTagGradient(tag: string) {
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const { data: seoData } = usePageSEO('blog');
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ['blog-posts'],
