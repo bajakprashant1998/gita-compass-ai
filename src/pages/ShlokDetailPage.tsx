@@ -30,6 +30,7 @@ import { Badge } from '@/components/ui/badge';
 import { Target, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { trackVerseRead } from '@/hooks/useReadingActivity';
+import { NextVerseRecommendation } from '@/components/shlok/NextVerseRecommendation';
 import {
   Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
