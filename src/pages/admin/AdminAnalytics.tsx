@@ -91,9 +91,6 @@ export default function AdminAnalytics() {
         dailyActivityRes,
         chaptersExploredRes,
         profileGrowthRes,
-        pageViewsAllRes,
-        pageViewsTodayRes,
-        pageViewsDailyRes,
       ] = await Promise.all([
         supabase.from('profiles').select('id', { count: 'exact', head: true }),
         supabase.from('reading_activity').select('user_id').eq('activity_date', today),
@@ -113,6 +110,57 @@ export default function AdminAnalytics() {
           .gte('created_at', thirtyDaysAgo)
           .order('created_at', { ascending: true }),
       ]);
+
+      // Page views — separate queries using REST (table not in generated types yet)
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const apiKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token || apiKey;
+
+      const pvHeaders = {
+        'apikey': apiKey,
+        'Authorization': `Bearer ${authToken}`,
+        'Prefer': 'count=exact',
+      };
+
+      const [pvAllResp, pvTodayResp, pvDailyResp] = await Promise.all([
+        fetch(`${supabaseUrl}/rest/v1/page_views?select=id&limit=0`, { headers: { ...pvHeaders, 'Prefer': 'count=exact' } }),
+        fetch(`${supabaseUrl}/rest/v1/page_views?select=id&limit=0&created_at=gte.${today}T00:00:00`, { headers: { ...pvHeaders, 'Prefer': 'count=exact' } }),
+        fetch(`${supabaseUrl}/rest/v1/page_views?select=page_path,session_id,created_at&created_at=gte.${thirtyDaysAgo}T00:00:00&order=created_at.asc&limit=1000`, { headers: { ...pvHeaders } }),
+      ]);
+
+      const totalPageViews = parseInt(pvAllResp.headers.get('content-range')?.split('/')[1] || '0', 10);
+      const pageViewsToday = parseInt(pvTodayResp.headers.get('content-range')?.split('/')[1] || '0', 10);
+      const pvDailyData: Array<{ page_path: string; session_id: string; created_at: string }> = await pvDailyResp.json().catch(() => []);
+
+      // Daily page views aggregation
+      const pvDailyMap = new Map<string, { views: number; sessions: Set<string> }>();
+      const pvPageMap = new Map<string, { views: number; sessions: Set<string> }>();
+      for (const pv of pvDailyData) {
+        const d = format(new Date(pv.created_at), 'MMM dd');
+        if (!pvDailyMap.has(d)) pvDailyMap.set(d, { views: 0, sessions: new Set() });
+        const entry = pvDailyMap.get(d)!;
+        entry.views++;
+        if (pv.session_id) entry.sessions.add(pv.session_id);
+
+        // Top pages
+        const path = pv.page_path;
+        if (!pvPageMap.has(path)) pvPageMap.set(path, { views: 0, sessions: new Set() });
+        const pageEntry = pvPageMap.get(path)!;
+        pageEntry.views++;
+        if (pv.session_id) pageEntry.sessions.add(pv.session_id);
+      }
+
+      const dailyPageViews = Array.from(pvDailyMap.entries()).map(([date, val]) => ({
+        date,
+        views: val.views,
+        unique: val.sessions.size,
+      }));
+
+      const topPages = [...pvPageMap.entries()]
+        .sort((a, b) => b[1].views - a[1].views)
+        .slice(0, 10)
+        .map(([path, val]) => ({ path, views: val.views, unique: val.sessions.size }));
 
       // Unique active users today
       const uniqueToday = new Set((activityTodayRes.data || []).map(r => r.user_id)).size;
@@ -190,6 +238,10 @@ export default function AdminAnalytics() {
         dailyActivity,
         topChapters,
         userGrowth,
+        totalPageViews,
+        pageViewsToday,
+        dailyPageViews,
+        topPages,
       });
     } catch (err: any) {
       console.error('Analytics load error:', err);
