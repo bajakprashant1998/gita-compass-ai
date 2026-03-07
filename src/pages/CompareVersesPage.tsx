@@ -87,18 +87,21 @@ const PRESETS = [
 ];
 
 function SharedThemes({ verses }: { verses: VerseRef[] }) {
-  const queries = verses.map(v => 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useQuery({
-      queryKey: ['compare-verse', v.chapter, v.verse],
-      queryFn: () => getShlokByChapterAndVerse(v.chapter, v.verse),
-    })
-  );
+  // Fetch all verses together to avoid hooks-in-loop
+  const verseKeys = verses.map(v => `${v.chapter}-${v.verse}`).join(',');
+  const { data: shloks } = useQuery({
+    queryKey: ['compare-themes', verseKeys],
+    queryFn: async () => {
+      const results = await Promise.all(
+        verses.map(v => getShlokByChapterAndVerse(v.chapter, v.verse))
+      );
+      return results.filter(Boolean);
+    },
+    enabled: verses.length >= 2,
+  });
 
-  const allLoaded = queries.every(q => q.data);
-  
   const themes = useMemo(() => {
-    if (!allLoaded) return [];
+    if (!shloks || shloks.length < 2) return [];
     const themeKeywords: Record<string, string[]> = {
       'Duty & Action': ['duty', 'action', 'karma', 'work', 'perform', 'act'],
       'Detachment': ['detach', 'renounce', 'fruit', 'result', 'outcome', 'attachment'],
@@ -110,21 +113,21 @@ function SharedThemes({ verses }: { verses: VerseRef[] }) {
       'Desire': ['desire', 'lust', 'crav', 'want', 'greed', 'anger'],
     };
 
-    const shlokTexts = queries.map(q => 
-      `${q.data?.english_meaning || ''} ${q.data?.life_application || ''}`.toLowerCase()
+    const shlokTexts = shloks.map(s =>
+      `${s?.english_meaning || ''} ${s?.life_application || ''}`.toLowerCase()
     );
 
     return Object.entries(themeKeywords)
       .filter(([_, keywords]) => {
-        const matchCount = shlokTexts.filter(text => 
+        const matchCount = shlokTexts.filter(text =>
           keywords.some(kw => text.includes(kw))
         ).length;
-        return matchCount >= 2; // Theme appears in at least 2 verses
+        return matchCount >= 2;
       })
       .map(([theme]) => theme);
-  }, [allLoaded, queries]);
+  }, [shloks]);
 
-  if (!allLoaded || verses.length < 2 || themes.length === 0) return null;
+  if (verses.length < 2 || themes.length === 0) return null;
 
   return (
     <Card className="mt-8 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
