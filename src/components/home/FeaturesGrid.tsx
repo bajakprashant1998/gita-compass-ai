@@ -6,6 +6,7 @@ import {
   Sparkles, 
   Search,
   Volume2,
+  GitCompareArrows,
   ArrowRight
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -49,6 +50,15 @@ const features = [
     description: 'Every verse comes with a contemporary story showing how ancient wisdom applies to life today.',
     href: '/chapters/2',
     gradient: 'from-pink-500 to-purple-500',
+  },
+  {
+    icon: GitCompareArrows,
+    title: 'Compare Verses',
+    description: 'Compare 2-3 verses side-by-side to discover shared themes and deeper connections.',
+    badge: 'NEW',
+    badgeColor: 'bg-blue-500',
+    href: '/compare',
+    gradient: 'from-blue-500 to-cyan-500',
   },
   {
     icon: Heart,

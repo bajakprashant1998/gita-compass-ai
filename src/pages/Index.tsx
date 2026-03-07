@@ -16,6 +16,7 @@ const Testimonials = lazy(() => import('@/components/home/Testimonials').then(m 
 const FeaturedVersesCarousel = lazy(() => import('@/components/home/FeaturedVersesCarousel').then(m => ({ default: m.FeaturedVersesCarousel })));
 const FloatingActionButton = lazy(() => import('@/components/home/FloatingActionButton').then(m => ({ default: m.FloatingActionButton })));
 const CommunityHighlights = lazy(() => import('@/components/home/CommunityHighlights').then(m => ({ default: m.CommunityHighlights })));
+const SEOInternalLinks = lazy(() => import('@/components/home/SEOInternalLinks').then(m => ({ default: m.SEOInternalLinks })));
 
 // Minimal skeleton for below-fold content
 const SectionSkeleton = () => (
@@ -112,6 +113,10 @@ const Index = () => {
       <SectionDivider />
       <Suspense fallback={<SectionSkeleton />}>
         <DailyWisdom />
+      </Suspense>
+      <SectionDivider />
+      <Suspense fallback={<SectionSkeleton />}>
+        <SEOInternalLinks />
       </Suspense>
       <SectionDivider />
       <Suspense fallback={<SectionSkeleton />}>

@@ -26,6 +26,7 @@ import AdminScheduleCalendar from "@/pages/admin/AdminScheduleCalendar";
 import AdminSystemHealth from "@/pages/admin/AdminSystemHealth";
 import AdminSEOAudit from "@/pages/admin/AdminSEOAudit";
 import AdminRedirects from "@/pages/admin/AdminRedirects";
+import AdminWebStories from "@/pages/admin/AdminWebStories";
 
 export default function AdminRoutes() {
   return (
@@ -60,6 +61,7 @@ export default function AdminRoutes() {
           <Route path="blog" element={<AdminProtectedRoute><AdminBlogList /></AdminProtectedRoute>} />
           <Route path="blog/create" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
           <Route path="blog/edit/:id" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
+          <Route path="web-stories" element={<AdminProtectedRoute><AdminWebStories /></AdminProtectedRoute>} />
         </Route>
       </Routes>
     </AdminAuthProvider>

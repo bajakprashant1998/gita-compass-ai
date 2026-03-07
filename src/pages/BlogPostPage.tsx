@@ -1140,6 +1140,26 @@ export default function BlogPostPage() {
               </div>
             )}
 
+            {/* Related Wisdom Pages */}
+            <div className="mt-8 p-5 rounded-2xl bg-muted/50 border border-border/50">
+              <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" /> Related Wisdom
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {[
+                  { href: '/bhagavad-gita-for-students', label: 'Gita for Students' },
+                  { href: '/bhagavad-gita-on-anxiety', label: 'Gita on Anxiety' },
+                  { href: '/krishna-quotes-on-love', label: 'Krishna Quotes on Love' },
+                  { href: '/compare', label: 'Compare Verses' },
+                ].map(link => (
+                  <Link key={link.href} to={link.href} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors py-1.5 px-2 rounded-lg hover:bg-primary/5">
+                    <ArrowRight className="h-3 w-3 shrink-0" />
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
             {/* Emoji Reactions */}
             <ArticleReactions />
 
