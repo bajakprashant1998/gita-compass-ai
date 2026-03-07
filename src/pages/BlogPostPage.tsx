@@ -931,7 +931,7 @@ export default function BlogPostPage() {
 
             {/* Excerpt */}
             {post.excerpt && (
-              <p className="text-lg text-muted-foreground leading-relaxed mb-6 max-w-2xl">
+              <p className="blog-excerpt text-lg text-muted-foreground leading-relaxed mb-6 max-w-2xl">
                 {post.excerpt}
               </p>
             )}
