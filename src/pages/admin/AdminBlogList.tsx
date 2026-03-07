@@ -13,10 +13,11 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Search, Edit, Trash2, Eye, EyeOff, PenSquare } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, EyeOff, PenSquare, Images } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
+import { BulkImageUploadModal } from '@/components/admin/BulkImageUploadModal';
 
 interface BlogPost {
   id: string;
