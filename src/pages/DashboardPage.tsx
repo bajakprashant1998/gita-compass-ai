@@ -152,11 +152,15 @@ export default function DashboardPage() {
             <PreferencesCard
               language={profile?.preferred_language || 'english'}
               dailyWisdom={preferences?.dailyWisdomEnabled ?? true}
+              weeklyDigest={preferences?.weeklyDigestEnabled ?? true}
               onLanguageChange={async (lang) => {
                 await updateProfile({ preferred_language: lang as 'english' | 'hindi' });
               }}
               onDailyWisdomChange={async (enabled) => {
                 updatePreference.mutate({ daily_wisdom_enabled: enabled });
+              }}
+              onWeeklyDigestChange={async (enabled) => {
+                updatePreference.mutate({ weekly_digest_enabled: enabled });
               }}
             />
           </div>
