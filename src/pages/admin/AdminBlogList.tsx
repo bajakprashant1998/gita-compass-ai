@@ -192,6 +192,11 @@ export default function AdminBlogList() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <BulkImageUploadModal
+        open={bulkImageOpen}
+        onOpenChange={setBulkImageOpen}
+        onComplete={fetchPosts}
+      />
     </div>
   );
 }
