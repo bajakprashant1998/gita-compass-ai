@@ -38,6 +38,13 @@ const StudyGroupsPage = lazy(() => import("./pages/StudyGroupsPage"));
 const InstallPage = lazy(() => import("./pages/InstallPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const GitaWisdomPage = lazy(() => import("./pages/GitaWisdomPage"));
+const AudienceWisdomPage = lazy(() => import("./pages/AudienceWisdomPage"));
+const KrishnaQuotesPage = lazy(() => import("./pages/KrishnaQuotesPage"));
+const VerseShortRedirect = lazy(() => import("./pages/VerseShortRedirect"));
+const HindiHomePage = lazy(() => import("./pages/HindiHomePage"));
+const HindiChapterPage = lazy(() => import("./pages/HindiChapterPage"));
+const HindiVersePage = lazy(() => import("./pages/HindiVersePage"));
+const WebStoryPage = lazy(() => import("./pages/WebStoryPage"));
 const AdminRoutes = lazy(() => import("@/components/admin/AdminRoutes"));
 
 const queryClient = new QueryClient({
@@ -94,6 +101,13 @@ const App = () => (
                   <Route path="/study-groups" element={<StudyGroupsPage />} />
                   <Route path="/install" element={<InstallPage />} />
                   <Route path="/bhagavad-gita-on-:topic" element={<GitaWisdomPage />} />
+                  <Route path="/bhagavad-gita-for-:audience" element={<AudienceWisdomPage />} />
+                  <Route path="/krishna-quotes-on-:topic" element={<KrishnaQuotesPage />} />
+                  <Route path="/verse/:ref" element={<VerseShortRedirect />} />
+                  <Route path="/hi" element={<HindiHomePage />} />
+                  <Route path="/hi/chapters/:chapterNumber" element={<HindiChapterPage />} />
+                  <Route path="/hi/chapters/:chapterNumber/verse/:verseNumber" element={<HindiVersePage />} />
+                  <Route path="/stories/:storySlug" element={<WebStoryPage />} />
 
                   {/* Admin Routes - handles its own layout and protection */}
                   <Route path="/admin/*" element={<AdminRoutes />} />

@@ -121,7 +121,7 @@ Disallow: /auth
 # ===========================================
 # Discovery Files
 # ===========================================
-# Sitemap
+# Sitemaps
 Sitemap: https://www.bhagavadgitagyan.com/sitemap.xml
 
 # LLMs.txt (AI discovery)

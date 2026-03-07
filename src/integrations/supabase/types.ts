@@ -772,6 +772,48 @@ export type Database = {
           },
         ]
       }
+      seo_landing_pages: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          keywords: string[] | null
+          meta_description: string | null
+          meta_title: string | null
+          page_type: string
+          related_problem_ids: string[] | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          page_type?: string
+          related_problem_ids?: string[] | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          page_type?: string
+          related_problem_ids?: string[] | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       seo_redirects: {
         Row: {
           created_at: string
@@ -1314,6 +1356,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "verse_reflections_shlok_id_fkey"
+            columns: ["shlok_id"]
+            isOneToOne: false
+            referencedRelation: "shloks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      web_stories: {
+        Row: {
+          created_at: string
+          id: string
+          meta_description: string | null
+          published: boolean
+          shlok_id: string | null
+          slides: Json
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meta_description?: string | null
+          published?: boolean
+          shlok_id?: string | null
+          slides?: Json
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meta_description?: string | null
+          published?: boolean
+          shlok_id?: string | null
+          slides?: Json
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "web_stories_shlok_id_fkey"
             columns: ["shlok_id"]
             isOneToOne: false
             referencedRelation: "shloks"
