@@ -1,0 +1,20 @@
+{
+  "name": "Bhagavad Gita Gyan",
+  "description": "AI-powered ancient wisdom from the Bhagavad Gita for modern life problems. Complete 18 chapters, 700+ verses with Sanskrit, English, Hindi meanings, life applications, and AI spiritual guidance.",
+  "url": "https://www.bhagavadgitagyan.com",
+  "logo": "https://www.bhagavadgitagyan.com/logo.png",
+  "contact_email": "contact@bhagavadgitagyan.com",
+  "topics": ["Bhagavad Gita", "Hindu Scripture", "Spiritual Guidance", "Karma Yoga", "Meditation", "Anxiety Relief", "Ancient Wisdom", "Sanskrit Verses", "Life Problems"],
+  "content_types": ["verses", "chapters", "blog_articles", "reading_plans", "ai_guidance"],
+  "languages": ["en", "hi", "sa", "ta", "te", "bn", "gu", "kn", "ml", "pa", "or", "ur"],
+  "llms_txt": "/llms.txt",
+  "robots_txt": "/robots.txt",
+  "sitemap": "/sitemap.xml",
+  "feeds": [],
+  "ai_policy": {
+    "allow_training": true,
+    "allow_citation": true,
+    "preferred_citation": "Bhagavad Gita Gyan (bhagavadgitagyan.com)",
+    "allow_summarization": true
+  }
+}
