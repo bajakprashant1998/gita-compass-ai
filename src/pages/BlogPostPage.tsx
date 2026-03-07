@@ -16,6 +16,7 @@ import {
 import { format } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import { ShareButtons } from '@/components/ui/share-buttons';
+import { BlogCoverGraphic } from '@/components/blog/BlogCoverGraphic';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';

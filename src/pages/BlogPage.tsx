@@ -222,19 +222,19 @@ export default function BlogPage() {
                       <CardContent className="p-0">
                         <div className="grid md:grid-cols-[1fr_1.2fr]">
                           {/* Left: Visual */}
-                          <div className={`relative bg-gradient-to-br ${getTagGradient((featuredPost.tags || [])[0] || '')} p-8 sm:p-10 flex flex-col justify-between min-h-[240px]`}>
-                            <div>
-                              <Badge className="bg-primary text-primary-foreground text-[10px] font-semibold px-2.5 py-0.5 mb-3">
+                          <div className="relative min-h-[240px] overflow-hidden">
+                            <BlogCoverGraphic slug={featuredPost.slug} variant="card" className="absolute inset-0" />
+                            <div className="relative z-10 p-8 sm:p-10 flex flex-col justify-between h-full">
+                              <Badge className="bg-primary text-primary-foreground text-[10px] font-semibold px-2.5 py-0.5 w-fit">
                                 ✦ Latest
                               </Badge>
-                              <div className="text-7xl opacity-10 font-serif select-none mt-4">📖</div>
-                            </div>
-                            <div className="flex flex-wrap gap-2 mt-auto">
-                              {(featuredPost.tags || []).slice(0, 3).map((tag: string) => (
-                                <Badge key={tag} variant="outline" className="text-[10px] border-foreground/10 text-foreground/60 bg-card/30 backdrop-blur-sm">
-                                  {tag}
-                                </Badge>
-                              ))}
+                              <div className="flex flex-wrap gap-2 mt-auto">
+                                {(featuredPost.tags || []).slice(0, 3).map((tag: string) => (
+                                  <Badge key={tag} variant="outline" className="text-[10px] border-foreground/10 text-foreground/60 bg-card/30 backdrop-blur-sm">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
                             </div>
                           </div>
 
