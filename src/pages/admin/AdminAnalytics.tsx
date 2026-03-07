@@ -436,6 +436,61 @@ export default function AdminAnalytics() {
             </CardContent>
           </Card>
 
+          {/* Page Views Trend */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2"><Eye className="h-4 w-4 text-primary" /> Page Views (Last 30 Days)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data.dailyPageViews.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={data.dailyPageViews}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis dataKey="date" tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+                    <YAxis tick={{ fill: 'hsl(var(--muted-foreground))' }} allowDecimals={false} />
+                    <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))' }} />
+                    <Legend />
+                    <Area type="monotone" dataKey="views" name="Total Views" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.15)" strokeWidth={2} />
+                    <Area type="monotone" dataKey="unique" name="Unique Sessions" stroke="hsl(var(--chart-2, 220 70% 50%))" fill="hsl(var(--chart-2, 220 70% 50%) / 0.1)" strokeWidth={2} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                  No page view data yet — views will start tracking now
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Top Pages */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2"><Globe className="h-4 w-4 text-primary" /> Top Pages</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data.topPages.length > 0 ? (
+                <div className="space-y-2">
+                  {data.topPages.map((page, i) => (
+                    <div key={page.path} className="flex items-center justify-between p-2.5 bg-muted/30 rounded-lg">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-xs font-bold text-muted-foreground w-5">{i + 1}</span>
+                        <span className="text-sm font-medium truncate">{page.path === '/' ? 'Home' : page.path}</span>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm shrink-0">
+                        <span className="font-semibold">{page.views} <span className="text-muted-foreground font-normal text-xs">views</span></span>
+                        <span className="text-muted-foreground">{page.unique} <span className="text-xs">unique</span></span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                  No page data yet
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Summary Card */}
           <Card>
             <CardHeader>
