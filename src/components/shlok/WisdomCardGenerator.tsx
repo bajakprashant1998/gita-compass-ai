@@ -14,7 +14,7 @@ interface WisdomCardGeneratorProps {
 }
 
 type Theme = 'earth' | 'ocean' | 'forest' | 'sunset' | 'lotus' | 'night' | 'royal' | 'saffron';
-type AspectRatio = '1:1' | '4:5' | '16:9';
+type AspectRatio = '1:1' | '4:5' | '16:9' | '9:16';
 
 function truncateToWords(text: string, maxWords: number): string {
   const words = text.split(/\s+/).filter(Boolean);
