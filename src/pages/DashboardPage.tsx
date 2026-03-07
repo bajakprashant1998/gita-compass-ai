@@ -13,6 +13,7 @@ import { SavedWisdomCard } from '@/components/dashboard/SavedWisdomCard';
 import { QuickActionsCard } from '@/components/dashboard/QuickActionsCard';
 import { ReadingPlansWidget } from '@/components/dashboard/ReadingPlansWidget';
 import { PreferencesCard } from '@/components/dashboard/PreferencesCard';
+import { RecommendedVerses } from '@/components/dashboard/RecommendedVerses';
 import { StreakCalendar } from '@/components/dashboard/StreakCalendar';
 import { DailyAffirmation } from '@/components/dashboard/DailyAffirmation';
 import { RecentlyReadWidget } from '@/components/dashboard/RecentlyReadWidget';
