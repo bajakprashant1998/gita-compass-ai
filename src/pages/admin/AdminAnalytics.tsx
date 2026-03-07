@@ -91,6 +91,9 @@ export default function AdminAnalytics() {
         dailyActivityRes,
         chaptersExploredRes,
         profileGrowthRes,
+        pageViewsAllRes,
+        pageViewsTodayRes,
+        pageViewsDailyRes,
       ] = await Promise.all([
         supabase.from('profiles').select('id', { count: 'exact', head: true }),
         supabase.from('reading_activity').select('user_id').eq('activity_date', today),
