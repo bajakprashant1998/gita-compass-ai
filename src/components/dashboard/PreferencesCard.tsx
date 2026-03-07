@@ -8,8 +8,10 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 interface PreferencesCardProps {
   language: string;
   dailyWisdom: boolean;
+  weeklyDigest: boolean;
   onLanguageChange: (lang: string) => Promise<void>;
   onDailyWisdomChange: (enabled: boolean) => Promise<void>;
+  onWeeklyDigestChange: (enabled: boolean) => Promise<void>;
 }
 
 export function PreferencesCard({
