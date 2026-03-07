@@ -955,7 +955,7 @@ export default function BlogPostPage() {
           <article className="min-w-0" ref={contentRef}>
 
             {/* Cover Image */}
-            <CoverImageSection coverImage={post.cover_image} readTime={readTime} tags={post.tags || []} />
+            <CoverImageSection coverImage={post.cover_image} readTime={readTime} tags={post.tags || []} slug={post.slug} />
 
             {/* Key Takeaways */}
             {keyTakeaways.length > 0 && (
