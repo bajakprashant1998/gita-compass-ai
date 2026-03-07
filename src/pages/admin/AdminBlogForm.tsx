@@ -157,6 +157,7 @@ function CoverImageUploader({ coverImage, onChange }: { coverImage: string; onCh
   );
 }
 
+export default function AdminBlogForm() {
 
   const { id } = useParams();
   const navigate = useNavigate();
