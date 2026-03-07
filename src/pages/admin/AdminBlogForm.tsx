@@ -42,7 +42,122 @@ const defaultForm: BlogFormData = {
   meta_keywords: [],
 };
 
-export default function AdminBlogForm() {
+function CoverImageUploader({ coverImage, onChange }: { coverImage: string; onChange: (url: string) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB');
+      return;
+    }
+
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+    const { error } = await supabase.storage
+      .from('blog-images')
+      .upload(fileName, file, { cacheControl: '31536000', upsert: false });
+
+    if (error) {
+      toast.error('Upload failed: ' + error.message);
+      setUploading(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from('blog-images').getPublicUrl(fileName);
+    onChange(urlData.publicUrl);
+    toast.success('Cover image uploaded!');
+    setUploading(false);
+  };
+
+  const handleRemove = async () => {
+    if (coverImage) {
+      // Try to delete from storage if it's our bucket
+      try {
+        const url = new URL(coverImage);
+        const pathMatch = url.pathname.match(/\/blog-images\/(.+)$/);
+        if (pathMatch) {
+          await supabase.storage.from('blog-images').remove([pathMatch[1]]);
+        }
+      } catch { /* ignore */ }
+    }
+    onChange('');
+  };
+
+  return (
+    <div className="space-y-2">
+      <Label>Cover Image</Label>
+      {coverImage ? (
+        <div className="relative group">
+          <img
+            src={coverImage}
+            alt="Cover preview"
+            className="w-full h-48 rounded-xl object-cover border border-border"
+          />
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-3">
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+            >
+              <Upload className="h-4 w-4 mr-1.5" />
+              Replace
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="destructive"
+              onClick={handleRemove}
+            >
+              <Trash2 className="h-4 w-4 mr-1.5" />
+              Remove
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="w-full h-40 rounded-xl border-2 border-dashed border-border hover:border-primary/40 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground bg-muted/20"
+        >
+          {uploading ? (
+            <>
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="text-sm">Uploading...</span>
+            </>
+          ) : (
+            <>
+              <ImageIcon className="h-8 w-8" />
+              <span className="text-sm font-medium">Click to upload cover image</span>
+              <span className="text-xs text-muted-foreground">JPG, PNG, WebP • Max 5MB</span>
+            </>
+          )}
+        </button>
+      )}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleUpload}
+      />
+    </div>
+  );
+}
+
+
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = !!id;

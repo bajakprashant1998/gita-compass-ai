@@ -313,8 +313,14 @@ export default function BlogPage() {
                         >
                           <Link to={`/blog/${post.slug}`} className="block group h-full">
                             <Card className="h-full overflow-hidden hover:shadow-xl hover:border-primary/20 transition-all duration-300 hover:-translate-y-1 flex flex-col">
-                              {/* Color accent top bar */}
-                              <div className={`h-1.5 bg-gradient-to-r ${getTagGradient(primaryTag)}`} />
+                              {/* Cover image or color accent */}
+                              {post.cover_image ? (
+                                <div className="h-40 overflow-hidden">
+                                  <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                </div>
+                              ) : (
+                                <div className={`h-1.5 bg-gradient-to-r ${getTagGradient(primaryTag)}`} />
+                              )}
 
                               <CardContent className="p-5 sm:p-6 flex flex-col flex-1">
                                 {/* Tags */}
