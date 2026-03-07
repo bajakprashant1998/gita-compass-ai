@@ -17,8 +17,10 @@ interface PreferencesCardProps {
 export function PreferencesCard({
   language,
   dailyWisdom,
+  weeklyDigest,
   onLanguageChange,
   onDailyWisdomChange,
+  onWeeklyDigestChange,
 }: PreferencesCardProps) {
   const isHindi = language === 'hindi';
   const [langSaving, setLangSaving] = useState(false);
