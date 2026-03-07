@@ -6,6 +6,7 @@ import {
   Sparkles, 
   Search,
   Volume2,
+  GitCompareArrows,
   ArrowRight
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
