@@ -14,6 +14,8 @@ import {
   TrendingUp,
   CalendarDays,
   RefreshCw,
+  Eye,
+  Globe,
 } from 'lucide-react';
 import {
   BarChart,
