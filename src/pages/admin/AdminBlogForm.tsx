@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, X, Sparkles, Wand2, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, X, Sparkles, Wand2, RefreshCw, Upload, ImageIcon, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface BlogFormData {
