@@ -113,6 +113,36 @@ export function PreferencesCard({
             />
           </div>
 
+          {/* Weekly Digest Toggle */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50 touch-target transition-colors hover:bg-muted">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Mail className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium text-sm">Weekly Digest</p>
+                <p className="text-xs text-muted-foreground">
+                  Summary every Sunday
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={weeklyDigest}
+              onCheckedChange={async (checked) => {
+                setDigestSaving(true);
+                try {
+                  await onWeeklyDigestChange(checked);
+                  toast.success(checked ? 'Weekly digest enabled' : 'Weekly digest disabled');
+                } catch {
+                  toast.error('Failed to update preference');
+                } finally {
+                  setDigestSaving(false);
+                }
+              }}
+              disabled={digestSaving}
+            />
+          </div>
+
           {/* Push Notifications Toggle */}
           {pushSupported && (
             <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50 touch-target transition-colors hover:bg-muted">

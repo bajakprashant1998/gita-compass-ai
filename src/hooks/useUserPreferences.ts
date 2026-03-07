@@ -39,6 +39,7 @@ export function useUserPreferences(userId: string | undefined) {
       theme: string;
       notifications_enabled: boolean;
       daily_wisdom_enabled: boolean;
+      weekly_digest_enabled: boolean;
     }>) => {
       if (!userId) throw new Error('No user');
       const { error } = await supabase
