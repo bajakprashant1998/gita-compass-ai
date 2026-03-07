@@ -28,6 +28,7 @@ export function useUserPreferences(userId: string | undefined) {
         theme: data?.theme || 'light',
         notificationsEnabled: data?.notifications_enabled ?? true,
         dailyWisdomEnabled: data?.daily_wisdom_enabled ?? true,
+        weeklyDigestEnabled: data?.weekly_digest_enabled ?? true,
       };
     },
     enabled: !!userId,
