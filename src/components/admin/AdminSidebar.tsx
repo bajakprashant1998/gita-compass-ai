@@ -152,6 +152,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
         <NavItem to="/admin/chapters" icon={<BookOpen className="w-[18px] h-[18px]" />} label="Chapters" collapsed={collapsed} />
         <NavItem to="/admin/problems" icon={<Tags className="w-[18px] h-[18px]" />} label="Problems" collapsed={collapsed} />
         <NavItem to="/admin/blog" icon={<PenSquare className="w-[18px] h-[18px]" />} label="Blog" collapsed={collapsed} />
+        <NavItem to="/admin/web-stories" icon={<Layers className="w-[18px] h-[18px]" />} label="Web Stories" collapsed={collapsed} badge="New" />
 
         <SectionLabel label="Management" collapsed={collapsed} />
         <NavItem to="/admin/users" icon={<Users className="w-[18px] h-[18px]" />} label="Users" collapsed={collapsed} badge="New" />
