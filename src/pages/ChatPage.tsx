@@ -35,7 +35,7 @@ import { ChatHistorySidebar } from '@/components/chat/ChatHistorySidebar';
 import { VoiceInputButton } from '@/components/chat/VoiceInputButton';
 import { ChatRelatedResources, type RelatedResourcesData } from '@/components/chat/ChatRelatedResources';
 import { ChatFollowUpActions } from '@/components/chat/ChatFollowUpActions';
-import { SEOHead } from '@/components/SEOHead';
+import { SEOHead, generateBreadcrumbSchema } from '@/components/SEOHead';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
