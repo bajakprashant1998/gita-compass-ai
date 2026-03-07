@@ -30,6 +30,8 @@ import {
   PieChart,
   Pie,
   Cell,
+  AreaChart,
+  Area,
   Legend,
 } from 'recharts';
 import { format, subDays } from 'date-fns';
