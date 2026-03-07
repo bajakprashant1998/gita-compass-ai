@@ -5,6 +5,7 @@ export interface UserPreferencesData {
   theme: string;
   notificationsEnabled: boolean;
   dailyWisdomEnabled: boolean;
+  weeklyDigestEnabled: boolean;
 }
 
 export function useUserPreferences(userId: string | undefined) {
