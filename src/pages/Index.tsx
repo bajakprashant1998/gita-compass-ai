@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { HeroSection } from '@/components/home/HeroSection';
 import { SEOHead, generateWebsiteSchema, generateOrganizationSchema, generateFAQSchema, generateHowToSchema } from '@/components/SEOHead';
-import { generateSiteNavigationSchema, generateBookSchema } from '@/lib/seoSchemas';
+import { generateSiteNavigationSchema, generateBookSchema, generateKnowledgeGraph } from '@/lib/seoSchemas';
 
 // Lazy load below-the-fold components for faster initial paint
 const StatsSection = lazy(() => import('@/components/home/StatsSection').then(m => ({ default: m.StatsSection })));
