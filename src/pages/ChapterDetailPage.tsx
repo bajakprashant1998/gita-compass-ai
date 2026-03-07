@@ -147,6 +147,11 @@ export default function ChapterDetailPage() {
         description={(chapter as any).meta_description || chapter.description_english || `Explore Chapter ${chapterNum} of the Bhagavad Gita`}
         canonicalUrl={`https://www.bhagavadgitagyan.com/chapters/${chapterNum}`}
         keywords={(chapter as any).meta_keywords || ['Bhagavad Gita', `Chapter ${chapterNum}`, chapter.theme]}
+        hreflang={[
+          { lang: 'en', url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}` },
+          { lang: 'hi', url: `https://www.bhagavadgitagyan.com/hi/chapters/${chapterNum}` },
+          { lang: 'x-default', url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}` },
+        ]}
         structuredData={[
           generateChapterSchema({
             chapter_number: chapterNum,

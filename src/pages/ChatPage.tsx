@@ -397,6 +397,10 @@ export default function ChatPage() {
         description="Talk to Krishna and receive personalized wisdom from the Bhagavad Gita. Get guidance for anxiety, decision-making, and life challenges."
         canonicalUrl="https://www.bhagavadgitagyan.com/chat"
         keywords={['talk to Krishna', 'Gita guidance', 'wisdom chat', 'personal guide', 'life advice']}
+        structuredData={generateBreadcrumbSchema([
+          { name: 'Home', url: 'https://www.bhagavadgitagyan.com/' },
+          { name: 'Talk to Krishna', url: 'https://www.bhagavadgitagyan.com/chat' },
+        ])}
       />
 
       {/* Header Bar - compact on mobile, fixed at top */}

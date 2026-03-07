@@ -104,6 +104,11 @@ export default function ChaptersPage() {
         description="Explore all 18 chapters of the Bhagavad Gita. From Arjuna's despair to ultimate liberation, discover the spiritual journey and key teachings of each chapter."
         canonicalUrl="https://www.bhagavadgitagyan.com/chapters"
         keywords={['Bhagavad Gita chapters', '18 chapters', 'Gita summary', 'chapter guide', 'spiritual journey']}
+        hreflang={[
+          { lang: 'en', url: 'https://www.bhagavadgitagyan.com/chapters' },
+          { lang: 'hi', url: 'https://www.bhagavadgitagyan.com/hi' },
+          { lang: 'x-default', url: 'https://www.bhagavadgitagyan.com/chapters' },
+        ]}
         structuredData={[
           generateBreadcrumbSchema(breadcrumbs),
           generateCollectionPageSchema(

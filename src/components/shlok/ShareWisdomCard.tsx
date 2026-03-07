@@ -1,6 +1,8 @@
+import { useState, useRef, useCallback } from 'react';
+import { toPng } from 'html-to-image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Share2, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { Share2, Linkedin, Twitter, Download, Loader2, ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Shlok } from '@/types';
 
@@ -8,10 +10,17 @@ interface ShareWisdomCardProps {
   shlok: Shlok;
 }
 
+function truncateWords(text: string, max: number) {
+  const words = text.split(/\s+/);
+  return words.length <= max ? text : words.slice(0, max).join(' ') + '...';
+}
+
 export function ShareWisdomCard({ shlok }: ShareWisdomCardProps) {
   const shareText = shlok.life_application || shlok.english_meaning;
   const shareUrl = window.location.href;
   const shareTitle = `Bhagavad Gita - Chapter ${shlok.chapter?.chapter_number}, Verse ${shlok.verse_number}`;
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const quickCardRef = useRef<HTMLDivElement>(null);
 
   const handleShare = async (platform: string) => {
     const encodedText = encodeURIComponent(`${shareText}\n\n— ${shareTitle}`);
@@ -49,6 +58,31 @@ export function ShareWisdomCard({ shlok }: ShareWisdomCardProps) {
     window.open(urls[platform], '_blank', 'noopener,noreferrer');
   };
 
+  const handleQuickImageDownload = useCallback(async () => {
+    if (!quickCardRef.current) return;
+    setIsGeneratingImage(true);
+    try {
+      const dataUrl = await toPng(quickCardRef.current, {
+        width: 1080,
+        height: 1080,
+        pixelRatio: 2,
+        style: { transform: 'scale(1)', transformOrigin: 'top left' },
+      });
+      const link = document.createElement('a');
+      link.download = `gita-${shlok.chapter?.chapter_number}-${shlok.verse_number}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success('Wisdom card downloaded!');
+    } catch {
+      toast.error('Failed to generate image');
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  }, [shlok]);
+
+  const chapterNum = shlok.chapter?.chapter_number || 1;
+  const displayQuote = truncateWords(shlok.english_meaning || shlok.life_application || '', 35);
+
   return (
     <Card className="mb-6 bg-gradient-to-r from-primary/10 via-primary/5 to-secondary/10">
       <CardContent className="p-6">
@@ -69,6 +103,17 @@ export function ShareWisdomCard({ shlok }: ShareWisdomCardProps) {
 
         {/* Share Buttons */}
         <div className="flex flex-wrap gap-2 justify-center">
+          {/* Quick Image Download */}
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleQuickImageDownload}
+            disabled={isGeneratingImage}
+            className="gap-2"
+          >
+            {isGeneratingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            {isGeneratingImage ? 'Generating...' : 'Download Image'}
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -109,6 +154,89 @@ export function ShareWisdomCard({ shlok }: ShareWisdomCardProps) {
           </Button>
         </div>
       </CardContent>
+
+      {/* Hidden offscreen card for quick image generation */}
+      <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+        <div
+          ref={quickCardRef}
+          style={{
+            width: 1080,
+            height: 1080,
+            backgroundColor: '#F5F0E8',
+            color: '#2D1810',
+            fontFamily: 'Georgia, "Times New Roman", serif',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '80px 60px',
+            boxSizing: 'border-box',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Decorative circles */}
+          <div style={{
+            position: 'absolute', top: -100, right: -100,
+            width: 400, height: 400, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(139,69,19,0.1) 0%, transparent 70%)',
+          }} />
+          <div style={{
+            position: 'absolute', bottom: -80, left: -80,
+            width: 300, height: 300, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(139,69,19,0.1) 0%, transparent 70%)',
+          }} />
+          {/* Top border */}
+          <div style={{
+            position: 'absolute', top: 20, left: 20, right: 20, height: 3,
+            background: 'linear-gradient(90deg, transparent, #8B4513, transparent)',
+            opacity: 0.5,
+          }} />
+          {/* Logo */}
+          <div style={{
+            position: 'absolute', top: 60, left: 0, right: 0, textAlign: 'center',
+            fontSize: 20, fontWeight: 700, color: '#8B4513',
+            letterSpacing: '4px', textTransform: 'uppercase',
+          }}>
+            ॐ Bhagavad Gita Gyan
+          </div>
+          {/* Sanskrit text */}
+          {shlok.sanskrit_text && (
+            <div style={{
+              fontSize: 22, color: '#8B4513', opacity: 0.6, textAlign: 'center',
+              marginBottom: 30, maxWidth: '85%', lineHeight: 1.6,
+            }}>
+              {truncateWords(shlok.sanskrit_text, 20)}
+            </div>
+          )}
+          {/* Quote */}
+          <div style={{ textAlign: 'center', maxWidth: '85%', position: 'relative', zIndex: 1 }}>
+            <div style={{ fontSize: 80, color: '#8B4513', opacity: 0.3, lineHeight: 0.5, marginBottom: 20 }}>"</div>
+            <div style={{
+              fontSize: 38, fontWeight: 700, lineHeight: 1.5, letterSpacing: '0.5px',
+              textShadow: '1px 1px 3px rgba(0,0,0,0.15)', marginBottom: 30,
+            }}>
+              {displayQuote}
+            </div>
+            <div style={{ width: 60, height: 3, background: '#8B4513', margin: '0 auto 20px', borderRadius: 2 }} />
+            <div style={{ fontSize: 18, color: '#8B4513', fontWeight: 600, letterSpacing: '1px' }}>
+              Chapter {chapterNum}, Verse {shlok.verse_number}
+            </div>
+          </div>
+          {/* Bottom border */}
+          <div style={{
+            position: 'absolute', bottom: 20, left: 20, right: 20, height: 3,
+            background: 'linear-gradient(90deg, transparent, #8B4513, transparent)',
+            opacity: 0.5,
+          }} />
+          <div style={{
+            position: 'absolute', bottom: 55, left: 0, right: 0, textAlign: 'center',
+            fontSize: 14, opacity: 0.6, letterSpacing: '1px',
+          }}>
+            bhagavadgitagyan.com
+          </div>
+        </div>
+      </div>
     </Card>
   );
 }

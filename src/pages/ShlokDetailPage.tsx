@@ -239,6 +239,12 @@ export default function ShlokDetailPage() {
         keywords={(shlok as any).meta_keywords || ['Bhagavad Gita', `Chapter ${chapterNum}`, `Verse ${verseNum}`, 'wisdom', 'guidance']}
         structuredData={[enhancedVerseSchema, breadcrumbSchema, speakableSchema]}
         type="article"
+        hreflang={[
+          { lang: 'en', url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}/verse/${verseNum}` },
+          { lang: 'hi', url: `https://www.bhagavadgitagyan.com/hi/chapters/${chapterNum}/verse/${verseNum}` },
+          { lang: 'x-default', url: `https://www.bhagavadgitagyan.com/chapters/${chapterNum}/verse/${verseNum}` },
+        ]}
+        ogImage={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-og-image?chapter=${chapterNum}&verse=${verseNum}`}
       />
 
       {/* Floating Social Share Bar - Left side */}
