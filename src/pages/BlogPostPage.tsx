@@ -16,6 +16,7 @@ import {
 import { format } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import { ShareButtons } from '@/components/ui/share-buttons';
+import { BlogCoverGraphic } from '@/components/blog/BlogCoverGraphic';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -516,15 +517,12 @@ function RelatedArticlesCard({ currentSlug }: { currentSlug: string }) {
 
 // ─── Cover Image Section ─────────────────────────────────
 
-function CoverImageSection({ coverImage, readTime, tags }: { coverImage?: string | null; readTime: number; tags: string[] }) {
+function CoverImageSection({ coverImage, readTime, tags, slug }: { coverImage?: string | null; readTime: number; tags: string[]; slug: string }) {
   if (!coverImage) {
     return (
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/15 via-primary/8 to-accent/10 border border-border/50 shadow-lg aspect-[16/7] flex items-center justify-center mb-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(var(--primary)/0.08),transparent_70%)]" />
-        <div className="text-center relative">
-          <span className="text-7xl opacity-15 select-none">📖</span>
-        </div>
-        <div className="absolute bottom-4 left-4 flex items-center gap-2">
+      <div className="relative mb-8">
+        <BlogCoverGraphic slug={slug} variant="hero" />
+        <div className="absolute bottom-4 left-4 flex items-center gap-2 z-20">
           <Badge className="bg-primary text-primary-foreground border-0 shadow-md gap-1.5 text-xs px-3 py-1">
             <Sparkles className="h-3 w-3" /> Expert Analysis
           </Badge>
@@ -537,7 +535,7 @@ function CoverImageSection({ coverImage, readTime, tags }: { coverImage?: string
             </Badge>
           )}
         </div>
-        <Badge className="absolute top-4 right-4 bg-primary/90 text-primary-foreground border-0 shadow-md text-[11px]">
+        <Badge className="absolute top-4 right-4 bg-primary/90 text-primary-foreground border-0 shadow-md text-[11px] z-20">
           ✦ Premium
         </Badge>
       </div>
@@ -598,8 +596,8 @@ function RecommendedReading({ currentSlug }: { currentSlug: string }) {
             return (
               <Link key={p.slug} to={`/blog/${p.slug}`} className="group">
                 <Card className="h-full border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 overflow-hidden">
-                  <div className="aspect-[16/9] bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center relative overflow-hidden">
-                    <BookOpen className="h-8 w-8 text-primary/30 group-hover:scale-110 transition-transform" />
+                  <div className="aspect-[16/9] relative overflow-hidden">
+                    <BlogCoverGraphic slug={p.slug} variant="card" className="absolute inset-0" />
                   </div>
                   <CardContent className="p-5">
                     <div className="flex items-center gap-2 mb-2.5">
@@ -957,7 +955,7 @@ export default function BlogPostPage() {
           <article className="min-w-0" ref={contentRef}>
 
             {/* Cover Image */}
-            <CoverImageSection coverImage={post.cover_image} readTime={readTime} tags={post.tags || []} />
+            <CoverImageSection coverImage={post.cover_image} readTime={readTime} tags={post.tags || []} slug={post.slug} />
 
             {/* Key Takeaways */}
             {keyTakeaways.length > 0 && (
