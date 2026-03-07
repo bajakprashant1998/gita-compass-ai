@@ -234,8 +234,11 @@ export default function BlogPage() {
                       <CardContent className="p-0">
                         <div className="grid md:grid-cols-[1fr_1.2fr]">
                           {/* Left: Visual */}
-                          <div className="relative min-h-[240px] overflow-hidden">
-                            <BlogCoverGraphic slug={featuredPost.slug} variant="card" className="absolute inset-0" />
+                            {featuredPost.cover_image ? (
+                              <img src={featuredPost.cover_image} alt={featuredPost.title} className="absolute inset-0 w-full h-full object-cover" />
+                            ) : (
+                              <BlogCoverGraphic slug={featuredPost.slug} variant="card" className="absolute inset-0" />
+                            )}
                             <div className="relative z-10 p-8 sm:p-10 flex flex-col justify-between h-full">
                               <Badge className="bg-primary text-primary-foreground text-[10px] font-semibold px-2.5 py-0.5 w-fit">
                                 ✦ Latest
