@@ -873,20 +873,23 @@ export default function BlogPostPage() {
     <Layout>
       <SEOHead
         title={post.meta_title || post.title}
-        description={post.meta_description || post.excerpt || post.title}
+        description={post.meta_description || post.excerpt || post.content.slice(0, 155).replace(/\n/g, ' ').trim()}
         keywords={post.meta_keywords || post.tags || []}
         type="article"
         publishedTime={post.created_at}
         modifiedTime={post.updated_at}
         author={post.author}
+        section={(post.tags || [])[0] || 'Spirituality'}
         structuredData={[
           generateBlogPostSchema(post),
           generateBreadcrumbSchema([
             { name: 'Home', url: 'https://www.bhagavadgitagyan.com/' },
             { name: 'Blog', url: 'https://www.bhagavadgitagyan.com/blog' },
+            { name: (post.tags || [])[0] || 'Article', url: `https://www.bhagavadgitagyan.com/blog` },
             { name: post.title, url: `https://www.bhagavadgitagyan.com/blog/${post.slug}` },
           ]),
-        ]}
+          ...(extractedFAQs.length > 0 ? [generateBlogFAQSchema(extractedFAQs)] : []),
+        ].filter(Boolean)}
       />
 
       <ReadingProgressBar readTime={readTime} />
