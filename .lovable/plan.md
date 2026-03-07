@@ -1,65 +1,68 @@
 
 
-## Admin Panel Loading Issues - Full Debugging Audit & Fix Plan
+# Implementation Plan: Features 4, 3, and 2
 
-### Root Cause Analysis
+## Feature 4: Enhanced Admin Content Calendar
 
-The console logs reveal the exact failure chain:
+### Database Migration
+- Add `scheduled_publish_at` timestamp column to `blog_posts` table
 
-```text
-Login Flow (broken):
-1. signInWithPassword → 200 OK ✅
-2. navigate('/admin') → AdminAuthProvider mounts
-3. initAuth() → getSession() HANGS (known Supabase race condition)
-4. 8-second timeout fires → checks sessionStorage cache → EMPTY
-5. Sets isLoading=false, isReady=false, user=null
-6. AdminProtectedRoute sees no user → redirects to /admin/login
-7. onAuthStateChange fires AFTER redirect (too late)
+### Changes to `AdminScheduleCalendar.tsx`
+- **Fetch blog posts** alongside shloks: query `blog_posts` for items with `scheduled_publish_at` in the current month, plus published posts by `created_at`
+- **Unified calendar items** with a `type` field: `'shlok' | 'blog'` — each color-coded (orange for shloks, blue for blogs)
+- **Drag-and-drop rescheduling** using native HTML5 drag events (`draggable`, `onDragStart`, `onDragOver`, `onDrop`). On drop, update `scheduled_publish_at` via Supabase for the dragged item's table
+- **Bulk actions toolbar**: checkbox selection on calendar items with a floating action bar for bulk publish/unpublish/reschedule (date picker popover)
+- **Legend** showing color codes for each content type
 
-Result: Login stuck in redirect loop, dashboard never loads
-```
+---
 
-**Why `getSession()` hangs**: The Supabase client is still processing the `signInWithPassword` token internally when `getSession()` is called immediately after navigation. This is a known race condition.
+## Feature 3: AI Verse Recommendation Engine
 
-**Why cache fallback fails**: `AdminLoginPage.handleSubmit` does NOT set the admin cache before navigating. Only the `useEffect` (existing session check) sets it. So after fresh login + timeout, cache is empty.
+### New Edge Function: `verse-recommendations/index.ts`
+- Accepts `user_id`, fetches their `shloks_read` from `user_progress`, `favorites`, and last 10 `chat_messages`
+- Sends context to Lovable AI (gemini-3-flash-preview) with tool calling to extract structured output: array of `{ shlok_id, chapter, verse, reason }`
+- Queries available shloks the user hasn't read yet, passes a sample to the AI for selection
+- Returns 3-5 recommendations with reasoning
 
-### Fix Plan (3 files)
+### New Files
+- `src/hooks/useVerseRecommendations.ts` — calls the edge function via `supabase.functions.invoke`
+- `src/components/dashboard/RecommendedVerses.tsx` — card widget showing recommended verses with reasons and links
+- `src/components/shlok/NextVerseRecommendation.tsx` — compact "Next for You" card at bottom of verse page
 
-#### 1. Fix `AdminLoginPage.tsx` - Verify admin role & set cache BEFORE navigating
+### Modified Files
+- `DashboardPage.tsx` — add `RecommendedVerses` widget after the Daily Affirmation section
+- `ShlokDetailPage.tsx` — add `NextVerseRecommendation` before the community section
+- `supabase/config.toml` — add `[functions.verse-recommendations]` with `verify_jwt = false`
 
-- After `signInWithPassword` succeeds, use the returned session to verify admin role via direct REST fetch (same pattern as `checkAdminRole`)
-- Set admin cache with `setAdminCache(userId)` on success
-- Only navigate to `/admin` after verification passes
-- Show "Access denied" if user is not an admin instead of navigating
+---
 
-#### 2. Fix `AdminAuthContext.tsx` - Make auth initialization resilient
+## Feature 2: Streak Notifications + Weekly Digest
 
-- **Remove the problematic `getSession()` call with timeout** as the primary mechanism
-- Instead, use `onAuthStateChange` as the SOLE auth mechanism (Supabase docs recommend this pattern)
-- On mount: check cache first for immediate rendering, then let `onAuthStateChange` (which fires on mount with `INITIAL_SESSION` event) handle the real verification
-- When `onAuthStateChange` fires with a session, verify admin role and update state
-- When it fires with no session and no cache, redirect to login
-- Add a shorter safety timeout (3s) that only applies if NO auth event has been received at all
+### Database Migration
+- Add `weekly_digest_enabled` boolean column (default `true`) to `user_preferences`
 
-#### 3. Fix `AdminProtectedRoute.tsx` - Remove React ref warning
+### Enhance `send-daily-wisdom/index.ts`
+- For each subscription, look up the user's `user_progress` to get `current_streak`
+- Personalize notification title: "🔥 Day {streak}! Keep your streak alive!" when streak > 0, otherwise standard wisdom
 
-- The console shows "Function components cannot be given refs" for `Navigate` component - minor cleanup
+### New Edge Function: `send-weekly-digest/index.ts`
+- Query all users with `weekly_digest_enabled = true` in `user_preferences`
+- For each user: fetch `reading_activity` for past 7 days, `user_progress` for streak, and `shloks_read` count
+- Use Lovable AI (gemini-2.5-flash-lite) to generate 3 verse recommendations based on reading patterns
+- Build push notification payload summarizing: "This week: X verses read, Y-day streak. Try these next: ..."
+- Send via the existing `sendWebPush` utility (extract to shared code pattern within the function)
 
-### Technical Details
+### pg_cron Job
+- Schedule `send-weekly-digest` to run every Sunday at 10 AM IST (`30 4 * * 0` UTC)
 
-The key architectural change is switching from:
-```text
-OLD: initAuth() → getSession() [hangs] → timeout → give up
-```
-to:
-```text
-NEW: onMount → check cache for instant UI → onAuthStateChange fires → verify role → update state
-```
+### UI Changes
+- `PreferencesCard.tsx` — add "Weekly Digest" toggle
+- `useUserPreferences.ts` — add `weeklyDigestEnabled` to the data model and update mutation
 
-This eliminates the `getSession()` hanging issue entirely since `onAuthStateChange` is event-driven and doesn't hang. The Supabase client guarantees it fires at least once on setup with `INITIAL_SESSION`.
+---
 
-### Files to modify
-- `src/pages/admin/AdminLoginPage.tsx` - Add admin verification before navigation
-- `src/contexts/AdminAuthContext.tsx` - Rewrite to use onAuthStateChange-first pattern
-- `src/components/admin/AdminProtectedRoute.tsx` - Minor cleanup
+## Implementation Order
+1. Feature 4 (DB migration + calendar rewrite)
+2. Feature 3 (edge function + hooks + widgets)
+3. Feature 2 (edge function + preferences + cron)
 
