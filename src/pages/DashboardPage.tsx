@@ -13,6 +13,7 @@ import { SavedWisdomCard } from '@/components/dashboard/SavedWisdomCard';
 import { QuickActionsCard } from '@/components/dashboard/QuickActionsCard';
 import { ReadingPlansWidget } from '@/components/dashboard/ReadingPlansWidget';
 import { PreferencesCard } from '@/components/dashboard/PreferencesCard';
+import { RecommendedVerses } from '@/components/dashboard/RecommendedVerses';
 import { StreakCalendar } from '@/components/dashboard/StreakCalendar';
 import { DailyAffirmation } from '@/components/dashboard/DailyAffirmation';
 import { RecentlyReadWidget } from '@/components/dashboard/RecentlyReadWidget';
@@ -133,6 +134,11 @@ export default function DashboardPage() {
             <DailyAffirmation userId={user.id} versesRead={progress?.shloksRead || []} />
           </div>
 
+          {/* AI Recommendations */}
+          <div className="mb-5 sm:mb-6">
+            <RecommendedVerses userId={user.id} />
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-5 sm:mb-6">
             <RecentlyReadWidget shloksRead={progress?.shloksRead || []} />
             <QuickActionsCard />
@@ -146,11 +152,15 @@ export default function DashboardPage() {
             <PreferencesCard
               language={profile?.preferred_language || 'english'}
               dailyWisdom={preferences?.dailyWisdomEnabled ?? true}
+              weeklyDigest={preferences?.weeklyDigestEnabled ?? true}
               onLanguageChange={async (lang) => {
                 await updateProfile({ preferred_language: lang as 'english' | 'hindi' });
               }}
               onDailyWisdomChange={async (enabled) => {
                 updatePreference.mutate({ daily_wisdom_enabled: enabled });
+              }}
+              onWeeklyDigestChange={async (enabled) => {
+                updatePreference.mutate({ weekly_digest_enabled: enabled });
               }}
             />
           </div>

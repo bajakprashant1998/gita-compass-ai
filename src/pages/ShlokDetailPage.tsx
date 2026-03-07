@@ -30,6 +30,7 @@ import { Badge } from '@/components/ui/badge';
 import { Target, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { trackVerseRead } from '@/hooks/useReadingActivity';
+import { NextVerseRecommendation } from '@/components/shlok/NextVerseRecommendation';
 import {
   Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
@@ -634,6 +635,13 @@ export default function ShlokDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Next Verse Recommendation */}
+      {user && (
+        <div className="container mx-auto px-4 max-w-4xl mb-6">
+          <NextVerseRecommendation userId={user.id} />
+        </div>
+      )}
 
       {/* Internal Linking Engine */}
       <div className="container mx-auto px-4 max-w-4xl">

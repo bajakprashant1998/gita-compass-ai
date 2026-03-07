@@ -5,6 +5,7 @@ export interface UserPreferencesData {
   theme: string;
   notificationsEnabled: boolean;
   dailyWisdomEnabled: boolean;
+  weeklyDigestEnabled: boolean;
 }
 
 export function useUserPreferences(userId: string | undefined) {
@@ -27,6 +28,7 @@ export function useUserPreferences(userId: string | undefined) {
         theme: data?.theme || 'light',
         notificationsEnabled: data?.notifications_enabled ?? true,
         dailyWisdomEnabled: data?.daily_wisdom_enabled ?? true,
+        weeklyDigestEnabled: data?.weekly_digest_enabled ?? true,
       };
     },
     enabled: !!userId,
@@ -37,6 +39,7 @@ export function useUserPreferences(userId: string | undefined) {
       theme: string;
       notifications_enabled: boolean;
       daily_wisdom_enabled: boolean;
+      weekly_digest_enabled: boolean;
     }>) => {
       if (!userId) throw new Error('No user');
       const { error } = await supabase

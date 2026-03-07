@@ -166,6 +166,7 @@ export type Database = {
           meta_keywords: string[] | null
           meta_title: string | null
           published: boolean
+          scheduled_publish_at: string | null
           slug: string
           tags: string[] | null
           title: string
@@ -182,6 +183,7 @@ export type Database = {
           meta_keywords?: string[] | null
           meta_title?: string | null
           published?: boolean
+          scheduled_publish_at?: string | null
           slug: string
           tags?: string[] | null
           title: string
@@ -198,6 +200,7 @@ export type Database = {
           meta_keywords?: string[] | null
           meta_title?: string | null
           published?: boolean
+          scheduled_publish_at?: string | null
           slug?: string
           tags?: string[] | null
           title?: string
@@ -1167,6 +1170,7 @@ export type Database = {
           theme: string | null
           updated_at: string | null
           user_id: string
+          weekly_digest_enabled: boolean | null
         }
         Insert: {
           created_at?: string | null
@@ -1176,6 +1180,7 @@ export type Database = {
           theme?: string | null
           updated_at?: string | null
           user_id: string
+          weekly_digest_enabled?: boolean | null
         }
         Update: {
           created_at?: string | null
@@ -1185,6 +1190,7 @@ export type Database = {
           theme?: string | null
           updated_at?: string | null
           user_id?: string
+          weekly_digest_enabled?: boolean | null
         }
         Relationships: []
       }

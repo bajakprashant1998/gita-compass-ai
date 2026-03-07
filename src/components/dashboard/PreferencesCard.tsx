@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings, Globe, Sun, Bell, Check } from 'lucide-react';
+import { Settings, Globe, Sun, Bell, Check, Mail } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { GradientBorderCard } from '@/components/ui/decorative-elements';
 import { toast } from 'sonner';
@@ -8,19 +8,24 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 interface PreferencesCardProps {
   language: string;
   dailyWisdom: boolean;
+  weeklyDigest: boolean;
   onLanguageChange: (lang: string) => Promise<void>;
   onDailyWisdomChange: (enabled: boolean) => Promise<void>;
+  onWeeklyDigestChange: (enabled: boolean) => Promise<void>;
 }
 
 export function PreferencesCard({
   language,
   dailyWisdom,
+  weeklyDigest,
   onLanguageChange,
   onDailyWisdomChange,
+  onWeeklyDigestChange,
 }: PreferencesCardProps) {
   const isHindi = language === 'hindi';
   const [langSaving, setLangSaving] = useState(false);
   const [wisdomSaving, setWisdomSaving] = useState(false);
+  const [digestSaving, setDigestSaving] = useState(false);
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, loading: pushLoading, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe } = usePushNotifications();
 
   const handlePushToggle = async (checked: boolean) => {
@@ -105,6 +110,36 @@ export function PreferencesCard({
               checked={dailyWisdom}
               onCheckedChange={handleWisdomToggle}
               disabled={wisdomSaving}
+            />
+          </div>
+
+          {/* Weekly Digest Toggle */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50 touch-target transition-colors hover:bg-muted">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Mail className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium text-sm">Weekly Digest</p>
+                <p className="text-xs text-muted-foreground">
+                  Summary every Sunday
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={weeklyDigest}
+              onCheckedChange={async (checked) => {
+                setDigestSaving(true);
+                try {
+                  await onWeeklyDigestChange(checked);
+                  toast.success(checked ? 'Weekly digest enabled' : 'Weekly digest disabled');
+                } catch {
+                  toast.error('Failed to update preference');
+                } finally {
+                  setDigestSaving(false);
+                }
+              }}
+              disabled={digestSaving}
             />
           </div>
 
