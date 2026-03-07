@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { Layout } from '@/components/layout/Layout';
-import { SEOHead } from '@/components/SEOHead';
+import { SEOHead, generateBlogListingSchema, generateBreadcrumbSchema } from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Calendar, ArrowRight, Clock, Search, Sparkles, TrendingUp, Users } from 'lucide-react';
 import { BlogCoverGraphic } from '@/components/blog/BlogCoverGraphic';
+import { usePageSEO } from '@/hooks/usePageSEO';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useState, useMemo } from 'react';
