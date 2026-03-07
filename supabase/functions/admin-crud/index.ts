@@ -16,7 +16,8 @@ type TableName =
   | "admin_activity_log"
   | "page_seo_metadata"
   | "blog_posts"
-  | "contact_submissions";
+  | "contact_submissions"
+  | "web_stories";
 
 type Operation = "create" | "update" | "delete" | "bulk_update" | "upsert";
 
