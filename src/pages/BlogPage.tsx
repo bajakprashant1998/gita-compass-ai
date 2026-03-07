@@ -233,7 +233,7 @@ export default function BlogPage() {
                     <Card className="overflow-hidden border-primary/15 hover:border-primary/30 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
                       <CardContent className="p-0">
                         <div className="grid md:grid-cols-[1fr_1.2fr]">
-                          {/* Left: Visual */}
+                          <div className="relative min-h-[240px] overflow-hidden">
                             {featuredPost.cover_image ? (
                               <img src={featuredPost.cover_image} alt={featuredPost.title} className="absolute inset-0 w-full h-full object-cover" />
                             ) : (
