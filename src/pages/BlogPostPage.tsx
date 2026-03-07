@@ -790,6 +790,7 @@ export default function BlogPostPage() {
 
   const headings = useMemo(() => (post ? extractHeadings(post.content) : []), [post]);
   const keyTakeaways = useMemo(() => (post ? extractKeyTakeaways(post.content) : []), [post]);
+  const extractedFAQs = useMemo(() => (post ? extractFAQsFromContent(post.content) : []), [post]);
 
   // Intersection observer for active heading
   useEffect(() => {
