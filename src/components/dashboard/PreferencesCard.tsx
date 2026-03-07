@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings, Globe, Sun, Bell, Check } from 'lucide-react';
+import { Settings, Globe, Sun, Bell, Check, Mail } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { GradientBorderCard } from '@/components/ui/decorative-elements';
 import { toast } from 'sonner';
