@@ -179,7 +179,7 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
     } finally { setIsGenerating(false); }
   };
 
-  const previewScale = selectedRatio === '16:9' ? 0.22 : 0.3;
+  const previewScale = selectedRatio === '16:9' ? 0.22 : selectedRatio === '9:16' ? 0.18 : 0.3;
   const previewHeight = ratio.height * previewScale;
 
   return (
