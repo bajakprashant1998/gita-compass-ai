@@ -596,8 +596,8 @@ function RecommendedReading({ currentSlug }: { currentSlug: string }) {
             return (
               <Link key={p.slug} to={`/blog/${p.slug}`} className="group">
                 <Card className="h-full border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 overflow-hidden">
-                  <div className="aspect-[16/9] bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center relative overflow-hidden">
-                    <BookOpen className="h-8 w-8 text-primary/30 group-hover:scale-110 transition-transform" />
+                  <div className="aspect-[16/9] relative overflow-hidden">
+                    <BlogCoverGraphic slug={p.slug} variant="card" className="absolute inset-0" />
                   </div>
                   <CardContent className="p-5">
                     <div className="flex items-center gap-2 mb-2.5">
