@@ -14,7 +14,7 @@ interface WisdomCardGeneratorProps {
 }
 
 type Theme = 'earth' | 'ocean' | 'forest' | 'sunset' | 'lotus' | 'night' | 'royal' | 'saffron';
-type AspectRatio = '1:1' | '4:5' | '16:9';
+type AspectRatio = '1:1' | '4:5' | '16:9' | '9:16';
 
 function truncateToWords(text: string, maxWords: number): string {
   const words = text.split(/\s+/).filter(Boolean);
@@ -36,6 +36,7 @@ const themes: Record<Theme, { bg: string; accent: string; text: string; name: st
 const aspectRatios: Record<AspectRatio, { width: number; height: number; label: string }> = {
   '1:1': { width: 1080, height: 1080, label: 'Square' },
   '4:5': { width: 1080, height: 1350, label: 'Portrait' },
+  '9:16': { width: 1080, height: 1920, label: 'Story' },
   '16:9': { width: 1920, height: 1080, label: 'Wide' },
 };
 
@@ -53,7 +54,7 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
   const theme = themes[selectedTheme];
   const ratio = aspectRatios[selectedRatio];
   const chapterNumber = shlok.chapter?.chapter_number || 1;
-  const displayText = customText || truncateToWords(shlok.life_application || shlok.english_meaning, 40);
+  const displayText = customText || truncateToWords(shlok.english_meaning || shlok.life_application || '', 40);
 
   const generateAIBackground = async () => {
     setIsGeneratingBg(true);
@@ -178,7 +179,7 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
     } finally { setIsGenerating(false); }
   };
 
-  const previewScale = selectedRatio === '16:9' ? 0.22 : 0.3;
+  const previewScale = selectedRatio === '16:9' ? 0.22 : selectedRatio === '9:16' ? 0.18 : 0.3;
   const previewHeight = ratio.height * previewScale;
 
   return (
@@ -231,7 +232,7 @@ export function WisdomCardGenerator({ shlok }: WisdomCardGeneratorProps) {
                 Size
               </p>
               <Tabs value={selectedRatio} onValueChange={(v) => { setSelectedRatio(v as AspectRatio); setBgImageUrl(null); }}>
-                <TabsList className="grid grid-cols-3 h-9">
+              <TabsList className="grid grid-cols-4 h-9">
                   {Object.entries(aspectRatios).map(([key, value]) => (
                     <TabsTrigger key={key} value={key} className="text-xs py-1">
                       {value.label}
