@@ -134,6 +134,11 @@ export default function DashboardPage() {
             <DailyAffirmation userId={user.id} versesRead={progress?.shloksRead || []} />
           </div>
 
+          {/* AI Recommendations */}
+          <div className="mb-5 sm:mb-6">
+            <RecommendedVerses userId={user.id} />
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-5 sm:mb-6">
             <RecentlyReadWidget shloksRead={progress?.shloksRead || []} />
             <QuickActionsCard />
