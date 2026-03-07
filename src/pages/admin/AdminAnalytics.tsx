@@ -14,6 +14,8 @@ import {
   TrendingUp,
   CalendarDays,
   RefreshCw,
+  Eye,
+  Globe,
 } from 'lucide-react';
 import {
   BarChart,
@@ -28,6 +30,8 @@ import {
   PieChart,
   Pie,
   Cell,
+  AreaChart,
+  Area,
   Legend,
 } from 'recharts';
 import { format, subDays } from 'date-fns';
@@ -45,6 +49,11 @@ interface AnalyticsData {
   dailyActivity: Array<{ date: string; users: number; verses: number }>;
   topChapters: Array<{ name: string; count: number }>;
   userGrowth: Array<{ date: string; count: number }>;
+  // New page view analytics
+  totalPageViews: number;
+  pageViewsToday: number;
+  dailyPageViews: Array<{ date: string; views: number; unique: number }>;
+  topPages: Array<{ path: string; views: number; unique: number }>;
 }
 
 const CHART_COLORS = [
@@ -101,6 +110,57 @@ export default function AdminAnalytics() {
           .gte('created_at', thirtyDaysAgo)
           .order('created_at', { ascending: true }),
       ]);
+
+      // Page views — separate queries using REST (table not in generated types yet)
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const apiKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token || apiKey;
+
+      const pvHeaders = {
+        'apikey': apiKey,
+        'Authorization': `Bearer ${authToken}`,
+        'Prefer': 'count=exact',
+      };
+
+      const [pvAllResp, pvTodayResp, pvDailyResp] = await Promise.all([
+        fetch(`${supabaseUrl}/rest/v1/page_views?select=id&limit=0`, { headers: { ...pvHeaders, 'Prefer': 'count=exact' } }),
+        fetch(`${supabaseUrl}/rest/v1/page_views?select=id&limit=0&created_at=gte.${today}T00:00:00`, { headers: { ...pvHeaders, 'Prefer': 'count=exact' } }),
+        fetch(`${supabaseUrl}/rest/v1/page_views?select=page_path,session_id,created_at&created_at=gte.${thirtyDaysAgo}T00:00:00&order=created_at.asc&limit=1000`, { headers: { ...pvHeaders } }),
+      ]);
+
+      const totalPageViews = parseInt(pvAllResp.headers.get('content-range')?.split('/')[1] || '0', 10);
+      const pageViewsToday = parseInt(pvTodayResp.headers.get('content-range')?.split('/')[1] || '0', 10);
+      const pvDailyData: Array<{ page_path: string; session_id: string; created_at: string }> = await pvDailyResp.json().catch(() => []);
+
+      // Daily page views aggregation
+      const pvDailyMap = new Map<string, { views: number; sessions: Set<string> }>();
+      const pvPageMap = new Map<string, { views: number; sessions: Set<string> }>();
+      for (const pv of pvDailyData) {
+        const d = format(new Date(pv.created_at), 'MMM dd');
+        if (!pvDailyMap.has(d)) pvDailyMap.set(d, { views: 0, sessions: new Set() });
+        const entry = pvDailyMap.get(d)!;
+        entry.views++;
+        if (pv.session_id) entry.sessions.add(pv.session_id);
+
+        // Top pages
+        const path = pv.page_path;
+        if (!pvPageMap.has(path)) pvPageMap.set(path, { views: 0, sessions: new Set() });
+        const pageEntry = pvPageMap.get(path)!;
+        pageEntry.views++;
+        if (pv.session_id) pageEntry.sessions.add(pv.session_id);
+      }
+
+      const dailyPageViews = Array.from(pvDailyMap.entries()).map(([date, val]) => ({
+        date,
+        views: val.views,
+        unique: val.sessions.size,
+      }));
+
+      const topPages = [...pvPageMap.entries()]
+        .sort((a, b) => b[1].views - a[1].views)
+        .slice(0, 10)
+        .map(([path, val]) => ({ path, views: val.views, unique: val.sessions.size }));
 
       // Unique active users today
       const uniqueToday = new Set((activityTodayRes.data || []).map(r => r.user_id)).size;
@@ -178,6 +238,10 @@ export default function AdminAnalytics() {
         dailyActivity,
         topChapters,
         userGrowth,
+        totalPageViews,
+        pageViewsToday,
+        dailyPageViews,
+        topPages,
       });
     } catch (err: any) {
       console.error('Analytics load error:', err);
@@ -242,10 +306,25 @@ export default function AdminAnalytics() {
           ))
         ) : (
           <>
+            <AdminStatsCard title="Page Views" value={data?.totalPageViews || 0} icon={Eye} className="border-l-4 border-l-violet-500" description="All time" />
+            <AdminStatsCard title="Views Today" value={data?.pageViewsToday || 0} icon={Globe} className="border-l-4 border-l-cyan-500" description="Page views today" />
             <AdminStatsCard title="Conversations" value={data?.totalConversations || 0} icon={MessageSquare} />
             <AdminStatsCard title="Chat Messages" value={data?.totalMessages || 0} icon={MessageSquare} />
+          </>
+        )}
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="p-6"><Skeleton className="h-4 w-20 mb-2" /><Skeleton className="h-8 w-16" /></Card>
+          ))
+        ) : (
+          <>
             <AdminStatsCard title="Favorites" value={data?.totalFavorites || 0} icon={Heart} />
             <AdminStatsCard title="Reflections" value={data?.totalReflections || 0} icon={BookOpen} />
+            <AdminStatsCard title="Total Reading" value={formatMinutes(data?.totalReadingTime || 0)} icon={Clock} description="All users combined" />
+            <AdminStatsCard title="Chat Engagement" value={`${data && data.totalUsers > 0 ? Math.round((data.totalConversations / data.totalUsers) * 100) : 0}%`} icon={TrendingUp} description="Users who chatted" />
           </>
         )}
       </div>
@@ -352,6 +431,61 @@ export default function AdminAnalytics() {
               ) : (
                 <div className="h-[300px] flex items-center justify-center text-muted-foreground">
                   No chapter exploration data yet
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Page Views Trend */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2"><Eye className="h-4 w-4 text-primary" /> Page Views (Last 30 Days)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data.dailyPageViews.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={data.dailyPageViews}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis dataKey="date" tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+                    <YAxis tick={{ fill: 'hsl(var(--muted-foreground))' }} allowDecimals={false} />
+                    <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))' }} />
+                    <Legend />
+                    <Area type="monotone" dataKey="views" name="Total Views" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.15)" strokeWidth={2} />
+                    <Area type="monotone" dataKey="unique" name="Unique Sessions" stroke="hsl(var(--chart-2, 220 70% 50%))" fill="hsl(var(--chart-2, 220 70% 50%) / 0.1)" strokeWidth={2} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                  No page view data yet — views will start tracking now
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Top Pages */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2"><Globe className="h-4 w-4 text-primary" /> Top Pages</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data.topPages.length > 0 ? (
+                <div className="space-y-2">
+                  {data.topPages.map((page, i) => (
+                    <div key={page.path} className="flex items-center justify-between p-2.5 bg-muted/30 rounded-lg">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-xs font-bold text-muted-foreground w-5">{i + 1}</span>
+                        <span className="text-sm font-medium truncate">{page.path === '/' ? 'Home' : page.path}</span>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm shrink-0">
+                        <span className="font-semibold">{page.views} <span className="text-muted-foreground font-normal text-xs">views</span></span>
+                        <span className="text-muted-foreground">{page.unique} <span className="text-xs">unique</span></span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                  No page data yet
                 </div>
               )}
             </CardContent>

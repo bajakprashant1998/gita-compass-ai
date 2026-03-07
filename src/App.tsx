@@ -10,6 +10,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import { FloatingChatButton } from "./components/chat/FloatingChatButton";
 import { MobileInstallGate } from "./components/MobileInstallGate";
 import { RedirectHandler } from "./components/seo/RedirectHandler";
+import { PageViewTracker } from "./components/PageViewTracker";
 
 // Eager load the index page for best LCP
 import Index from "./pages/Index";
@@ -65,6 +66,7 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <RedirectHandler />
+            <PageViewTracker />
             <MobileInstallGate>
               <Suspense fallback={<PageLoader />}>
                 <Routes>
