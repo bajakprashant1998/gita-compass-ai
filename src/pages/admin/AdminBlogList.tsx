@@ -13,10 +13,11 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Search, Edit, Trash2, Eye, EyeOff, PenSquare } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, EyeOff, PenSquare, Images } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
+import { BulkImageUploadModal } from '@/components/admin/BulkImageUploadModal';
 
 interface BlogPost {
   id: string;
@@ -35,6 +36,7 @@ export default function AdminBlogList() {
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [bulkImageOpen, setBulkImageOpen] = useState(false);
 
   const fetchPosts = async () => {
     setIsLoading(true);
@@ -99,11 +101,16 @@ export default function AdminBlogList() {
         subtitle={`${posts.length} total posts`}
         icon={<PenSquare className="w-5 h-5" />}
         actions={
-          <Button asChild>
-            <Link to="/admin/blog/create">
-              <Plus className="w-4 h-4 mr-2" /> New Post
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setBulkImageOpen(true)}>
+              <Images className="w-4 h-4 mr-2" /> Bulk Images
+            </Button>
+            <Button asChild>
+              <Link to="/admin/blog/create">
+                <Plus className="w-4 h-4 mr-2" /> New Post
+              </Link>
+            </Button>
+          </div>
         }
       />
 
@@ -185,6 +192,11 @@ export default function AdminBlogList() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <BulkImageUploadModal
+        open={bulkImageOpen}
+        onOpenChange={setBulkImageOpen}
+        onComplete={fetchPosts}
+      />
     </div>
   );
 }
