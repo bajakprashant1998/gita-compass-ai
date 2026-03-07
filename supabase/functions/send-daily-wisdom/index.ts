@@ -287,26 +287,6 @@ serve(async (req) => {
     const shlok = shloks[Math.floor(Math.random() * shloks.length)];
     const chapter = (shlok as any).chapters;
 
-    let title: string;
-    let body: string;
-    let url: string;
-
-    if (isVerse || !shlok.problem_context) {
-      title = `🙏 Verse ${chapter.chapter_number}.${shlok.verse_number}`;
-      body = shlok.english_meaning.length > 120
-        ? shlok.english_meaning.substring(0, 117) + '...'
-        : shlok.english_meaning;
-      url = `/chapters/${chapter.chapter_number}/verse/${shlok.verse_number}`;
-    } else {
-      title = '💡 Wisdom for Today';
-      body = shlok.problem_context!.length > 120
-        ? shlok.problem_context!.substring(0, 117) + '...'
-        : shlok.problem_context!;
-      url = `/chapters/${chapter.chapter_number}/verse/${shlok.verse_number}`;
-    }
-
-    const payload = JSON.stringify({ title, body, url, icon: '/logo.png' });
-
     // Fetch all subscriptions
     const { data: subscriptions, error: subError } = await supabaseAdmin
       .from('push_subscriptions')
@@ -323,6 +303,39 @@ serve(async (req) => {
 
     for (const sub of subscriptions || []) {
       try {
+        // Get user's streak for personalization
+        const { data: progress } = await supabaseAdmin
+          .from('user_progress')
+          .select('current_streak')
+          .eq('user_id', sub.user_id)
+          .maybeSingle();
+
+        const streak = progress?.current_streak || 0;
+        let title: string;
+        let body: string;
+        let url: string;
+
+        if (streak > 0) {
+          title = `🔥 Day ${streak}! Keep your streak alive!`;
+        } else if (isVerse || !shlok.problem_context) {
+          title = `🙏 Verse ${chapter.chapter_number}.${shlok.verse_number}`;
+        } else {
+          title = '💡 Wisdom for Today';
+        }
+
+        if (isVerse || !shlok.problem_context) {
+          body = shlok.english_meaning.length > 120
+            ? shlok.english_meaning.substring(0, 117) + '...'
+            : shlok.english_meaning;
+        } else {
+          body = shlok.problem_context!.length > 120
+            ? shlok.problem_context!.substring(0, 117) + '...'
+            : shlok.problem_context!;
+        }
+        url = `/chapters/${chapter.chapter_number}/verse/${shlok.verse_number}`;
+
+        const payload = JSON.stringify({ title, body, url, icon: '/logo.png' });
+
         await sendWebPush(
           { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
           payload,
@@ -333,7 +346,6 @@ serve(async (req) => {
         sent++;
       } catch (err) {
         failed++;
-        // If 404 or 410, subscription is dead - remove it
         if (err.message.includes('404') || err.message.includes('410')) {
           failedEndpoints.push(sub.endpoint);
         }
