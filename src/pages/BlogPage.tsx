@@ -233,9 +233,12 @@ export default function BlogPage() {
                     <Card className="overflow-hidden border-primary/15 hover:border-primary/30 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
                       <CardContent className="p-0">
                         <div className="grid md:grid-cols-[1fr_1.2fr]">
-                          {/* Left: Visual */}
                           <div className="relative min-h-[240px] overflow-hidden">
-                            <BlogCoverGraphic slug={featuredPost.slug} variant="card" className="absolute inset-0" />
+                            {featuredPost.cover_image ? (
+                              <img src={featuredPost.cover_image} alt={featuredPost.title} className="absolute inset-0 w-full h-full object-cover" />
+                            ) : (
+                              <BlogCoverGraphic slug={featuredPost.slug} variant="card" className="absolute inset-0" />
+                            )}
                             <div className="relative z-10 p-8 sm:p-10 flex flex-col justify-between h-full">
                               <Badge className="bg-primary text-primary-foreground text-[10px] font-semibold px-2.5 py-0.5 w-fit">
                                 ✦ Latest
@@ -310,8 +313,14 @@ export default function BlogPage() {
                         >
                           <Link to={`/blog/${post.slug}`} className="block group h-full">
                             <Card className="h-full overflow-hidden hover:shadow-xl hover:border-primary/20 transition-all duration-300 hover:-translate-y-1 flex flex-col">
-                              {/* Color accent top bar */}
-                              <div className={`h-1.5 bg-gradient-to-r ${getTagGradient(primaryTag)}`} />
+                              {/* Cover image or color accent */}
+                              {post.cover_image ? (
+                                <div className="h-40 overflow-hidden">
+                                  <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                </div>
+                              ) : (
+                                <div className={`h-1.5 bg-gradient-to-r ${getTagGradient(primaryTag)}`} />
+                              )}
 
                               <CardContent className="p-5 sm:p-6 flex flex-col flex-1">
                                 {/* Tags */}
