@@ -45,6 +45,11 @@ interface AnalyticsData {
   dailyActivity: Array<{ date: string; users: number; verses: number }>;
   topChapters: Array<{ name: string; count: number }>;
   userGrowth: Array<{ date: string; count: number }>;
+  // New page view analytics
+  totalPageViews: number;
+  pageViewsToday: number;
+  dailyPageViews: Array<{ date: string; views: number; unique: number }>;
+  topPages: Array<{ path: string; views: number; unique: number }>;
 }
 
 const CHART_COLORS = [
