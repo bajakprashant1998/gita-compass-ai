@@ -223,14 +223,19 @@ export function generateBlogPostSchema(post: {
 }) {
   const url = `${CANONICAL_DOMAIN}/blog/${post.slug}`;
   const wordCount = post.content.trim().split(/\s+/).length;
+  const readTime = Math.max(1, Math.ceil(wordCount / 200));
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.title,
+    alternativeHeadline: post.excerpt?.slice(0, 110) || undefined,
     description: post.excerpt || post.content.slice(0, 160),
+    articleBody: post.content.slice(0, 5000),
+    articleSection: post.tags?.[0] || 'Spirituality',
     author: {
-      '@type': 'Person',
+      '@type': 'Organization',
       name: post.author,
+      url: CANONICAL_DOMAIN,
     },
     publisher: {
       '@type': 'Organization',
@@ -238,6 +243,8 @@ export function generateBlogPostSchema(post: {
       logo: {
         '@type': 'ImageObject',
         url: `${CANONICAL_DOMAIN}/logo.png`,
+        width: 512,
+        height: 512,
       },
     },
     datePublished: post.created_at,
@@ -245,10 +252,65 @@ export function generateBlogPostSchema(post: {
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
     url,
     wordCount,
+    timeRequired: `PT${readTime}M`,
     keywords: post.tags?.join(', '),
     image: post.cover_image || `${CANONICAL_DOMAIN}/og-image.png`,
+    thumbnailUrl: post.cover_image || `${CANONICAL_DOMAIN}/og-image.png`,
     inLanguage: 'en',
     isAccessibleForFree: true,
+    copyrightHolder: { '@type': 'Organization', name: 'Bhagavad Gita Gyan' },
+    genre: ['Spirituality', 'Philosophy', 'Self-improvement'],
+    about: {
+      '@type': 'Thing',
+      name: 'Bhagavad Gita',
+      sameAs: 'https://en.wikipedia.org/wiki/Bhagavad_Gita',
+    },
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['h1', '.blog-excerpt', 'article'],
+    },
+  };
+}
+
+export function generateBlogListingSchema(posts: { title: string; slug: string; excerpt?: string; created_at: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Bhagavad Gita Wisdom Blog',
+    description: 'Expert articles on Bhagavad Gita teachings — karma yoga, meditation, dharma, anxiety relief, and applying ancient wisdom to modern life.',
+    url: `${CANONICAL_DOMAIN}/blog`,
+    isPartOf: { '@type': 'WebSite', name: 'Bhagavad Gita Gyan', url: CANONICAL_DOMAIN },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: posts.length,
+      itemListElement: posts.map((p, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        item: {
+          '@type': 'BlogPosting',
+          headline: p.title,
+          description: p.excerpt || p.title,
+          url: `${CANONICAL_DOMAIN}/blog/${p.slug}`,
+          datePublished: p.created_at,
+        },
+      })),
+    },
+  };
+}
+
+export function generateBlogFAQSchema(faqs: { question: string; answer: string }[]) {
+  if (!faqs.length) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
   };
 }
 

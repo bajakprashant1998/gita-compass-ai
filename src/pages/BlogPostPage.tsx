@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { SEOHead, generateBlogPostSchema, generateBreadcrumbSchema } from '@/components/SEOHead';
+import { SEOHead, generateBlogPostSchema, generateBreadcrumbSchema, generateBlogFAQSchema } from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -60,6 +60,30 @@ function extractKeyTakeaways(content: string) {
     }
   }
   return takeaways.slice(0, 6);
+}
+
+function extractFAQsFromContent(content: string): { question: string; answer: string }[] {
+  const faqs: { question: string; answer: string }[] = [];
+  const lines = content.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    // Match headings that end with ?
+    const questionMatch = line.match(/^#{1,3}\s+(.+\?)$/);
+    if (questionMatch) {
+      const question = questionMatch[1];
+      const answerLines: string[] = [];
+      for (let j = i + 1; j < lines.length; j++) {
+        if (lines[j].match(/^#{1,3}\s+/)) break;
+        const trimmed = lines[j].trim();
+        if (trimmed) answerLines.push(trimmed);
+        if (answerLines.length >= 3) break;
+      }
+      if (answerLines.length > 0) {
+        faqs.push({ question, answer: answerLines.join(' ').slice(0, 300) });
+      }
+    }
+  }
+  return faqs.slice(0, 5);
 }
 
 // ─── Reading Progress Bar with Time Remaining ────────────
@@ -766,6 +790,7 @@ export default function BlogPostPage() {
 
   const headings = useMemo(() => (post ? extractHeadings(post.content) : []), [post]);
   const keyTakeaways = useMemo(() => (post ? extractKeyTakeaways(post.content) : []), [post]);
+  const extractedFAQs = useMemo(() => (post ? extractFAQsFromContent(post.content) : []), [post]);
 
   // Intersection observer for active heading
   useEffect(() => {
@@ -848,20 +873,23 @@ export default function BlogPostPage() {
     <Layout>
       <SEOHead
         title={post.meta_title || post.title}
-        description={post.meta_description || post.excerpt || post.title}
+        description={post.meta_description || post.excerpt || post.content.slice(0, 155).replace(/\n/g, ' ').trim()}
         keywords={post.meta_keywords || post.tags || []}
         type="article"
         publishedTime={post.created_at}
         modifiedTime={post.updated_at}
         author={post.author}
+        section={(post.tags || [])[0] || 'Spirituality'}
         structuredData={[
           generateBlogPostSchema(post),
           generateBreadcrumbSchema([
             { name: 'Home', url: 'https://www.bhagavadgitagyan.com/' },
             { name: 'Blog', url: 'https://www.bhagavadgitagyan.com/blog' },
+            { name: (post.tags || [])[0] || 'Article', url: `https://www.bhagavadgitagyan.com/blog` },
             { name: post.title, url: `https://www.bhagavadgitagyan.com/blog/${post.slug}` },
           ]),
-        ]}
+          ...(extractedFAQs.length > 0 ? [generateBlogFAQSchema(extractedFAQs)] : []),
+        ].filter(Boolean)}
       />
 
       <ReadingProgressBar readTime={readTime} />
@@ -903,7 +931,7 @@ export default function BlogPostPage() {
 
             {/* Excerpt */}
             {post.excerpt && (
-              <p className="text-lg text-muted-foreground leading-relaxed mb-6 max-w-2xl">
+              <p className="blog-excerpt text-lg text-muted-foreground leading-relaxed mb-6 max-w-2xl">
                 {post.excerpt}
               </p>
             )}

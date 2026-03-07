@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { Layout } from '@/components/layout/Layout';
-import { SEOHead } from '@/components/SEOHead';
+import { SEOHead, generateBlogListingSchema, generateBreadcrumbSchema } from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Calendar, ArrowRight, Clock, Search, Sparkles, TrendingUp, Users } from 'lucide-react';
 import { BlogCoverGraphic } from '@/components/blog/BlogCoverGraphic';
+import { usePageSEO } from '@/hooks/usePageSEO';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useState, useMemo } from 'react';
@@ -40,6 +41,7 @@ function getTagGradient(tag: string) {
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const { data: seoData } = usePageSEO('blog');
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ['blog-posts'],
@@ -88,9 +90,19 @@ export default function BlogPage() {
   return (
     <Layout>
       <SEOHead
-        title="Blog - Bhagavad Gita Insights"
-        description="Deep insights and commentary on Bhagavad Gita teachings. Explore articles on anxiety, purpose, karma, and applying ancient wisdom to modern life."
-        keywords={['Bhagavad Gita blog', 'spiritual insights', 'wisdom articles', 'Gita commentary']}
+        title={seoData?.meta_title || "Bhagavad Gita Blog — Spiritual Insights & Ancient Wisdom"}
+        description={seoData?.meta_description || "Expert articles on Bhagavad Gita teachings: karma yoga, meditation, dharma, overcoming anxiety, and applying ancient Indian wisdom to modern life challenges."}
+        keywords={seoData?.meta_keywords || ['Bhagavad Gita blog', 'spiritual insights', 'karma yoga articles', 'Gita commentary', 'meditation guide', 'dharma teachings', 'ancient wisdom modern life', 'Hindu philosophy blog']}
+        ogImage={seoData?.og_image}
+        structuredData={[
+          generateBlogListingSchema(
+            (posts || []).map(p => ({ title: p.title, slug: p.slug, excerpt: p.excerpt || undefined, created_at: p.created_at }))
+          ),
+          generateBreadcrumbSchema([
+            { name: 'Home', url: 'https://www.bhagavadgitagyan.com/' },
+            { name: 'Blog', url: 'https://www.bhagavadgitagyan.com/blog' },
+          ]),
+        ]}
       />
 
       {/* ===== HERO ===== */}
