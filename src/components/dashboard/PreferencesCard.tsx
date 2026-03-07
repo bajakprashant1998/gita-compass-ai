@@ -25,6 +25,7 @@ export function PreferencesCard({
   const isHindi = language === 'hindi';
   const [langSaving, setLangSaving] = useState(false);
   const [wisdomSaving, setWisdomSaving] = useState(false);
+  const [digestSaving, setDigestSaving] = useState(false);
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, loading: pushLoading, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe } = usePushNotifications();
 
   const handlePushToggle = async (checked: boolean) => {
