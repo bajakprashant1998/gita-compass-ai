@@ -1,12 +1,35 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, ArrowRight, Sparkles, BookOpen } from 'lucide-react';
+import { MessageCircle, ArrowRight, Sparkles, BookOpen, CheckCircle2 } from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
+
+const benefits = [
+  'Free forever — no sign-up required',
+  '700+ verses with modern interpretations',
+  'Available in 10+ Indian languages',
+  'Personalized AI guidance',
+];
 
 export function CTASection() {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setIsVisible(true); observer.disconnect(); }
+    }, { threshold: 0.2 });
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="py-16 sm:py-20">
+    <section ref={sectionRef} className="py-16 sm:py-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl">
+        <div className={cn(
+          "relative overflow-hidden rounded-3xl transition-all duration-700",
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        )}>
           {/* Gradient background */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary via-amber-500 to-orange-500" />
           
@@ -18,36 +41,53 @@ export function CTASection() {
           <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:40px_40px]" />
 
           {/* ॐ watermark */}
-          <div className="absolute right-[5%] top-[10%] text-[12rem] font-bold text-white/[0.06] select-none pointer-events-none leading-none">ॐ</div>
+          <div className="absolute right-[5%] top-[10%] text-[12rem] font-bold text-white/[0.06] select-none pointer-events-none leading-none" style={{ fontFamily: "'Noto Sans Devanagari', sans-serif" }}>ॐ</div>
           
-          <div className="relative px-8 py-16 md:px-16 md:py-20 text-center text-white">
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/15 backdrop-blur-sm text-sm font-bold mb-8 border border-white/20">
-              <Sparkles className="h-4 w-4" />
-              Talk to Krishna
-            </div>
-            
-            <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold mb-6 max-w-3xl mx-auto leading-tight">
-              Your Personal Guide <br className="hidden md:block" />Awaits
-            </h2>
-            
-            <p className="text-lg md:text-xl opacity-90 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Have a conversation with Krishna AI—get personalized wisdom for your unique struggles from the Bhagavad Gita.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/chat">
-                <Button size="lg" className="gap-3 text-lg px-10 h-14 bg-white text-primary hover:bg-white/90 font-bold shadow-xl transition-all duration-300 hover:scale-105">
-                  <MessageCircle className="h-5 w-5" />
-                  Start Conversation
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/chapters">
-                <Button size="lg" variant="outline" className="gap-3 text-lg px-10 h-14 bg-transparent border-2 border-white/30 text-white hover:bg-white/10 font-bold">
-                  <BookOpen className="h-5 w-5" />
-                  Browse Chapters
-                </Button>
-              </Link>
+          <div className="relative px-8 py-16 md:px-16 md:py-20 text-white">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+              {/* Left - Text */}
+              <div className="text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/15 backdrop-blur-sm text-sm font-bold mb-8 border border-white/20">
+                  <Sparkles className="h-4 w-4" />
+                  Talk to Krishna
+                </div>
+                
+                <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
+                  Your Personal Guide <br className="hidden md:block" />Awaits
+                </h2>
+                
+                <p className="text-lg md:text-xl opacity-90 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0">
+                  Have a conversation with Krishna AI — get personalized wisdom for your unique struggles.
+                </p>
+
+                {/* Benefits */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10 max-w-lg mx-auto lg:mx-0">
+                  {benefits.map(b => (
+                    <div key={b} className="flex items-center gap-2 text-sm font-medium">
+                      <CheckCircle2 className="h-4 w-4 text-white/80 shrink-0" />
+                      <span className="opacity-90">{b}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right - Buttons */}
+              <div className="flex flex-col items-center lg:items-end gap-4">
+                <Link to="/chat">
+                  <Button size="lg" className="gap-3 text-lg px-10 h-14 bg-white text-primary hover:bg-white/90 font-bold shadow-xl transition-all duration-300 hover:scale-105">
+                    <MessageCircle className="h-5 w-5" />
+                    Start Conversation
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link to="/chapters">
+                  <Button size="lg" variant="outline" className="gap-3 text-lg px-10 h-14 bg-transparent border-2 border-white/30 text-white hover:bg-white/10 font-bold">
+                    <BookOpen className="h-5 w-5" />
+                    Browse Chapters
+                  </Button>
+                </Link>
+                <p className="text-white/60 text-xs mt-2 font-medium">No account needed • 100% free</p>
+              </div>
             </div>
           </div>
         </div>

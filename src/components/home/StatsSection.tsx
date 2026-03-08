@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect, useRef } from 'react';
 import { getStats } from '@/lib/api';
 import { BookOpen, FileText, Users, Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 function useCountUp(end: number, duration: number = 2000, startCounting: boolean = false) {
   const [count, setCount] = useState(0);
@@ -18,6 +19,13 @@ function useCountUp(end: number, duration: number = 2000, startCounting: boolean
   }, [end, duration, startCounting]);
   return count;
 }
+
+const gradients = [
+  'from-primary to-amber-500',
+  'from-amber-500 to-orange-500',
+  'from-orange-500 to-red-500',
+  'from-red-500 to-pink-500',
+];
 
 export function StatsSection() {
   const [isVisible, setIsVisible] = useState(false);
@@ -38,10 +46,10 @@ export function StatsSection() {
   const problemsCount = useCountUp(stats?.problems || 8, 1200, isVisible);
 
   const statItems = [
-    { label: 'Chapters', value: chaptersCount, icon: BookOpen, description: 'of timeless wisdom', suffix: '' },
-    { label: 'Verses', value: shloksCount, icon: FileText, description: 'for every situation', suffix: '+' },
-    { label: 'Life Problems', value: problemsCount, icon: Sparkles, description: 'addressed by Gita', suffix: '+' },
-    { label: 'Seekers Helped', value: '10K+', icon: Users, description: 'and counting', isStatic: true, suffix: '' },
+    { label: 'Chapters', value: chaptersCount, icon: BookOpen, description: 'of timeless wisdom', suffix: '', gradient: gradients[0] },
+    { label: 'Verses', value: shloksCount, icon: FileText, description: 'for every situation', suffix: '+', gradient: gradients[1] },
+    { label: 'Life Problems', value: problemsCount, icon: Sparkles, description: 'addressed by Gita', suffix: '+', gradient: gradients[2] },
+    { label: 'Seekers Helped', value: '10K+', icon: Users, description: 'and counting', isStatic: true, suffix: '', gradient: gradients[3] },
   ];
 
   return (
@@ -53,13 +61,20 @@ export function StatsSection() {
             {statItems.map((stat, index) => (
               <div
                 key={stat.label}
-                className={`text-center p-6 sm:p-8 rounded-2xl bg-card border border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${isVisible ? 'animate-fade-in' : 'opacity-0'}`}
+                className={cn(
+                  "group text-center p-6 sm:p-8 rounded-2xl bg-card border-2 border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300",
+                  "hover:border-primary/30",
+                  isVisible ? 'animate-fade-in' : 'opacity-0'
+                )}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-amber-500 text-white mb-4 shadow-lg">
+                <div className={cn(
+                  "inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br text-white mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300",
+                  stat.gradient
+                )}>
                   <stat.icon className="h-5 w-5" />
                 </div>
-                <div className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-primary to-amber-500 bg-clip-text text-transparent mb-1">
+                <div className="text-3xl sm:text-4xl font-extrabold text-gradient mb-1">
                   {stat.isStatic ? stat.value : `${stat.value}${stat.suffix}`}
                 </div>
                 <div className="text-sm font-bold text-foreground mb-0.5">{stat.label}</div>
