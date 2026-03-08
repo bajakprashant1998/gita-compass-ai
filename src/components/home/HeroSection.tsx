@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles, ArrowRight, MessageCircle, Star, Shield, Zap, BookOpen, Play } from 'lucide-react';
+import { Sparkles, ArrowRight, MessageCircle, Star, Shield, Zap, BookOpen } from 'lucide-react';
 import { TrustBadges } from './TrustBadges';
 import { getStats } from '@/lib/api';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 // Typewriter placeholder hook
 function useTypewriter(phrases: string[], typingSpeed = 60, pauseTime = 2000) {
@@ -39,6 +40,45 @@ function useTypewriter(phrases: string[], typingSpeed = 60, pauseTime = 2000) {
   }, [charIndex, isDeleting, phraseIndex, phrases, typingSpeed, pauseTime]);
 
   return placeholder;
+}
+
+// Social proof ticker
+const socialProofItems = [
+  '🙏 Rahul from Bangalore just found clarity on career decisions',
+  '🔥 Priya is on a 14-day reading streak',
+  '✨ 500+ seekers joined this week',
+  '💬 "This changed how I handle anxiety" — Amit K.',
+  '📖 10,000+ verses explored this month',
+];
+
+function SocialProofTicker() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % socialProofItems.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 text-sm text-muted-foreground overflow-hidden max-w-md">
+      <span className="relative flex h-2 w-2 shrink-0">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+      </span>
+      <motion.span
+        key={currentIndex}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -12 }}
+        transition={{ duration: 0.4 }}
+        className="truncate"
+      >
+        {socialProofItems[currentIndex]}
+      </motion.span>
+    </div>
+  );
 }
 
 export function HeroSection() {
@@ -82,6 +122,10 @@ export function HeroSection() {
         {/* Animated mesh circles */}
         <div className="absolute top-[10%] left-[15%] w-96 h-96 rounded-full bg-primary/[0.04] blur-3xl animate-pulse-slow" />
         <div className="absolute bottom-[20%] right-[10%] w-[500px] h-[500px] rounded-full bg-amber-500/[0.04] blur-3xl animate-pulse-slow" style={{ animationDelay: '2s' }} />
+        {/* Floating particles */}
+        <div className="absolute top-[30%] left-[60%] w-2 h-2 rounded-full bg-primary/20 animate-float" />
+        <div className="absolute top-[60%] left-[20%] w-1.5 h-1.5 rounded-full bg-amber-500/20 animate-float" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-[20%] left-[80%] w-1 h-1 rounded-full bg-orange-500/20 animate-float" style={{ animationDelay: '3s' }} />
       </div>
 
       {/* Grid pattern overlay */}
@@ -95,30 +139,60 @@ export function HeroSection() {
           
           {/* Left Column - Content (7 cols) */}
           <div className="lg:col-span-7 text-center lg:text-left">
+            {/* Social proof ticker */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-6 flex justify-center lg:justify-start"
+            >
+              <SocialProofTicker />
+            </motion.div>
+
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/10 text-primary text-sm font-semibold uppercase tracking-wider mb-8 animate-fade-in border border-primary/20 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/10 text-primary text-sm font-semibold uppercase tracking-wider mb-8 border border-primary/20 backdrop-blur-sm"
+            >
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
               </span>
               AI-Powered Ancient Wisdom
               <Sparkles className="h-4 w-4" />
-            </div>
+            </motion.div>
 
-            {/* Headline - bigger, bolder */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] mb-6 animate-fade-in animation-delay-100 tracking-tight">
+            {/* Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] mb-6 tracking-tight"
+            >
               <span className="text-foreground">Ancient wisdom.</span>
               <br />
               <span className="bg-gradient-to-r from-primary via-amber-500 to-orange-500 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">Modern problems.</span>
-            </h1>
+            </motion.h1>
 
             {/* Tagline */}
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed animate-fade-in animation-delay-200">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed"
+            >
               Transform your struggles into strength with timeless guidance from the Bhagavad Gita.
-            </p>
+            </motion.p>
 
             {/* Benefits pills */}
-            <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-8 animate-fade-in animation-delay-300">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="flex flex-wrap justify-center lg:justify-start gap-3 mb-8"
+            >
               {[
                 { icon: Zap, text: 'Personalized AI guidance', color: 'bg-primary/10 text-primary border-primary/20' },
                 { icon: Star, text: `${stats?.shloks || 700}+ verses`, color: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
@@ -129,10 +203,15 @@ export function HeroSection() {
                   {b.text}
                 </span>
               ))}
-            </div>
+            </motion.div>
 
             {/* Stats row */}
-            <div className="flex flex-wrap justify-center lg:justify-start gap-10 mb-8 animate-fade-in animation-delay-400">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="flex flex-wrap justify-center lg:justify-start gap-10 mb-8"
+            >
               {[
                 { value: stats?.chapters || 18, label: 'Chapters', suffix: '' },
                 { value: stats?.shloks || 700, label: 'Verses', suffix: '+' },
@@ -143,10 +222,15 @@ export function HeroSection() {
                   <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mt-0.5">{stat.label}</div>
                 </div>
               ))}
-            </div>
+            </motion.div>
 
             {/* CTA buttons for mobile */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-6 lg:hidden animate-fade-in animation-delay-400">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-6 lg:hidden"
+            >
               <Link to="/chat">
                 <Button size="lg" className="w-full sm:w-auto gap-2 h-13 text-base font-bold bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 border-0 shadow-lg">
                   <MessageCircle className="h-5 w-5" />
@@ -159,16 +243,26 @@ export function HeroSection() {
                   Browse Chapters
                 </Button>
               </Link>
-            </div>
+            </motion.div>
 
             {/* Trust */}
-            <div className="flex justify-center lg:justify-start animate-fade-in animation-delay-400">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="flex justify-center lg:justify-start"
+            >
               <TrustBadges />
-            </div>
+            </motion.div>
           </div>
 
           {/* Right Column - CTA Card (5 cols) */}
-          <div className="lg:col-span-5 animate-fade-in animation-delay-200">
+          <motion.div
+            initial={{ opacity: 0, x: 40, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.3, type: 'spring', stiffness: 100 }}
+            className="lg:col-span-5"
+          >
             <div className="relative">
               {/* Glow */}
               <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-amber-500/20 to-orange-500/20 rounded-3xl blur-3xl opacity-60 animate-pulse-slow" />
@@ -226,7 +320,7 @@ export function HeroSection() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 
