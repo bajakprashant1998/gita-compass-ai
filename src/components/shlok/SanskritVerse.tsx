@@ -71,14 +71,25 @@ export function SanskritVerse({ shlok }: SanskritVerseProps) {
         </div>
 
         {/* Sanskrit text with decorative elements */}
-        <div className="relative py-6">
-          <Sparkles className="absolute -top-2 left-4 h-4 w-4 text-primary/30" />
-          <Sparkles className="absolute -bottom-2 right-4 h-4 w-4 text-primary/30" />
-          
-          <blockquote className="text-xl md:text-2xl lg:text-3xl font-medium sanskrit leading-loose text-center px-4 whitespace-pre-line" lang="sa">
-            {shlok.sanskrit_text}
-          </blockquote>
-        </div>
+         <div className="relative py-6">
+           <Sparkles className="absolute -top-2 left-4 h-4 w-4 text-primary/30" />
+           <Sparkles className="absolute -bottom-2 right-4 h-4 w-4 text-primary/30" />
+           
+           <blockquote 
+             className="text-xl md:text-2xl lg:text-3xl font-bold sanskrit leading-loose text-center px-4 whitespace-pre-line" 
+             lang="sa"
+             style={{
+               backgroundImage: 'linear-gradient(135deg, #ff9500 0%, #ff6b35 50%, #ff9500 100%)',
+               backgroundClip: 'text',
+               WebkitBackgroundClip: 'text',
+               WebkitTextFillColor: 'transparent',
+               filter: 'drop-shadow(3px 3px 0px rgba(255, 101, 53, 0.3)) drop-shadow(-2px -2px 0px rgba(255, 149, 0, 0.2))',
+               textShadow: '2px 2px 4px rgba(0, 0, 0, 0.1)',
+             }}
+           >
+             {shlok.sanskrit_text}
+           </blockquote>
+         </div>
 
         {/* Transliteration section with smooth animation */}
         <div className={`overflow-hidden transition-all duration-500 ease-out ${
