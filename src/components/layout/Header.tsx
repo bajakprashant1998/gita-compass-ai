@@ -217,11 +217,13 @@ function MegaMenuPanel({
   chapters,
   problems,
   onClose,
+  onMouseEnter,
 }: {
   type: 'chapters' | 'problems';
   chapters: any[];
   problems: any[];
   onClose: () => void;
+  onMouseEnter?: () => void;
 }) {
   if (type === 'chapters') {
     return (
