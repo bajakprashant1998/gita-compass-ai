@@ -276,7 +276,7 @@ function MegaMenuPanel({
 
   return (
     <div
-      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[560px] max-w-[92vw] bg-card/98 backdrop-blur-2xl border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
+      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[560px] max-w-[92vw] bg-card/70 backdrop-blur-2xl border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
       onMouseLeave={onClose}
     >
       <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
