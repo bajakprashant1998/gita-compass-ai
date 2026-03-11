@@ -226,7 +226,8 @@ function MegaMenuPanel({
   if (type === 'chapters') {
     return (
       <div
-        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[760px] max-w-[92vw] bg-card/70 backdrop-blur-2xl border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
+        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[760px] max-w-[92vw] border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
+        style={{ backgroundColor: 'hsl(var(--card) / 0.92)', backdropFilter: 'blur(24px)' }}
         onMouseLeave={onClose}
       >
         <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
@@ -276,7 +277,8 @@ function MegaMenuPanel({
 
   return (
     <div
-      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[560px] max-w-[92vw] bg-card/70 backdrop-blur-2xl border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
+        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[560px] max-w-[92vw] border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
+        style={{ backgroundColor: 'hsl(var(--card) / 0.92)', backdropFilter: 'blur(24px)' }}
       onMouseLeave={onClose}
     >
       <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
@@ -365,7 +367,7 @@ function NotificationDropdown() {
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 mt-2 w-[340px] bg-card/75 backdrop-blur-2xl border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]">
+        <div className="absolute top-full right-0 mt-2 w-[340px] border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]" style={{ backgroundColor: 'hsl(var(--card) / 0.95)', backdropFilter: 'blur(24px)' }}>
           <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
           <div className="px-4 py-3 border-b border-border/20 flex items-center justify-between">
             <h4 className="text-sm font-bold text-foreground/80 flex items-center gap-2">
@@ -449,7 +451,7 @@ function UserAvatarMenu({ user, onSignOut }: { user: any; onSignOut: () => void 
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 mt-2 w-72 bg-card/75 backdrop-blur-2xl border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]">
+        <div className="absolute top-full right-0 mt-2 w-72 border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]" style={{ backgroundColor: 'hsl(var(--card) / 0.95)', backdropFilter: 'blur(24px)' }}>
           <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
 
           {/* User info */}
