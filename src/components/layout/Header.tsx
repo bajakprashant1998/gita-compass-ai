@@ -676,6 +676,7 @@ export function Header() {
                       chapters={chapters}
                       problems={problems}
                       onClose={() => setMegaMenu(null)}
+                      onMouseEnter={() => clearTimeout(megaMenuTimeoutRef.current)}
                     />
                   )}
                 </div>
