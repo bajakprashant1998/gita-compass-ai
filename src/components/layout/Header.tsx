@@ -365,7 +365,7 @@ function NotificationDropdown() {
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 mt-2 w-[340px] bg-card border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]">
+        <div className="absolute top-full right-0 mt-2 w-[340px] bg-card/75 backdrop-blur-2xl border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]">
           <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
           <div className="px-4 py-3 border-b border-border/20 flex items-center justify-between">
             <h4 className="text-sm font-bold text-foreground/80 flex items-center gap-2">
