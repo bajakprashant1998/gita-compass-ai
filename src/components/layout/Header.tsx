@@ -42,20 +42,20 @@ import { supabase } from '@/integrations/supabase/client';
 function useMegaMenuData() {
   const [chapters, setChapters] = useState<any[]>([]);
   const [problems, setProblems] = useState<any[]>([]);
-  const [loaded, setLoaded] = useState(false);
 
-  const load = useCallback(async () => {
-    if (loaded) return;
-    const [chapRes, probRes] = await Promise.all([
-      supabase.from('chapters').select('chapter_number, title_english, theme').order('chapter_number').limit(18),
-      supabase.from('problems').select('name, slug, icon, color, category').order('display_order'),
-    ]);
-    if (chapRes.data) setChapters(chapRes.data);
-    if (probRes.data) setProblems(probRes.data);
-    setLoaded(true);
-  }, [loaded]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const [chapRes, probRes] = await Promise.all([
+        supabase.from('chapters').select('chapter_number, title_english, theme').order('chapter_number').limit(18),
+        supabase.from('problems').select('name, slug, icon, color, category').order('display_order'),
+      ]);
+      if (chapRes.data) setChapters(chapRes.data);
+      if (probRes.data) setProblems(probRes.data);
+    };
+    fetchData();
+  }, []);
 
-  return { chapters, problems, load };
+  return { chapters, problems };
 }
 
 // --- Enhanced Search Command ---
