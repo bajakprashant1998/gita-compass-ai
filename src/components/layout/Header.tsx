@@ -619,7 +619,7 @@ export function Header() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex lg:items-center lg:gap-0.5 relative">
+            <div className="hidden lg:flex lg:items-center lg:gap-0.5">
               {navigation.map((item) => (
                 <div
                   key={item.name}
@@ -664,23 +664,18 @@ export function Header() {
                       </span>
                     )}
                   </Link>
+
+                  {/* Mega Menu */}
+                  {item.mega && megaMenu === item.mega && (
+                    <MegaMenuPanel
+                      type={item.mega}
+                      chapters={chapters}
+                      problems={problems}
+                      onClose={() => setMegaMenu(null)}
+                    />
+                  )}
                 </div>
               ))}
-
-              {/* Mega Menu - rendered outside individual items to avoid clipping */}
-              {megaMenu && (
-                <div
-                  onMouseEnter={() => clearTimeout(megaMenuTimeoutRef.current)}
-                  onMouseLeave={handleMegaLeave}
-                >
-                  <MegaMenuPanel
-                    type={megaMenu}
-                    chapters={chapters}
-                    problems={problems}
-                    onClose={() => setMegaMenu(null)}
-                  />
-                </div>
-              )}
             </div>
 
             {/* Right side */}
