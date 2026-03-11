@@ -44,15 +44,19 @@ function useMegaMenuData() {
   const [problems, setProblems] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const [chapRes, probRes] = await Promise.all([
-        supabase.from('chapters').select('chapter_number, title_english, theme').order('chapter_number').limit(18),
-        supabase.from('problems').select('name, slug, icon, color, category').order('display_order'),
-      ]);
-      if (chapRes.data) setChapters(chapRes.data);
-      if (probRes.data) setProblems(probRes.data);
+    const headers = {
+      'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     };
-    fetchData();
+    const base = import.meta.env.VITE_SUPABASE_URL;
+
+    Promise.all([
+      fetch(`${base}/rest/v1/chapters?select=chapter_number,title_english,theme&order=chapter_number&limit=18`, { headers }).then(r => r.json()),
+      fetch(`${base}/rest/v1/problems?select=name,slug,icon,color,category&order=display_order`, { headers }).then(r => r.json()),
+    ]).then(([chapData, probData]) => {
+      if (Array.isArray(chapData)) setChapters(chapData);
+      if (Array.isArray(probData)) setProblems(probData);
+    }).catch(console.error);
   }, []);
 
   return { chapters, problems };
@@ -217,18 +221,21 @@ function MegaMenuPanel({
   chapters,
   problems,
   onClose,
+  onMouseEnter,
 }: {
   type: 'chapters' | 'problems';
   chapters: any[];
   problems: any[];
   onClose: () => void;
+  onMouseEnter?: () => void;
 }) {
   if (type === 'chapters') {
     return (
       <div
-        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[760px] max-w-[92vw] border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
-        style={{ backgroundColor: 'hsl(var(--card) / 0.92)', backdropFilter: 'blur(24px)' }}
+        className="fixed top-[68px] left-1/2 -translate-x-1/2 w-[760px] max-w-[92vw] border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
+        style={{ backgroundColor: 'hsl(var(--card) / 0.95)', backdropFilter: 'blur(24px)' }}
         onMouseLeave={onClose}
+        onMouseEnter={onMouseEnter}
       >
         <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
         <div className="p-5">
@@ -277,9 +284,10 @@ function MegaMenuPanel({
 
   return (
     <div
-        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[560px] max-w-[92vw] border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
-        style={{ backgroundColor: 'hsl(var(--card) / 0.92)', backdropFilter: 'blur(24px)' }}
-      onMouseLeave={onClose}
+        className="fixed top-[68px] left-1/2 -translate-x-1/2 w-[560px] max-w-[92vw] border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
+        style={{ backgroundColor: 'hsl(var(--card) / 0.95)', backdropFilter: 'blur(24px)' }}
+        onMouseLeave={onClose}
+        onMouseEnter={onMouseEnter}
     >
       <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
       <div className="p-5">
@@ -672,6 +680,7 @@ export function Header() {
                       chapters={chapters}
                       problems={problems}
                       onClose={() => setMegaMenu(null)}
+                      onMouseEnter={() => clearTimeout(megaMenuTimeoutRef.current)}
                     />
                   )}
                 </div>
