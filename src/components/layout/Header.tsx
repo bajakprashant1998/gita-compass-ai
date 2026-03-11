@@ -563,7 +563,6 @@ export function Header() {
 
   const handleMegaEnter = (type: 'chapters' | 'problems') => {
     clearTimeout(megaMenuTimeoutRef.current);
-    loadMegaData();
     setMegaMenu(type);
   };
 
