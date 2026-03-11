@@ -44,15 +44,19 @@ function useMegaMenuData() {
   const [problems, setProblems] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const [chapRes, probRes] = await Promise.all([
-        supabase.from('chapters').select('chapter_number, title_english, theme').order('chapter_number').limit(18),
-        supabase.from('problems').select('name, slug, icon, color, category').order('display_order'),
-      ]);
-      if (chapRes.data) setChapters(chapRes.data);
-      if (probRes.data) setProblems(probRes.data);
+    const headers = {
+      'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     };
-    fetchData();
+    const base = import.meta.env.VITE_SUPABASE_URL;
+
+    Promise.all([
+      fetch(`${base}/rest/v1/chapters?select=chapter_number,title_english,theme&order=chapter_number&limit=18`, { headers }).then(r => r.json()),
+      fetch(`${base}/rest/v1/problems?select=name,slug,icon,color,category&order=display_order`, { headers }).then(r => r.json()),
+    ]).then(([chapData, probData]) => {
+      if (Array.isArray(chapData)) setChapters(chapData);
+      if (Array.isArray(probData)) setProblems(probData);
+    }).catch(console.error);
   }, []);
 
   return { chapters, problems };
