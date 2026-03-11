@@ -228,6 +228,7 @@ function MegaMenuPanel({
       <div
         className="fixed top-[68px] left-1/2 -translate-x-1/2 w-[760px] max-w-[92vw] border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
         style={{ backgroundColor: 'hsl(var(--card) / 0.95)', backdropFilter: 'blur(24px)' }}
+        onMouseLeave={onClose}
       >
         <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
         <div className="p-5">
