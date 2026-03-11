@@ -519,7 +519,7 @@ export function Header() {
   const { user, loading, signOut } = useAuth();
   const { isInstallable, isInstalled, promptInstall } = useInstallPrompt();
   const location = useLocation();
-  const { chapters, problems, load: loadMegaData } = useMegaMenuData();
+  const { chapters, problems } = useMegaMenuData();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
