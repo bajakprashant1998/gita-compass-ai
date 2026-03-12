@@ -7,15 +7,19 @@
   <link rel="dns-prefetch" href="https://glxupcdgtzqkaxcgezeu.supabase.co" />
   <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
   
-  <!-- Google Tag Manager - defer non-critical -->
-  <script>(function (w, d, s, l, i) {
-      w[l] = w[l] || []; w[l].push({
-        'gtm.start':
-          new Date().getTime(), event: 'gtm.js'
-      }); var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
-          'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', 'GTM-ML97X8GS');</script>
+  <!-- Google Tag Manager - deferred to not block rendering -->
+  <script>
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        (function (w, d, s, l, i) {
+          w[l] = w[l] || []; w[l].push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+          var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+          j.async = true; j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+          f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-ML97X8GS');
+      }, 2000);
+    });
+  </script>
   <!-- End Google Tag Manager -->
 
   <!-- Google Analytics GA4 -->
