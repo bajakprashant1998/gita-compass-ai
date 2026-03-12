@@ -20,7 +20,7 @@ const SEOInternalLinks = lazy(() => import('@/components/home/SEOInternalLinks')
 
 // Minimal skeleton for below-fold content
 const SectionSkeleton = () => (
-  <div className="py-16">
+  <div className="py-16 section-placeholder">
     <div className="container mx-auto px-4">
       <div className="h-8 w-48 animate-shimmer rounded mx-auto mb-8" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
