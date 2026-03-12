@@ -20,7 +20,7 @@ const SEOInternalLinks = lazy(() => import('@/components/home/SEOInternalLinks')
 
 // Minimal skeleton for below-fold content
 const SectionSkeleton = () => (
-  <div className="py-16">
+  <div className="py-16 section-placeholder">
     <div className="container mx-auto px-4">
       <div className="h-8 w-48 animate-shimmer rounded mx-auto mb-8" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -78,50 +78,72 @@ const Index = () => {
       {/* Critical above-the-fold content - loaded eagerly */}
       <HeroSection />
       
-      {/* Below-the-fold content - lazy loaded */}
-      <Suspense fallback={<SectionSkeleton />}>
-        <StatsSection />
-      </Suspense>
+      {/* Below-the-fold content - lazy loaded with content-visibility */}
+      <div className="cv-auto">
+        <Suspense fallback={<SectionSkeleton />}>
+          <StatsSection />
+        </Suspense>
+      </div>
       <SectionDivider />
-      <Suspense fallback={<SectionSkeleton />}>
-        <MoodSelector />
-      </Suspense>
+      <div className="cv-auto">
+        <Suspense fallback={<SectionSkeleton />}>
+          <MoodSelector />
+        </Suspense>
+      </div>
       <SectionDivider />
-      <Suspense fallback={<SectionSkeleton />}>
-        <HowItWorks />
-      </Suspense>
+      <div className="cv-auto">
+        <Suspense fallback={<SectionSkeleton />}>
+          <HowItWorks />
+        </Suspense>
+      </div>
       <SectionDivider />
-      <Suspense fallback={<SectionSkeleton />}>
-        <FeaturesGrid />
-      </Suspense>
+      <div className="cv-auto">
+        <Suspense fallback={<SectionSkeleton />}>
+          <FeaturesGrid />
+        </Suspense>
+      </div>
       <SectionDivider />
-      <Suspense fallback={<SectionSkeleton />}>
-        <ProblemCategories />
-      </Suspense>
+      <div className="cv-auto">
+        <Suspense fallback={<SectionSkeleton />}>
+          <ProblemCategories />
+        </Suspense>
+      </div>
       <SectionDivider />
-      <Suspense fallback={<SectionSkeleton />}>
-        <FeaturedVersesCarousel />
-      </Suspense>
+      <div className="cv-auto">
+        <Suspense fallback={<SectionSkeleton />}>
+          <FeaturedVersesCarousel />
+        </Suspense>
+      </div>
       <SectionDivider />
-      <Suspense fallback={<SectionSkeleton />}>
-        <CommunityHighlights />
-      </Suspense>
+      <div className="cv-auto">
+        <Suspense fallback={<SectionSkeleton />}>
+          <CommunityHighlights />
+        </Suspense>
+      </div>
       <SectionDivider />
-      <Suspense fallback={<SectionSkeleton />}>
-        <Testimonials />
-      </Suspense>
+      <div className="cv-auto">
+        <Suspense fallback={<SectionSkeleton />}>
+          <Testimonials />
+        </Suspense>
+      </div>
       <SectionDivider />
-      <Suspense fallback={<SectionSkeleton />}>
-        <DailyWisdom />
-      </Suspense>
+      <div className="cv-auto">
+        <Suspense fallback={<SectionSkeleton />}>
+          <DailyWisdom />
+        </Suspense>
+      </div>
       <SectionDivider />
-      <Suspense fallback={<SectionSkeleton />}>
-        <SEOInternalLinks />
-      </Suspense>
+      <div className="cv-auto">
+        <Suspense fallback={<SectionSkeleton />}>
+          <SEOInternalLinks />
+        </Suspense>
+      </div>
       <SectionDivider />
-      <Suspense fallback={<SectionSkeleton />}>
-        <CTASection />
-      </Suspense>
+      <div className="cv-auto">
+        <Suspense fallback={<SectionSkeleton />}>
+          <CTASection />
+        </Suspense>
+      </div>
       <Suspense fallback={null}>
         <FloatingActionButton />
       </Suspense>

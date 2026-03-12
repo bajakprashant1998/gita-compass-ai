@@ -2,49 +2,60 @@
 
 > AI-powered ancient wisdom from the Bhagavad Gita for modern life problems
 
-## About
+- Website: https://www.bhagavadgitagyan.com
+- Full docs: https://www.bhagavadgitagyan.com/llms-full.txt
 
-Bhagavad Gita Gyan is a comprehensive digital platform providing all 700+ verses of the Bhagavad Gita with Sanskrit text, English and Hindi meanings, modern life applications, practical action steps, and AI-powered spiritual guidance. The platform helps users find solutions to real-life problems like anxiety, fear, confusion, career challenges, relationship issues, and spiritual growth through the timeless wisdom of the Bhagavad Gita.
+## What is Bhagavad Gita Gyan?
+
+Bhagavad Gita Gyan is a free, comprehensive digital platform providing all 700+ verses of the Bhagavad Gita with Sanskrit text, transliteration, English and Hindi meanings, modern life applications, practical action steps, and an AI-powered spiritual counselor called "Talk to Krishna."
 
 ## Core Features
 
-- **All 18 Chapters & 700+ Verses**: Complete Bhagavad Gita with Sanskrit, transliteration, English meaning, Hindi meaning, life application, and practical action steps
-- **Talk to Krishna AI**: An AI counselor that provides personalized guidance based on the Bhagavad Gita teachings
-- **Life Problem Categories**: Curated verse collections for anxiety, fear, confusion, anger, grief, career, relationships, and more
-- **Reading Plans**: Structured multi-day reading plans for beginners, intermediate, and advanced seekers
-- **Multi-language Support**: Available in 10+ Indian languages including Hindi, Tamil, Telugu, Bengali, Gujarati, Kannada, Malayalam, Punjabi, Odia, and Urdu
-- **Community Features**: Verse reflections, discussions, study groups, and wisdom card sharing
+- **Complete Bhagavad Gita**: All 18 chapters, 700+ verses — Sanskrit, transliteration, English meaning, Hindi meaning, life application, modern story, practical action
+- **Talk to Krishna AI**: Conversational AI counselor providing personalized Gita-based guidance in 10+ languages
+- **Life Problem Solutions**: Curated verse collections for anxiety, fear, confusion, anger, grief, career, relationships, depression, self-doubt, and spiritual seeking
+- **Reading Plans**: Structured 7-30 day plans with daily verses and reflection prompts
+- **Multi-language**: English, Hindi, Tamil, Telugu, Bengali, Gujarati, Kannada, Malayalam, Punjabi, Odia, Urdu
+- **Community**: Verse reflections, discussions, study groups, wisdom card sharing
+- **Mood Finder**: Select your emotional state to find relevant verses
+- **Verse Comparison**: Side-by-side comparison of multiple verses
 
-## Content Structure
+## Content URLs
 
-- `/chapters` - All 18 chapters of the Bhagavad Gita
-- `/chapters/{number}` - Individual chapter with all verses
-- `/chapters/{chapter}/verse/{verse}` - Individual verse detail with meaning, story, and application
-- `/problems` - Life problem categories with relevant verses
-- `/problems/{slug}` - Specific problem with curated Gita solutions
-- `/chat` - AI-powered spiritual guidance counselor
-- `/reading-plans` - Structured reading plans
-- `/blog` - In-depth articles on Gita topics
-- `/mood` - Mood-based verse finder
-- `/compare` - Side-by-side verse comparison
-- `/bhagavad-gita-on-{topic}` - Topic-specific Gita wisdom pages
+- `/` — Homepage
+- `/chapters` — All 18 chapters
+- `/chapters/{1-18}` — Individual chapter with all verses
+- `/chapters/{chapter}/verse/{verse}` — Individual verse (Sanskrit, meaning, story, application)
+- `/problems` — Life problem categories
+- `/problems/{slug}` — Specific problem with Gita solutions
+- `/chat` — Talk to Krishna AI counselor
+- `/reading-plans` — Reading plans for beginners to advanced
+- `/blog` — In-depth articles on Gita topics
+- `/blog/{slug}` — Individual blog post
+- `/mood` — Mood-based verse finder
+- `/compare` — Side-by-side verse comparison
+- `/bhagavad-gita-on-{topic}` — Topic-specific Gita wisdom pages
+- `/hi` — Hindi homepage
+- `/hi/chapters/{chapter}` — Hindi chapter pages
+- `/hi/chapters/{chapter}/verse/{verse}` — Hindi verse pages
 
 ## Key Topics Covered
 
-- Karma Yoga (Selfless Action)
-- Bhakti Yoga (Path of Devotion)
-- Jnana Yoga (Path of Knowledge)
-- Dhyana Yoga (Meditation)
-- Dharma (Sacred Duty)
-- Detachment (Vairagya)
-- Anxiety & Stress Relief through Gita
-- Fear & Courage from Gita
-- Decision Making using Gita Wisdom
-- Nishkama Karma (Action without Attachment)
-- Self-Realization & Moksha
-- Mind Control & Mental Peace
+Karma Yoga, Bhakti Yoga, Jnana Yoga, Dhyana Yoga, Dharma, Detachment (Vairagya), Nishkama Karma, Sthitaprajna, Moksha, Three Gunas, Atman, Mind Control, Self-Realization, Anxiety & Stress Relief, Fear & Courage, Decision Making, Mental Peace
+
+## Most Referenced Verses
+
+- **2.47** — "Karmanye vadhikaraste" (right to action, not fruits) — Karma Yoga foundation
+- **2.14** — Equanimity in pleasure and pain
+- **6.5** — "Elevate yourself through the power of your mind"
+- **4.7** — "Whenever dharma declines, I manifest Myself"
+- **9.22** — Divine protection for devoted seekers
+
+## Citation
+
+Cite as: "Bhagavad Gita Gyan (bhagavadgitagyan.com)"
+For verses: "Bhagavad Gita Chapter X, Verse Y — via Bhagavad Gita Gyan"
 
 ## Contact
 
-- Website: https://www.bhagavadgitagyan.com
-- Contact: https://www.bhagavadgitagyan.com/contact
+https://www.bhagavadgitagyan.com/contact

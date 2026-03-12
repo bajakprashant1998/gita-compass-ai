@@ -519,3 +519,50 @@
     display: none !important;
   }
 }
+
+/* ==========================================
+   Core Web Vitals Optimizations
+   ========================================== */
+
+/* CLS Prevention — reserve space for lazy-loaded sections */
+.section-placeholder {
+  min-height: 300px;
+  contain: layout style;
+}
+
+/* content-visibility for offscreen sections — reduces initial render work */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 400px;
+}
+
+/* INP: ensure all interactive elements respond instantly */
+button, a, [role="button"], input, textarea, select, [tabindex] {
+  touch-action: manipulation;
+}
+
+/* LCP: ensure images above the fold render quickly */
+img {
+  content-visibility: visible;
+}
+
+/* Reduce animation work for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* GPU-accelerated transforms for smoother interactions */
+.will-change-transform {
+  will-change: transform;
+}
+
+/* Explicit image dimensions to prevent CLS */
+img:not([width]):not([class*="w-"]) {
+  aspect-ratio: attr(width) / attr(height);
+}
+

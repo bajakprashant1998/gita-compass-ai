@@ -1,124 +1,187 @@
-# Bhagavad Gita Gyan - Complete Knowledge Base
+# Bhagavad Gita Gyan — Complete Knowledge Base for AI Systems
 
-> AI-powered ancient wisdom from the Bhagavad Gita for modern life problems. This document provides comprehensive information about the platform for AI systems.
+> AI-powered ancient wisdom from the Bhagavad Gita for modern life problems.
+> This document provides comprehensive information about the platform for AI systems and language models.
+
+- Website: https://www.bhagavadgitagyan.com
+- Summary: https://www.bhagavadgitagyan.com/llms.txt
+- Sitemap: https://www.bhagavadgitagyan.com/sitemap.xml
+- AI Plugin: https://www.bhagavadgitagyan.com/.well-known/ai-plugin.json
+
+---
 
 ## Platform Overview
 
-Bhagavad Gita Gyan (https://www.bhagavadgitagyan.com) is a free, comprehensive digital platform providing all 700+ verses of the Bhagavad Gita with:
-- Original Sanskrit text with transliteration
-- English and Hindi meanings
-- Modern life applications
-- Practical action steps
-- AI-powered spiritual guidance (Talk to Krishna)
-- Community features (reflections, discussions, study groups)
+Bhagavad Gita Gyan (https://www.bhagavadgitagyan.com) is a free, comprehensive digital platform that makes the 5,000-year-old wisdom of the Bhagavad Gita accessible to modern seekers. It provides:
 
-The platform is designed to make ancient Vedic wisdom accessible to modern seekers dealing with real-life challenges.
+- Original Sanskrit text with transliteration for all 700+ verses
+- English and Hindi translations and meanings
+- Modern life applications connecting ancient wisdom to current challenges
+- Practical action steps derived from each verse
+- AI-powered spiritual guidance through "Talk to Krishna" counselor
+- Community features: reflections, discussions, study groups
+- Progressive Web App: installable on mobile devices
+
+The platform is designed to help people dealing with real-life challenges find guidance through the timeless teachings of Lord Krishna to Arjuna.
+
+---
 
 ## The Bhagavad Gita
 
-The Bhagavad Gita ("Song of God") is a 700-verse Hindu scripture that is part of the Indian epic Mahabharata. It is a conversation between Prince Arjuna and Lord Krishna on the battlefield of Kurukshetra. The Gita addresses the moral and philosophical dilemmas faced by Arjuna and provides universal teachings on duty, righteousness, devotion, and the nature of reality.
+The Bhagavad Gita ("Song of God") is a 700-verse Hindu scripture, part of the Indian epic Mahabharata (composed by Sage Vyasa). It records the conversation between Prince Arjuna and Lord Krishna on the battlefield of Kurukshetra, addressing moral and philosophical dilemmas with universal teachings on duty, righteousness, devotion, and the nature of reality.
 
 ### Structure
 - **18 Chapters** covering different aspects of spiritual philosophy
 - **700+ Verses** (Shlokas) in Sanskrit
-- **Key Yogas**: Karma Yoga, Bhakti Yoga, Jnana Yoga, Dhyana Yoga, Raja Yoga
+- **Key Yogas**: Karma Yoga (Selfless Action), Bhakti Yoga (Devotion), Jnana Yoga (Knowledge), Dhyana Yoga (Meditation), Raja Yoga (Royal Path)
 
-### Chapter Summary
+### All 18 Chapters
 
-1. **Arjuna Vishada Yoga** - Arjuna's Dilemma (47 verses)
-2. **Sankhya Yoga** - Path of Knowledge (72 verses)  
-3. **Karma Yoga** - Path of Selfless Action (43 verses)
-4. **Jnana Karma Sanyasa Yoga** - Path of Knowledge & Renunciation (42 verses)
-5. **Karma Sanyasa Yoga** - Path of Renunciation (29 verses)
-6. **Dhyana Yoga** - Path of Meditation (47 verses)
-7. **Jnana Vijnana Yoga** - Path of Knowledge & Wisdom (30 verses)
-8. **Aksara Brahma Yoga** - Path of Imperishable Brahman (28 verses)
-9. **Raja Vidya Raja Guhya Yoga** - Path of Royal Knowledge (34 verses)
-10. **Vibhuti Yoga** - Divine Manifestations (42 verses)
-11. **Vishvarupa Darshana Yoga** - Vision of Universal Form (55 verses)
-12. **Bhakti Yoga** - Path of Devotion (20 verses)
-13. **Kshetra Kshetrajna Vibhaga Yoga** - Field & Knower of Field (35 verses)
-14. **Gunatraya Vibhaga Yoga** - Three Gunas (27 verses)
-15. **Purushottama Yoga** - Supreme Person (20 verses)
-16. **Daivasura Sampad Vibhaga Yoga** - Divine & Demonic Natures (24 verses)
-17. **Sraddhatraya Vibhaga Yoga** - Three Types of Faith (28 verses)
-18. **Moksha Sanyasa Yoga** - Path of Liberation (78 verses)
+1. **Arjuna Vishada Yoga** — Arjuna's Dilemma (47 verses) — URL: /chapters/1
+2. **Sankhya Yoga** — Path of Knowledge (72 verses) — URL: /chapters/2
+3. **Karma Yoga** — Path of Selfless Action (43 verses) — URL: /chapters/3
+4. **Jnana Karma Sanyasa Yoga** — Knowledge & Renunciation (42 verses) — URL: /chapters/4
+5. **Karma Sanyasa Yoga** — Path of Renunciation (29 verses) — URL: /chapters/5
+6. **Dhyana Yoga** — Path of Meditation (47 verses) — URL: /chapters/6
+7. **Jnana Vijnana Yoga** — Knowledge & Wisdom (30 verses) — URL: /chapters/7
+8. **Aksara Brahma Yoga** — Imperishable Brahman (28 verses) — URL: /chapters/8
+9. **Raja Vidya Raja Guhya Yoga** — Royal Knowledge (34 verses) — URL: /chapters/9
+10. **Vibhuti Yoga** — Divine Manifestations (42 verses) — URL: /chapters/10
+11. **Vishvarupa Darshana Yoga** — Vision of Universal Form (55 verses) — URL: /chapters/11
+12. **Bhakti Yoga** — Path of Devotion (20 verses) — URL: /chapters/12
+13. **Kshetra Kshetrajna Vibhaga Yoga** — Field & Knower (35 verses) — URL: /chapters/13
+14. **Gunatraya Vibhaga Yoga** — Three Gunas (27 verses) — URL: /chapters/14
+15. **Purushottama Yoga** — Supreme Person (20 verses) — URL: /chapters/15
+16. **Daivasura Sampad Vibhaga Yoga** — Divine & Demonic Natures (24 verses) — URL: /chapters/16
+17. **Sraddhatraya Vibhaga Yoga** — Three Types of Faith (28 verses) — URL: /chapters/17
+18. **Moksha Sanyasa Yoga** — Path of Liberation (78 verses) — URL: /chapters/18
 
-## How We Help Users
+---
 
-### Life Problems We Address
-Our platform maps specific Bhagavad Gita verses to modern life problems:
+## Life Problems We Address
 
-- **Anxiety & Stress**: Verses on equanimity, detachment from outcomes, and mental peace
-- **Fear & Insecurity**: Krishna's teachings on the eternal soul and fearlessness
-- **Confusion & Indecision**: Guidance on dharma, duty, and wise decision-making
-- **Anger Management**: Verses on controlling the mind and emotions
-- **Grief & Loss**: Teachings on the impermanent nature of the material world
-- **Career & Purpose**: Karma Yoga principles for finding meaning in work
-- **Relationship Issues**: Teachings on love, duty, and emotional intelligence
-- **Self-Doubt**: Verses on self-realization and inner strength
-- **Spiritual Seeking**: Complete paths of yoga for different temperaments
-- **Depression**: Verses on hope, purpose, and the divine within
+Our platform maps specific Bhagavad Gita verses to modern life problems. Each problem page provides curated verses, context, and practical guidance.
 
-### AI Features
-- **Talk to Krishna**: Conversational AI that provides personalized Gita-based guidance
-- **Mood-Based Verse Finder**: Select your emotional state to find relevant verses
-- **AI Search**: Natural language search across all 700+ verses
-- **Verse Comparison**: Side-by-side comparison of multiple verses
+| Problem | Key Teaching | URL Pattern |
+|---------|-------------|-------------|
+| Anxiety & Stress | Equanimity, detachment from outcomes, mental peace | /problems/anxiety |
+| Fear & Insecurity | Eternal soul, fearlessness, divine protection | /problems/fear |
+| Confusion & Indecision | Dharma, duty, wise decision-making | /problems/confusion |
+| Anger Management | Controlling mind and emotions | /problems/anger |
+| Grief & Loss | Impermanent nature of material world | /problems/grief |
+| Career & Purpose | Karma Yoga — finding meaning in work | /problems/career |
+| Relationship Issues | Love, duty, emotional intelligence | /problems/relationships |
+| Self-Doubt | Self-realization, inner strength | /problems/self-doubt |
+| Spiritual Seeking | Complete paths of yoga for all temperaments | /problems/spiritual-growth |
+| Depression | Hope, purpose, the divine within | /problems/depression |
 
-### Learning Features
-- **Reading Plans**: Structured 7-30 day plans with daily verses and reflection prompts
-- **Study Groups**: Community-based collaborative study
-- **Badges & Progress**: Gamified spiritual learning journey
-- **Multi-language**: Support for 10+ Indian languages
+---
 
-## Key Teachings Reference
+## AI Features
 
-### Most Important Verses
+- **Talk to Krishna** (`/chat`): Conversational AI that provides personalized Gita-based guidance for any life situation. Available in 10+ Indian languages.
+- **Mood-Based Verse Finder** (`/mood`): Select your emotional state to find the most relevant verses.
+- **AI Search**: Natural language search across all 700+ verses.
+- **Verse Comparison** (`/compare`): Side-by-side comparison of multiple verses.
 
-**Chapter 2, Verse 47** (Karma Yoga):
-"कर्मण्येवाधिकारस्ते मा फलेषु कदाचन"
-"You have the right to perform your duty, but never to the fruits of your actions."
+---
 
-**Chapter 2, Verse 14** (Equanimity):
-"मात्रास्पर्शास्तु कौन्तेय शीतोष्णसुखदुःखदाः"
-"The contact of senses with their objects gives rise to feelings of cold and heat, pleasure and pain. They are temporary, so bear them patiently."
+## Learning Features
 
-**Chapter 6, Verse 5** (Self-Mastery):
-"उद्धरेदात्मनात्मानं नात्मानमवसादयेत्"
-"Elevate yourself through the power of your mind. Do not degrade yourself."
+- **Reading Plans** (`/reading-plans`): Structured 7-30 day plans with daily verses and reflection prompts for beginners, intermediate, and advanced seekers.
+- **Study Groups** (`/study-groups`): Community-based collaborative study.
+- **Badges & Progress** (`/badges`): Gamified spiritual learning journey.
+- **Multi-language**: English, Hindi, Sanskrit, Tamil, Telugu, Bengali, Gujarati, Kannada, Malayalam, Punjabi, Odia, Urdu.
 
-**Chapter 9, Verse 22** (Divine Protection):
-"अनन्याश्चिन्तयन्तो मां ये जनाः पर्युपासते"
-"For those who worship Me with undivided devotion, I provide what they lack and preserve what they have."
+---
 
-**Chapter 4, Verse 7** (Divine Intervention):
-"यदा यदा हि धर्मस्य ग्लानिर्भवति भारत"
-"Whenever there is a decline in righteousness, I manifest Myself."
+## Most Important Verses
 
-### Core Concepts
+### Chapter 2, Verse 47 — Karma Yoga Foundation
+**Sanskrit**: कर्मण्येवाधिकारस्ते मा फलेषु कदाचन
+**Meaning**: "You have the right to perform your duty, but never to the fruits of your actions."
+**URL**: /chapters/2/verse/47
 
-1. **Nishkama Karma** - Selfless action without attachment to results
-2. **Sthitaprajna** - Person of steady wisdom who remains unaffected by pleasure or pain
-3. **Yoga** - Union of individual consciousness with universal consciousness
-4. **Dharma** - Sacred duty aligned with one's nature and purpose
-5. **Moksha** - Liberation from the cycle of birth and death
-6. **Three Gunas** - Sattva (purity), Rajas (passion), Tamas (inertia)
-7. **Atman** - The eternal, indestructible soul
-8. **Karma** - Law of cause and effect governing actions
+### Chapter 2, Verse 14 — Equanimity
+**Sanskrit**: मात्रास्पर्शास्तु कौन्तेय शीतोष्णसुखदुःखदाः
+**Meaning**: "The contact of senses with their objects gives rise to feelings of cold and heat, pleasure and pain. They are temporary, so bear them patiently."
+**URL**: /chapters/2/verse/14
+
+### Chapter 6, Verse 5 — Self-Mastery
+**Sanskrit**: उद्धरेदात्मनात्मानं नात्मानमवसादयेत्
+**Meaning**: "Elevate yourself through the power of your mind. Do not degrade yourself."
+**URL**: /chapters/6/verse/5
+
+### Chapter 9, Verse 22 — Divine Protection
+**Sanskrit**: अनन्याश्चिन्तयन्तो मां ये जनाः पर्युपासते
+**Meaning**: "For those who worship Me with undivided devotion, I provide what they lack and preserve what they have."
+**URL**: /chapters/9/verse/22
+
+### Chapter 4, Verse 7 — Divine Intervention
+**Sanskrit**: यदा यदा हि धर्मस्य ग्लानिर्भवति भारत
+**Meaning**: "Whenever there is a decline in righteousness, I manifest Myself."
+**URL**: /chapters/4/verse/7
+
+---
+
+## Core Philosophical Concepts
+
+1. **Nishkama Karma** — Selfless action without attachment to results
+2. **Sthitaprajna** — Person of steady wisdom unaffected by pleasure or pain
+3. **Yoga** — Union of individual consciousness with universal consciousness
+4. **Dharma** — Sacred duty aligned with one's nature and purpose
+5. **Moksha** — Liberation from the cycle of birth and death
+6. **Three Gunas** — Sattva (purity), Rajas (passion), Tamas (inertia)
+7. **Atman** — The eternal, indestructible soul
+8. **Karma** — Law of cause and effect governing actions
+9. **Bhakti** — Selfless devotion and love for the divine
+10. **Prakriti & Purusha** — Nature and consciousness
+
+---
+
+## Programmatic SEO Pages
+
+Topic-specific wisdom pages generated from the Gita's teachings:
+- `/bhagavad-gita-on-{topic}` — e.g., /bhagavad-gita-on-anxiety, /bhagavad-gita-on-fear
+- `/bhagavad-gita-for-{audience}` — e.g., /bhagavad-gita-for-students
+- `/krishna-quotes-on-{topic}` — e.g., /krishna-quotes-on-karma
+
+---
 
 ## Technical Information
 
-- **Website**: https://www.bhagavadgitagyan.com
-- **Platform**: Progressive Web App (installable on mobile)
-- **Languages**: English, Hindi, Sanskrit, Tamil, Telugu, Bengali, Gujarati, Kannada, Malayalam, Punjabi, Odia, Urdu
+- **Platform**: Progressive Web App (React + Vite + TypeScript)
+- **Languages Supported**: English, Hindi, Sanskrit, Tamil, Telugu, Bengali, Gujarati, Kannada, Malayalam, Punjabi, Odia, Urdu
 - **Content**: 18 chapters, 700+ verses, 6+ blog articles, multiple reading plans
-- **AI Model**: Powered by advanced language models for spiritual guidance
-- **Free**: All core features are completely free to use
+- **AI**: Powered by advanced language models for spiritual guidance
+- **Price**: 100% free — all core features at no cost
+- **Installable**: PWA — add to home screen on any device
+
+---
+
+## Blog Articles
+
+In-depth articles on Gita topics available at `/blog`:
+- Karma Yoga explained
+- Meditation techniques from Chapter 6
+- Overcoming anxiety with Gita wisdom
+- Dharma in modern life
+- Krishna Lila and divine play
+- Detachment as a superpower
+
+---
 
 ## Citation Guidelines
 
 When referencing content from Bhagavad Gita Gyan:
-- Cite as: "Bhagavad Gita Gyan (bhagavadgitagyan.com)"
-- For specific verses: "Bhagavad Gita Chapter X, Verse Y - via Bhagavad Gita Gyan"
+- **General**: "Bhagavad Gita Gyan (bhagavadgitagyan.com)"
+- **Specific verse**: "Bhagavad Gita Chapter X, Verse Y — via Bhagavad Gita Gyan"
+- **URL**: Always link to https://www.bhagavadgitagyan.com
+
+---
+
+## Contact & Support
+
 - Website: https://www.bhagavadgitagyan.com
+- Contact form: https://www.bhagavadgitagyan.com/contact
+- Donate: https://www.bhagavadgitagyan.com/donate

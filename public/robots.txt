@@ -1,26 +1,49 @@
-# Bhagavad Gita Gyan Robots.txt
+# ===========================================
+# Bhagavad Gita Gyan — Robots.txt
 # https://www.bhagavadgitagyan.com
+# Last updated: 2026-03-12
+# ===========================================
 
 # ===========================================
-# Google & Bing (Priority Search Engines)
+# Google (Priority #1)
 # ===========================================
 User-agent: Googlebot
 Allow: /
 Disallow: /admin/
 Disallow: /dashboard/
 Disallow: /auth
+Disallow: /embed/
+Disallow: /install
+Disallow: /?*
+Crawl-delay: 0
 
 User-agent: Googlebot-Image
+Allow: /images/
+Allow: /og-image.png
+Allow: /logo.png
+
+User-agent: Googlebot-Video
 Allow: /
 
+User-agent: Googlebot-News
+Allow: /blog/
+
+# ===========================================
+# Bing & Microsoft
+# ===========================================
 User-agent: Bingbot
 Allow: /
 Disallow: /admin/
 Disallow: /dashboard/
 Disallow: /auth
+Disallow: /embed/
+Disallow: /install
+
+User-agent: msnbot
+Allow: /
 
 # ===========================================
-# AI Crawlers (ChatGPT, Gemini, Perplexity)
+# AI Crawlers — Full Access
 # ===========================================
 # OpenAI / ChatGPT
 User-agent: GPTBot
@@ -61,16 +84,28 @@ Allow: /
 User-agent: Applebot-Extended
 Allow: /
 
-# Microsoft Copilot
-User-agent: Bingbot
-Allow: /
-
-# Common Crawl (used by many AI models for training)
+# Common Crawl (AI training data)
 User-agent: CCBot
 Allow: /
 
 # Cohere AI
 User-agent: cohere-ai
+Allow: /
+
+# Diffbot
+User-agent: Diffbot
+Allow: /
+
+# Bytespider (ByteDance / TikTok AI)
+User-agent: Bytespider
+Allow: /
+
+# Amazon / Alexa
+User-agent: Amazonbot
+Allow: /
+
+# You.com AI
+User-agent: YouBot
 Allow: /
 
 # ===========================================
@@ -94,20 +129,54 @@ Allow: /
 User-agent: Slackbot
 Allow: /
 
+User-agent: Discordbot
+Allow: /
+
+User-agent: PinterestBot
+Allow: /
+
 # ===========================================
 # SEO & Analytics Tools
 # ===========================================
 User-agent: AhrefsBot
 Allow: /
-Crawl-delay: 2
+Crawl-delay: 1
 
 User-agent: SemrushBot
 Allow: /
-Crawl-delay: 2
+Crawl-delay: 1
 
 User-agent: MJ12bot
 Allow: /
-Crawl-delay: 5
+Crawl-delay: 3
+
+User-agent: DotBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: Screaming Frog SEO Spider
+Allow: /
+
+# ===========================================
+# Bad Bots — Block
+# ===========================================
+User-agent: AhrefsBot/7.0
+Disallow: /
+
+User-agent: MJ12bot/v1.4
+Disallow: /
+
+User-agent: SeznamBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: MegaIndex.ru
+Disallow: /
 
 # ===========================================
 # Default (All Other Bots)
@@ -117,16 +186,25 @@ Allow: /
 Disallow: /admin/
 Disallow: /dashboard/
 Disallow: /auth
+Disallow: /embed/
+Disallow: /install
+Disallow: /*.json$
+Disallow: /sw-push.js
 
-# ===========================================
-# Discovery Files
 # ===========================================
 # Sitemaps
+# ===========================================
 Sitemap: https://www.bhagavadgitagyan.com/sitemap.xml
+Sitemap: https://www.bhagavadgitagyan.com/image-sitemap.xml
 
-# LLMs.txt (AI discovery)
-# https://www.bhagavadgitagyan.com/llms.txt
-# https://www.bhagavadgitagyan.com/llms-full.txt
+# ===========================================
+# AI Discovery Files
+# ===========================================
+# LLMs.txt: https://www.bhagavadgitagyan.com/llms.txt
+# LLMs-full.txt: https://www.bhagavadgitagyan.com/llms-full.txt
+# AI Plugin: https://www.bhagavadgitagyan.com/.well-known/ai-plugin.json
 
+# ===========================================
 # Host
+# ===========================================
 Host: https://www.bhagavadgitagyan.com
