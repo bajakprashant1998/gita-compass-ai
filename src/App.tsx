@@ -10,6 +10,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import { FloatingChatButton } from "./components/chat/FloatingChatButton";
 import { MobileInstallGate } from "./components/MobileInstallGate";
 import { RedirectHandler } from "./components/seo/RedirectHandler";
+import { GlobalCanonical } from "./components/seo/GlobalCanonical";
 import { PageViewTracker } from "./components/PageViewTracker";
 
 // Eager load the index page for best LCP
