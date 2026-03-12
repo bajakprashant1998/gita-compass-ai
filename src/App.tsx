@@ -75,6 +75,8 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <RedirectHandler />
+            <GlobalCanonical />
+            <PageViewTracker />
             <PageViewTracker />
             <MobileInstallGate>
               <Suspense fallback={<PageLoader />}>
