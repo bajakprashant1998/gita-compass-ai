@@ -22,13 +22,22 @@
   </script>
   <!-- End Google Tag Manager -->
 
-  <!-- Google Analytics GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DLJL71LG51"></script>
+  <!-- Google Analytics GA4 - deferred -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-DLJL71LG51');
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        var s = document.createElement('script');
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-DLJL71LG51';
+        s.async = true;
+        document.head.appendChild(s);
+        s.onload = function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { dataLayer.push(arguments); }
+          gtag('js', new Date());
+          gtag('config', 'G-DLJL71LG51');
+        };
+      }, 2500);
+    });
   </script>
   <!-- End Google Analytics GA4 -->
   
