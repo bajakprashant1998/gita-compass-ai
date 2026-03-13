@@ -541,9 +541,24 @@ button, a, [role="button"], input, textarea, select, [tabindex] {
   touch-action: manipulation;
 }
 
+/* INP: faster visual feedback on tap */
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.1s ease, transform 0.1s ease;
+}
+button:active, a:active, [role="button"]:active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
 /* LCP: ensure images above the fold render quickly */
 img {
   content-visibility: visible;
+}
+
+/* Native lazy loading hint */
+img[loading="lazy"] {
+  content-visibility: auto;
 }
 
 /* Reduce animation work for users who prefer reduced motion */
@@ -564,5 +579,10 @@ img {
 /* Explicit image dimensions to prevent CLS */
 img:not([width]):not([class*="w-"]) {
   aspect-ratio: attr(width) / attr(height);
+}
+
+/* Font display optimization */
+@font-face {
+  font-display: swap;
 }
 

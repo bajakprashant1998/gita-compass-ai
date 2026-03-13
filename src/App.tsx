@@ -77,7 +77,6 @@ const App = () => (
             <RedirectHandler />
             <GlobalCanonical />
             <PageViewTracker />
-            <PageViewTracker />
             <MobileInstallGate>
               <Suspense fallback={<PageLoader />}>
                 <Routes>
