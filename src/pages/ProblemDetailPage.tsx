@@ -164,7 +164,11 @@ export default function ProblemDetailPage() {
   });
 
   // Scroll-to-top
-  import { useEffect } from 'react';
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 500);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const breadcrumbs = [
     { name: 'Home', url: CANONICAL },
