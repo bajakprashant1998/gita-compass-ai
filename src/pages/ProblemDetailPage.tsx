@@ -164,11 +164,7 @@ export default function ProblemDetailPage() {
   });
 
   // Scroll-to-top
-  useState(() => {
-    const onScroll = () => setShowScrollTop(window.scrollY > 500);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  });
+  import { useEffect } from 'react';
 
   const breadcrumbs = [
     { name: 'Home', url: CANONICAL },
