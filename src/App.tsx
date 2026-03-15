@@ -7,7 +7,6 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
-import { FloatingChatButton } from "./components/chat/FloatingChatButton";
 import { MobileInstallGate } from "./components/MobileInstallGate";
 import { RedirectHandler } from "./components/seo/RedirectHandler";
 import { GlobalCanonical } from "./components/seo/GlobalCanonical";
@@ -49,11 +48,14 @@ const WebStoryPage = lazy(() => import("./pages/WebStoryPage"));
 const EmbedVersePage = lazy(() => import("./pages/EmbedVersePage"));
 const AdminRoutes = lazy(() => import("@/components/admin/AdminRoutes"));
 
+// Lazy load non-critical floating UI
+const FloatingChatButton = lazy(() => import("./components/chat/FloatingChatButton").then(m => ({ default: m.FloatingChatButton })));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
     },
   },
 });
@@ -113,14 +115,16 @@ const App = () => (
                   <Route path="/stories/:storySlug" element={<WebStoryPage />} />
                   <Route path="/embed/verse" element={<EmbedVersePage />} />
 
-                  {/* Admin Routes - handles its own layout and protection */}
+                  {/* Admin Routes */}
                   <Route path="/admin/*" element={<AdminRoutes />} />
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
-              {/* Floating chat button - visible on all pages except /chat */}
-              <FloatingChatButton />
+              {/* Floating chat button - lazy loaded, non-blocking */}
+              <Suspense fallback={null}>
+                <FloatingChatButton />
+              </Suspense>
             </MobileInstallGate>
           </BrowserRouter>
         </TooltipProvider>
