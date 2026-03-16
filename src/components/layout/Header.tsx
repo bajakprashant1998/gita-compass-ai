@@ -309,7 +309,7 @@ function ProblemsMegaMenu({ problems, onClose, onMouseEnter }: { problems: any[]
         </div>
 
         <div className="max-h-[360px] overflow-y-auto pr-1 custom-scrollbar space-y-4">
-          {Object.entries(categories).map(([cat, items]) => (
+          {Object.entries(categories).map(([cat, items]: [string, any[]]) => (
             <div key={cat}>
               <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest mb-2 px-1">{cat}</p>
               <div className="grid grid-cols-2 gap-0.5">
