@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   BookOpen,
@@ -29,6 +29,10 @@ import {
   LayoutDashboard,
   Star,
   Bell,
+  Users,
+  Palette,
+  ExternalLink,
+  Quote,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -36,7 +40,7 @@ import { cn } from '@/lib/utils';
 import { getSettingByKey } from '@/lib/adminSettings';
 import { supabase } from '@/integrations/supabase/client';
 
-// Lazy load mega menu data — only fetched when user opens mega menu
+// ========================= LAZY MEGA MENU DATA =========================
 function useMegaMenuData(enabled: boolean) {
   const [chapters, setChapters] = useState<any[]>([]);
   const [problems, setProblems] = useState<any[]>([]);
@@ -64,7 +68,7 @@ function useMegaMenuData(enabled: boolean) {
   return { chapters, problems };
 }
 
-// --- Enhanced Search Command ---
+// ========================= SEARCH COMMAND =========================
 function HeaderSearch({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -184,20 +188,21 @@ function HeaderSearch({ onClose }: { onClose: () => void }) {
   );
 }
 
-// --- Mega Menu Panel ---
-function MegaMenuPanel({
-  type, chapters, problems, onClose, onMouseEnter,
-}: {
-  type: 'chapters' | 'problems'; chapters: any[]; problems: any[]; onClose: () => void; onMouseEnter?: () => void;
-}) {
-  if (type === 'chapters') {
-    return (
-      <div
-        className="fixed top-[68px] left-1/2 -translate-x-1/2 w-[760px] max-w-[92vw] border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
-        style={{ backgroundColor: 'hsl(var(--card) / 0.95)', backdropFilter: 'blur(24px)' }}
-        onMouseLeave={onClose} onMouseEnter={onMouseEnter}
-      >
-        <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
+// ========================= ANIMATED MEGA MENU =========================
+function ChaptersMegaMenu({ chapters, onClose, onMouseEnter }: { chapters: any[]; onClose: () => void; onMouseEnter?: () => void }) {
+  // Featured chapters
+  const featured = chapters.filter(c => [1, 2, 11, 18].includes(c.chapter_number));
+
+  return (
+    <div
+      className="fixed top-[72px] left-1/2 -translate-x-1/2 w-[880px] max-w-[94vw] border border-border/30 rounded-2xl overflow-hidden z-[60] mega-menu-enter"
+      style={{ backgroundColor: 'hsl(var(--card) / 0.97)', backdropFilter: 'blur(32px)', boxShadow: '0 25px 60px -12px hsl(var(--primary) / 0.12), 0 0 0 1px hsl(var(--border) / 0.1)' }}
+      onMouseLeave={onClose}
+      onMouseEnter={onMouseEnter}
+    >
+      <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
+      <div className="grid grid-cols-[1fr_260px] divide-x divide-border/15">
+        {/* Left: All chapters grid */}
         <div className="p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-bold text-foreground/80 flex items-center gap-2">
@@ -208,10 +213,16 @@ function MegaMenuPanel({
               View All <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
-          <div className="grid grid-cols-3 gap-1">
-            {chapters.map((ch) => (
-              <Link key={ch.chapter_number} to={`/chapters/${ch.chapter_number}`} onClick={onClose} className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-primary/5 transition-all duration-150">
-                <span className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-primary/15 to-amber-500/15 flex items-center justify-center text-xs font-bold text-primary group-hover:from-primary/25 group-hover:to-amber-500/25 group-hover:shadow-sm group-hover:scale-105 transition-all">
+          <div className="grid grid-cols-3 gap-0.5">
+            {chapters.map((ch, i) => (
+              <Link
+                key={ch.chapter_number}
+                to={`/chapters/${ch.chapter_number}`}
+                onClick={onClose}
+                className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-primary/5 transition-all duration-200"
+                style={{ animationDelay: `${i * 15}ms` }}
+              >
+                <span className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-primary/12 to-amber-500/12 flex items-center justify-center text-xs font-bold text-primary group-hover:from-primary/25 group-hover:to-amber-500/25 group-hover:shadow-sm group-hover:scale-110 transition-all duration-200">
                   {ch.chapter_number}
                 </span>
                 <div className="min-w-0">
@@ -222,42 +233,118 @@ function MegaMenuPanel({
             ))}
           </div>
         </div>
+
+        {/* Right: Featured sidebar */}
+        <div className="p-5 bg-gradient-to-b from-primary/[0.02] to-amber-500/[0.02]">
+          <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+            <Star className="h-3 w-3 text-amber-400 fill-amber-400" /> Must Read
+          </p>
+          <div className="space-y-1.5">
+            {featured.map((ch) => (
+              <Link
+                key={ch.chapter_number}
+                to={`/chapters/${ch.chapter_number}`}
+                onClick={onClose}
+                className="group block px-3 py-3 rounded-xl hover:bg-primary/8 border border-transparent hover:border-primary/10 transition-all duration-200"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="w-6 h-6 rounded-lg bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">{ch.chapter_number}</span>
+                  <p className="text-xs font-bold text-foreground/80 group-hover:text-primary transition-colors">{ch.title_english}</p>
+                </div>
+                <p className="text-[10px] text-muted-foreground/60 line-clamp-2 pl-8">{ch.theme}</p>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-4 pt-3 border-t border-border/15">
+            <Link
+              to="/chat"
+              onClick={onClose}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-gradient-to-r from-primary/8 to-amber-500/8 hover:from-primary/15 hover:to-amber-500/15 border border-primary/10 transition-all group"
+            >
+              <MessageCircle className="h-4 w-4 text-primary" />
+              <div className="flex-1">
+                <p className="text-[11px] font-bold text-foreground/80">Ask Krishna AI</p>
+                <p className="text-[10px] text-muted-foreground/50">Which chapter to start?</p>
+              </div>
+              <ArrowRight className="h-3 w-3 text-primary/50 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </div>
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+function ProblemsMegaMenu({ problems, onClose, onMouseEnter }: { problems: any[]; onClose: () => void; onMouseEnter?: () => void }) {
+  const iconMap: Record<string, string> = {
+    'Brain': '🧠', 'Shield': '🛡️', 'HelpCircle': '❓', 'Crown': '👑',
+    'Heart': '❤️', 'User': '👤', 'Flame': '🔥', 'GitBranch': '🌿', 'Wallet': '💰',
+  };
+
+  // Group by category
+  const categories = problems.reduce((acc: Record<string, any[]>, p: any) => {
+    const cat = p.category || 'Other';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(p);
+    return acc;
+  }, {});
 
   return (
     <div
-      className="fixed top-[68px] left-1/2 -translate-x-1/2 w-[560px] max-w-[92vw] border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]"
-      style={{ backgroundColor: 'hsl(var(--card) / 0.95)', backdropFilter: 'blur(24px)' }}
-      onMouseLeave={onClose} onMouseEnter={onMouseEnter}
+      className="fixed top-[72px] left-1/2 -translate-x-1/2 w-[680px] max-w-[94vw] border border-border/30 rounded-2xl overflow-hidden z-[60] mega-menu-enter"
+      style={{ backgroundColor: 'hsl(var(--card) / 0.97)', backdropFilter: 'blur(32px)', boxShadow: '0 25px 60px -12px hsl(var(--primary) / 0.12), 0 0 0 1px hsl(var(--border) / 0.1)' }}
+      onMouseLeave={onClose}
+      onMouseEnter={onMouseEnter}
     >
       <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
       <div className="p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold text-foreground/80 flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-primary/10"><Grid3X3 className="h-4 w-4 text-primary" /></div>
-            Life Problems & Solutions
+            Life Problems & Gita Solutions
           </h3>
           <Link to="/problems" onClick={onClose} className="text-[11px] font-semibold text-primary hover:text-primary/80 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/5 hover:bg-primary/10 transition-all">
             View All <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
-        <div className="grid grid-cols-2 gap-1 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
-          {problems.map((p: any) => (
-            <Link key={p.slug} to={`/problems/${p.slug}`} onClick={onClose} className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-primary/5 transition-all duration-150">
-              <span className="text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
-                {p.icon === 'Brain' ? '🧠' : p.icon === 'Shield' ? '🛡️' : p.icon === 'HelpCircle' ? '❓' : p.icon === 'Crown' ? '👑' : p.icon === 'Heart' ? '❤️' : p.icon === 'User' ? '👤' : p.icon === 'Flame' ? '🔥' : p.icon === 'GitBranch' ? '🌿' : p.icon === 'Wallet' ? '💰' : '📌'}
-              </span>
-              <span className="text-sm font-medium text-foreground/75 group-hover:text-primary transition-colors">{p.name}</span>
-            </Link>
+
+        <div className="max-h-[360px] overflow-y-auto pr-1 custom-scrollbar space-y-4">
+          {Object.entries(categories).map(([cat, items]: [string, any[]]) => (
+            <div key={cat}>
+              <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest mb-2 px-1">{cat}</p>
+              <div className="grid grid-cols-2 gap-0.5">
+                {items.map((p: any, i: number) => (
+                  <Link
+                    key={p.slug}
+                    to={`/problems/${p.slug}`}
+                    onClick={onClose}
+                    className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-primary/5 transition-all duration-200"
+                  >
+                    <span className="text-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                      {iconMap[p.icon] || '📌'}
+                    </span>
+                    <span className="text-sm font-medium text-foreground/75 group-hover:text-primary transition-colors">{p.name}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
-        <div className="mt-4 pt-3 border-t border-border/20 flex items-center gap-2">
-          <Link to="/mood" onClick={onClose} className="flex-1 flex items-center gap-2.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors px-3 py-2.5 rounded-xl hover:bg-primary/5 group">
+
+        <div className="mt-4 pt-3 border-t border-border/15 grid grid-cols-2 gap-2">
+          <Link to="/mood" onClick={onClose} className="flex items-center gap-2.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors px-3 py-2.5 rounded-xl hover:bg-primary/5 group border border-border/20 hover:border-primary/15">
             <div className="p-1.5 rounded-lg bg-primary/10"><Heart className="h-3.5 w-3.5 text-primary" /></div>
-            Not sure? Try the Mood Finder
-            <ArrowRight className="h-3 w-3 ml-auto group-hover:translate-x-0.5 transition-transform" />
+            <div>
+              <span className="font-semibold">Mood Finder</span>
+              <p className="text-[10px] text-muted-foreground/50">Not sure? Let us help</p>
+            </div>
+          </Link>
+          <Link to="/chat" onClick={onClose} className="flex items-center gap-2.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors px-3 py-2.5 rounded-xl hover:bg-primary/5 group border border-border/20 hover:border-primary/15">
+            <div className="p-1.5 rounded-lg bg-primary/10"><MessageCircle className="h-3.5 w-3.5 text-primary" /></div>
+            <div>
+              <span className="font-semibold">Talk to Krishna</span>
+              <p className="text-[10px] text-muted-foreground/50">AI guidance for your issue</p>
+            </div>
           </Link>
         </div>
       </div>
@@ -265,7 +352,7 @@ function MegaMenuPanel({
   );
 }
 
-// --- Notification Dropdown ---
+// ========================= NOTIFICATION DROPDOWN =========================
 function NotificationDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -291,7 +378,7 @@ function NotificationDropdown() {
         <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary ring-2 ring-background animate-pulse" />
       </button>
       {open && (
-        <div className="absolute top-full right-0 mt-2 w-[340px] border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]" style={{ backgroundColor: 'hsl(var(--card) / 0.95)', backdropFilter: 'blur(24px)' }}>
+        <div className="absolute top-full right-0 mt-2 w-[340px] border border-border/30 rounded-2xl overflow-hidden z-[60] mega-menu-enter" style={{ backgroundColor: 'hsl(var(--card) / 0.97)', backdropFilter: 'blur(32px)', boxShadow: '0 25px 60px -12px hsl(var(--primary) / 0.12)' }}>
           <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
           <div className="px-4 py-3 border-b border-border/20 flex items-center justify-between">
             <h4 className="text-sm font-bold text-foreground/80 flex items-center gap-2"><Bell className="h-4 w-4 text-primary" />Notifications</h4>
@@ -318,7 +405,7 @@ function NotificationDropdown() {
   );
 }
 
-// --- User Avatar Menu ---
+// ========================= USER AVATAR MENU =========================
 function UserAvatarMenu({ user, onSignOut }: { user: any; onSignOut: () => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -348,7 +435,7 @@ function UserAvatarMenu({ user, onSignOut }: { user: any; onSignOut: () => void 
         <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform duration-200", open && "rotate-180")} />
       </button>
       {open && (
-        <div className="absolute top-full right-0 mt-2 w-72 border border-border/40 rounded-2xl shadow-2xl shadow-primary/8 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[60]" style={{ backgroundColor: 'hsl(var(--card) / 0.95)', backdropFilter: 'blur(24px)' }}>
+        <div className="absolute top-full right-0 mt-2 w-72 border border-border/30 rounded-2xl overflow-hidden z-[60] mega-menu-enter" style={{ backgroundColor: 'hsl(var(--card) / 0.97)', backdropFilter: 'blur(32px)', boxShadow: '0 25px 60px -12px hsl(var(--primary) / 0.12)' }}>
           <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-400" />
           <div className="px-4 py-4 border-b border-border/20 bg-gradient-to-br from-primary/[0.03] to-amber-500/[0.02]">
             <div className="flex items-center gap-3">
@@ -383,6 +470,257 @@ function UserAvatarMenu({ user, onSignOut }: { user: any; onSignOut: () => void 
   );
 }
 
+// ========================= SUB-NAVIGATION BAR =========================
+function SubNavigation({ scrolled }: { scrolled: boolean }) {
+  const location = useLocation();
+
+  const subNavItems = [
+    { name: 'Chapters', href: '/chapters', icon: BookOpen },
+    { name: 'Problems', href: '/problems', icon: Grid3X3 },
+    { name: 'Krishna AI', href: '/chat', icon: MessageCircle },
+    { name: 'Plans', href: '/reading-plans', icon: CalendarDays },
+    { name: 'Blog', href: '/blog', icon: FileText },
+    { name: 'Mood', href: '/mood', icon: Heart },
+    { name: 'Quotes', href: '/krishna-quotes', icon: Quote },
+  ];
+
+  const isActive = (href: string) => location.pathname.startsWith(href);
+
+  if (!scrolled) return null;
+
+  return (
+    <div className="hidden lg:block border-t border-border/30 bg-background/60 backdrop-blur-lg sub-nav-enter">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="flex items-center gap-0.5 h-10 overflow-x-auto no-scrollbar">
+          {subNavItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200",
+                  active
+                    ? "text-primary bg-primary/8"
+                    : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/60"
+                )}
+              >
+                <item.icon className="h-3 w-3" />
+                {item.name}
+              </Link>
+            );
+          })}
+          <div className="ml-auto flex items-center gap-2 pl-4">
+            <Link
+              to="/donate"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium text-amber-600 hover:bg-amber-500/5 transition-all"
+            >
+              🙏 Support
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ========================= MOBILE BOTTOM SHEET MENU =========================
+function MobileMenu({
+  open,
+  onClose,
+  user,
+  isInstallable,
+  isInstalled,
+  promptInstall,
+  showDonate,
+  signOut,
+}: {
+  open: boolean;
+  onClose: () => void;
+  user: any;
+  isInstallable: boolean;
+  isInstalled: boolean;
+  promptInstall: () => void;
+  showDonate: boolean;
+  signOut: () => void;
+}) {
+  const location = useLocation();
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+
+  const isActive = (href: string) => {
+    if (href === '/') return location.pathname === '/';
+    return location.pathname.startsWith(href);
+  };
+
+  if (!open) return null;
+
+  const primaryNav = [
+    { name: 'Home', href: '/', icon: Home, desc: 'Back to homepage' },
+    { name: 'Chapters', href: '/chapters', icon: BookOpen, desc: '18 chapters of wisdom' },
+    { name: 'Life Problems', href: '/problems', icon: Grid3X3, desc: 'Find your solution' },
+    { name: 'Talk to Krishna', href: '/chat', icon: MessageCircle, desc: 'AI spiritual guide', highlight: true },
+    { name: 'Reading Plans', href: '/reading-plans', icon: CalendarDays, desc: 'Guided study paths' },
+    { name: 'Blog', href: '/blog', icon: FileText, desc: 'Articles & insights' },
+  ];
+
+  const exploreNav = [
+    { name: 'Mood Finder', href: '/mood', icon: Heart, desc: 'Find verses by mood', color: 'text-rose-500' },
+    { name: 'Badges', href: '/badges', icon: Award, desc: 'Your achievements', color: 'text-amber-500' },
+    { name: 'Compare Verses', href: '/compare', icon: Compass, desc: 'Side-by-side view', color: 'text-blue-500' },
+    { name: 'Krishna Quotes', href: '/krishna-quotes', icon: Quote, desc: 'Daily inspiration', color: 'text-emerald-500' },
+  ];
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 z-40 bg-foreground/40 backdrop-blur-md lg:hidden"
+        onClick={onClose}
+      />
+
+      {/* Bottom sheet */}
+      <div className="fixed inset-x-0 bottom-0 z-50 lg:hidden mobile-sheet-enter" style={{ maxHeight: '92dvh' }}>
+        <div className="bg-card rounded-t-3xl border-t border-x border-border/30 shadow-2xl overflow-hidden" style={{ boxShadow: '0 -25px 60px -12px hsl(var(--foreground) / 0.15)' }}>
+          {/* Drag handle */}
+          <div className="flex justify-center pt-3 pb-2">
+            <div className="w-10 h-1 rounded-full bg-border/60" />
+          </div>
+
+          {/* Gradient accent */}
+          <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-500 mx-4 rounded-full" />
+
+          <div className="overflow-y-auto" style={{ maxHeight: 'calc(92dvh - 40px)', paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
+            {/* User section */}
+            <div className="p-4 pb-3">
+              {user ? (
+                <div className="flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-br from-primary/[0.04] to-amber-500/[0.03] border border-border/20">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center text-white text-lg font-bold shadow-lg shadow-primary/20">
+                    {(user.email || 'U').charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground truncate">{user.email}</p>
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <Star className="h-3 w-3 text-amber-400 fill-amber-400" /> Spiritual seeker
+                    </p>
+                  </div>
+                  <Link to="/dashboard" onClick={onClose} className="p-2.5 rounded-xl bg-muted/80 hover:bg-primary/10 transition-colors">
+                    <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
+                  </Link>
+                </div>
+              ) : (
+                <Link
+                  to="/auth"
+                  onClick={onClose}
+                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-gradient-to-r from-primary to-amber-500 text-white font-bold text-sm shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
+                >
+                  Sign In / Create Account
+                </Link>
+              )}
+            </div>
+
+            {/* Primary nav - large touch targets */}
+            <nav className="px-4">
+              <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest px-1 mb-2">Navigate</p>
+              <div className="space-y-0.5">
+                {primaryNav.map((item) => {
+                  const active = isActive(item.href);
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      onClick={onClose}
+                      className={cn(
+                        "flex items-center gap-3.5 px-3.5 py-3.5 rounded-2xl text-sm font-medium transition-all active:scale-[0.98]",
+                        active
+                          ? "text-primary bg-primary/8 border border-primary/10"
+                          : "text-foreground/70 hover:bg-muted/60",
+                        item.highlight && !active && "text-primary"
+                      )}
+                    >
+                      <div className={cn(
+                        "p-2.5 rounded-xl transition-colors",
+                        active ? "bg-primary/15" : item.highlight ? "bg-gradient-to-br from-primary/15 to-amber-500/15" : "bg-muted"
+                      )}>
+                        <item.icon className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="block">{item.name}</span>
+                        <p className="text-[10px] text-muted-foreground/50 mt-0.5">{item.desc}</p>
+                      </div>
+                      {item.highlight && (
+                        <span className="text-[10px] font-bold bg-gradient-to-r from-primary/10 to-amber-500/10 text-primary px-2.5 py-1 rounded-full border border-primary/10">AI ✨</span>
+                      )}
+                      {active && <div className="w-2 h-2 rounded-full bg-primary shadow-sm shadow-primary/30" />}
+                    </Link>
+                  );
+                })}
+              </div>
+            </nav>
+
+            {/* Explore section with icons */}
+            <div className="px-4 mt-4">
+              <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest px-1 mb-2">Explore More</p>
+              <div className="grid grid-cols-2 gap-2">
+                {exploreNav.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    onClick={onClose}
+                    className="flex items-center gap-2.5 px-3 py-3 rounded-xl border border-border/20 hover:border-primary/15 hover:bg-primary/[0.03] transition-all active:scale-[0.98]"
+                  >
+                    <div className={cn("p-2 rounded-lg bg-muted")}>
+                      <item.icon className={cn("h-4 w-4", item.color)} />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs font-semibold text-foreground/80 block">{item.name}</span>
+                      <p className="text-[9px] text-muted-foreground/50 truncate">{item.desc}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick actions row */}
+            <div className="px-4 mt-4 flex gap-2">
+              {isInstallable && !isInstalled && (
+                <button
+                  onClick={() => { promptInstall(); onClose(); }}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-medium text-foreground/70 bg-muted/50 border border-border/20 hover:bg-primary/5 transition-all active:scale-[0.98]"
+                >
+                  <Download className="h-4 w-4 text-primary" />
+                  Install App
+                </button>
+              )}
+              {showDonate && (
+                <Link
+                  to="/donate"
+                  onClick={onClose}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-medium text-amber-600 bg-amber-500/5 border border-amber-500/15 hover:bg-amber-500/10 transition-all active:scale-[0.98]"
+                >
+                  🙏 Support Us
+                </Link>
+              )}
+            </div>
+
+            {/* Sign out */}
+            {user && (
+              <div className="px-4 mt-3 mb-2">
+                <button
+                  onClick={() => { signOut(); onClose(); }}
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-medium text-destructive bg-destructive/5 border border-destructive/10 hover:bg-destructive/10 transition-all active:scale-[0.98]"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ========================= MAIN HEADER =========================
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -394,7 +732,7 @@ export function Header() {
   const { user, loading, signOut } = useAuth();
   const { isInstallable, isInstalled, promptInstall } = useInstallPrompt();
   const location = useLocation();
-  
+
   // Only fetch mega menu data when user actually hovers
   const [megaMenuRequested, setMegaMenuRequested] = useState(false);
   const { chapters, problems } = useMegaMenuData(megaMenuRequested);
@@ -438,7 +776,7 @@ export function Header() {
 
   const handleMegaEnter = (type: 'chapters' | 'problems') => {
     clearTimeout(megaMenuTimeoutRef.current);
-    setMegaMenuRequested(true); // trigger lazy fetch
+    setMegaMenuRequested(true);
     setMegaMenu(type);
   };
 
@@ -455,12 +793,6 @@ export function Header() {
     { name: 'Blog', href: '/blog', icon: FileText },
   ];
 
-  const mobileSecondary = [
-    { name: 'Mood Finder', href: '/mood', icon: Heart, desc: 'Find verses by mood' },
-    { name: 'Badges', href: '/badges', icon: Award, desc: 'Your achievements' },
-    { name: 'Compare Verses', href: '/compare', icon: Compass, desc: 'Side-by-side view' },
-  ];
-
   const isActive = (href: string) => {
     if (href === '/') return location.pathname === '/';
     return location.pathname.startsWith(href);
@@ -472,28 +804,34 @@ export function Header() {
         className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
           scrolled
-            ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm"
+            ? "header-scrolled"
             : "bg-background/50 backdrop-blur-sm"
         )}
       >
+        {/* Main nav bar */}
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-[68px]">
-            {/* Logo */}
+          <div className="flex items-center justify-between h-[72px]">
+            {/* Logo - upgraded */}
             <Link to="/" className="flex items-center gap-3 group" aria-label="Bhagavad Gita Gyan Home">
               <div className="relative">
-                <img src="/logo.png" alt="Bhagavad Gita Gyan" className="h-10 w-10 rounded-xl shadow-md" width="40" height="40" loading="eager" />
-                <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 to-amber-500/20 rounded-xl blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <img
+                  src="/logo.png"
+                  alt="Bhagavad Gita Gyan"
+                  className="h-10 w-10 rounded-xl shadow-md group-hover:shadow-lg group-hover:shadow-primary/15 transition-shadow duration-300"
+                  width="40" height="40" loading="eager"
+                />
+                <div className="absolute -inset-1.5 bg-gradient-to-br from-primary/20 to-amber-500/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-base font-bold text-foreground leading-tight">
-                  Bhagavad Gita <span className="text-primary">Gyan</span>
+                <h1 className="text-base font-bold text-foreground leading-tight tracking-tight">
+                  Bhagavad Gita <span className="bg-gradient-to-r from-primary to-amber-500 bg-clip-text text-transparent">Gyan</span>
                 </h1>
-                <p className="text-[10px] text-muted-foreground font-medium tracking-wider uppercase">Ancient Wisdom • Modern Life</p>
+                <p className="text-[10px] text-muted-foreground/60 font-medium tracking-[0.15em] uppercase">Ancient Wisdom • Modern Life</p>
               </div>
             </Link>
 
-            {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-1">
+            {/* Desktop Nav - animated underline style */}
+            <nav className="hidden lg:flex items-center gap-0.5">
               {navigation.map((item) => {
                 const active = isActive(item.href);
                 if (item.mega) {
@@ -506,13 +844,21 @@ export function Header() {
                       <Link
                         to={item.href}
                         className={cn(
-                          "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 group",
-                          active ? "text-primary bg-primary/8" : "text-foreground/65 hover:text-foreground hover:bg-muted/80"
+                          "relative flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 group",
+                          active ? "text-primary" : "text-foreground/60 hover:text-foreground"
                         )}
                       >
                         <item.icon className="h-4 w-4" />
                         {item.name}
-                        <ChevronDown className={cn("h-3 w-3 text-muted-foreground/40 transition-transform duration-200", megaMenu === item.mega && "rotate-180")} />
+                        <ChevronDown className={cn(
+                          "h-3 w-3 text-muted-foreground/40 transition-all duration-200",
+                          megaMenu === item.mega && "rotate-180 text-primary"
+                        )} />
+                        {/* Active indicator */}
+                        <span className={cn(
+                          "absolute bottom-0 left-3 right-3 h-[2px] rounded-full bg-gradient-to-r from-primary to-amber-500 transition-all duration-300",
+                          active ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
+                        )} />
                       </Link>
                     </div>
                   );
@@ -522,10 +868,12 @@ export function Header() {
                     <Link
                       key={item.name}
                       to={item.href}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-primary to-amber-500 text-white shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-[1.02] transition-all duration-200"
+                      className="relative flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-primary to-amber-500 text-white shadow-md shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 overflow-hidden group"
                     >
-                      <item.icon className="h-4 w-4" />
-                      {item.name}
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                      <item.icon className="h-4 w-4 relative z-10" />
+                      <span className="relative z-10">{item.name}</span>
+                      <Sparkles className="h-3 w-3 relative z-10 opacity-60" />
                     </Link>
                   );
                 }
@@ -534,12 +882,16 @@ export function Header() {
                     key={item.name}
                     to={item.href}
                     className={cn(
-                      "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200",
-                      active ? "text-primary bg-primary/8" : "text-foreground/65 hover:text-foreground hover:bg-muted/80"
+                      "relative flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200",
+                      active ? "text-primary" : "text-foreground/60 hover:text-foreground"
                     )}
                   >
                     <item.icon className="h-4 w-4" />
                     {item.name}
+                    <span className={cn(
+                      "absolute bottom-0 left-3 right-3 h-[2px] rounded-full bg-gradient-to-r from-primary to-amber-500 transition-all duration-300",
+                      active ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
+                    )} />
                   </Link>
                 );
               })}
@@ -547,13 +899,16 @@ export function Header() {
 
             {/* Right actions */}
             <div className="flex items-center gap-1.5">
-              {/* Search */}
+              {/* Search trigger with kbd hint */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="p-2.5 rounded-xl hover:bg-muted transition-colors group"
+                className="flex items-center gap-2 p-2.5 rounded-xl hover:bg-muted transition-all duration-200 group"
                 aria-label="Search"
               >
                 <Search className="h-[18px] w-[18px] text-muted-foreground/60 group-hover:text-foreground transition-colors" />
+                <kbd className="hidden xl:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-muted/80 text-muted-foreground/40 text-[10px] font-mono border border-border/30">
+                  ⌘K
+                </kbd>
               </button>
 
               {/* Notifications - desktop */}
@@ -561,7 +916,7 @@ export function Header() {
                 <NotificationDropdown />
               </div>
 
-              {/* Install button */}
+              {/* Install */}
               {isInstallable && !isInstalled && (
                 <button
                   onClick={promptInstall}
@@ -578,7 +933,7 @@ export function Header() {
                   <UserAvatarMenu user={user} onSignOut={signOut} />
                 ) : (
                   <Link to="/auth">
-                    <Button size="sm" variant="outline" className="h-9 px-4 rounded-xl text-sm font-medium border-border/60 hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all">
+                    <Button size="sm" variant="outline" className="h-9 px-4 rounded-xl text-sm font-medium border-border/50 hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all">
                       Sign In
                     </Button>
                   </Link>
@@ -588,7 +943,10 @@ export function Header() {
               {/* Mobile menu button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2.5 rounded-xl hover:bg-muted transition-colors"
+                className={cn(
+                  "lg:hidden p-2.5 rounded-xl transition-all duration-200",
+                  mobileMenuOpen ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                )}
                 aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
               >
                 {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -597,11 +955,19 @@ export function Header() {
           </div>
         </div>
 
+        {/* Sub-navigation - visible on scroll */}
+        <SubNavigation scrolled={scrolled} />
+
         {/* Mega Menu */}
-        {megaMenu && (
-          <MegaMenuPanel
-            type={megaMenu}
+        {megaMenu === 'chapters' && (
+          <ChaptersMegaMenu
             chapters={chapters}
+            onClose={() => setMegaMenu(null)}
+            onMouseEnter={() => clearTimeout(megaMenuTimeoutRef.current)}
+          />
+        )}
+        {megaMenu === 'problems' && (
+          <ProblemsMegaMenu
             problems={problems}
             onClose={() => setMegaMenu(null)}
             onMouseEnter={() => clearTimeout(megaMenuTimeoutRef.current)}
@@ -609,124 +975,17 @@ export function Header() {
         )}
       </header>
 
-      {/* Mobile Menu Overlay */}
-      {mobileMenuOpen && (
-        <>
-          <div className="fixed inset-0 z-40 bg-foreground/50 backdrop-blur-sm lg:hidden" onClick={() => setMobileMenuOpen(false)} />
-          <div className="fixed inset-y-0 right-0 z-50 w-[85%] max-w-sm bg-card border-l border-border/50 shadow-2xl lg:hidden overflow-y-auto animate-in slide-in-from-right duration-200">
-            <div className="h-[2px] bg-gradient-to-r from-primary via-amber-500 to-orange-500" />
-
-            {/* User section */}
-            <div className="p-5 border-b border-border/20 bg-gradient-to-br from-primary/[0.03] to-amber-500/[0.02]">
-              {user ? (
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center text-white text-lg font-bold shadow-lg shadow-primary/20">
-                    {(user.email || 'U').charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{user.email}</p>
-                    <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                      <Star className="h-3 w-3 text-amber-400 fill-amber-400" /> Spiritual seeker
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <Link
-                  to="/auth"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-primary to-amber-500 text-white font-bold text-sm shadow-lg shadow-primary/20"
-                >
-                  Sign In / Create Account
-                </Link>
-              )}
-            </div>
-
-            {/* Primary nav */}
-            <nav className="p-3">
-              <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider px-3 mb-2">Navigate</p>
-              {navigation.map((item) => {
-                const active = isActive(item.href);
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-medium transition-all",
-                      active ? "text-primary bg-primary/8" : "text-foreground/70 hover:text-foreground hover:bg-muted/50",
-                      item.highlight && !active && "text-primary font-bold"
-                    )}
-                  >
-                    <div className={cn("p-2 rounded-lg transition-colors", active ? "bg-primary/15" : "bg-muted")}>
-                      <item.icon className="h-4 w-4" />
-                    </div>
-                    {item.name}
-                    {item.highlight && (
-                      <span className="ml-auto text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">AI</span>
-                    )}
-                    {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
-                  </Link>
-                );
-              })}
-            </nav>
-
-            {/* Secondary nav */}
-            <div className="p-3 pt-0">
-              <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider px-3 mb-2">Explore More</p>
-              {mobileSecondary.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-foreground/60 hover:text-foreground hover:bg-muted/50 transition-all"
-                >
-                  <div className="p-2 rounded-lg bg-muted"><item.icon className="h-4 w-4" /></div>
-                  <div>
-                    <span className="font-medium">{item.name}</span>
-                    <p className="text-[10px] text-muted-foreground/50">{item.desc}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {/* Install & donate */}
-            <div className="p-3 border-t border-border/20 space-y-2">
-              {isInstallable && !isInstalled && (
-                <button
-                  onClick={() => { promptInstall(); setMobileMenuOpen(false); }}
-                  className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium text-foreground/70 hover:bg-muted/50 transition-all"
-                >
-                  <div className="p-2 rounded-lg bg-primary/10"><Download className="h-4 w-4 text-primary" /></div>
-                  Install App
-                </button>
-              )}
-              {showDonate && (
-                <Link
-                  to="/donate"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium text-amber-600 hover:bg-amber-500/5 transition-all"
-                >
-                  <div className="p-2 rounded-lg bg-amber-500/10">🙏</div>
-                  Support This Project
-                </Link>
-              )}
-            </div>
-
-            {/* Sign out */}
-            {user && (
-              <div className="p-3 border-t border-border/20">
-                <button
-                  onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                  className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/5 transition-all"
-                >
-                  <div className="p-2 rounded-lg bg-destructive/5"><LogOut className="h-4 w-4" /></div>
-                  Sign Out
-                </button>
-              </div>
-            )}
-          </div>
-        </>
-      )}
+      {/* Mobile Bottom Sheet Menu */}
+      <MobileMenu
+        open={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        user={user}
+        isInstallable={isInstallable}
+        isInstalled={isInstalled}
+        promptInstall={promptInstall}
+        showDonate={showDonate}
+        signOut={signOut}
+      />
 
       {/* Search overlay */}
       {searchOpen && <HeaderSearch onClose={() => setSearchOpen(false)} />}

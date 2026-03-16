@@ -586,3 +586,63 @@ img:not([width]):not([class*="w-"]) {
   font-display: swap;
 }
 
+/* Header animations */
+.header-scrolled {
+  background: hsl(var(--background) / 0.85);
+  backdrop-filter: blur(20px) saturate(1.8);
+  border-bottom: 1px solid hsl(var(--border) / 0.4);
+  box-shadow: 0 4px 30px -4px hsl(var(--foreground) / 0.06);
+}
+
+@keyframes mega-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.mega-menu-enter {
+  animation: mega-menu-enter 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes mobile-sheet-enter {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-sheet-enter {
+  animation: mobile-sheet-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes sub-nav-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sub-nav-enter {
+  animation: sub-nav-enter 0.2s ease-out;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
