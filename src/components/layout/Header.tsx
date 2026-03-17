@@ -12,6 +12,8 @@ import {
   CalendarDays,
   Download,
   Search,
+  Moon,
+  Sun,
   ChevronDown,
   LogOut,
   Settings,
@@ -909,6 +911,21 @@ export function Header() {
                 <kbd className="hidden xl:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-muted/80 text-muted-foreground/40 text-[10px] font-mono border border-border/30">
                   ⌘K
                 </kbd>
+              </button>
+
+              {/* Dark mode toggle */}
+              <button
+                onClick={() => {
+                  const html = document.documentElement;
+                  const isDark = html.classList.contains('dark');
+                  html.classList.toggle('dark', !isDark);
+                  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+                }}
+                className="p-2.5 rounded-xl hover:bg-muted transition-all duration-200 group"
+                aria-label="Toggle dark mode"
+              >
+                <Sun className="h-[18px] w-[18px] text-muted-foreground/60 group-hover:text-foreground transition-colors hidden dark:block" />
+                <Moon className="h-[18px] w-[18px] text-muted-foreground/60 group-hover:text-foreground transition-colors dark:hidden" />
               </button>
 
               {/* Notifications - desktop */}
