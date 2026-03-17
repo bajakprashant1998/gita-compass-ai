@@ -913,6 +913,21 @@ export function Header() {
                 </kbd>
               </button>
 
+              {/* Dark mode toggle */}
+              <button
+                onClick={() => {
+                  const html = document.documentElement;
+                  const isDark = html.classList.contains('dark');
+                  html.classList.toggle('dark', !isDark);
+                  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+                }}
+                className="p-2.5 rounded-xl hover:bg-muted transition-all duration-200 group"
+                aria-label="Toggle dark mode"
+              >
+                <Sun className="h-[18px] w-[18px] text-muted-foreground/60 group-hover:text-foreground transition-colors hidden dark:block" />
+                <Moon className="h-[18px] w-[18px] text-muted-foreground/60 group-hover:text-foreground transition-colors dark:hidden" />
+              </button>
+
               {/* Notifications - desktop */}
               <div className="hidden lg:block">
                 <NotificationDropdown />
