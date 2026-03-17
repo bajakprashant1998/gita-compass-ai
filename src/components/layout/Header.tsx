@@ -684,6 +684,21 @@ function MobileMenu({
 
             {/* Quick actions row */}
             <div className="px-4 mt-4 flex gap-2">
+              {/* Dark mode toggle */}
+              <button
+                onClick={() => {
+                  const html = document.documentElement;
+                  const isDark = html.classList.contains('dark');
+                  html.classList.toggle('dark', !isDark);
+                  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+                }}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-medium text-foreground/70 bg-muted/50 border border-border/20 hover:bg-primary/5 transition-all active:scale-[0.98]"
+              >
+                <Sun className="h-4 w-4 text-primary hidden dark:block" />
+                <Moon className="h-4 w-4 text-primary dark:hidden" />
+                <span className="dark:hidden">Dark Mode</span>
+                <span className="hidden dark:inline">Light Mode</span>
+              </button>
               {isInstallable && !isInstalled && (
                 <button
                   onClick={() => { promptInstall(); onClose(); }}
