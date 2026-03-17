@@ -147,7 +147,7 @@
 
   /* Glass effect */
   .glass {
-    @apply bg-white/80 backdrop-blur-md dark:bg-black/40;
+    @apply bg-card/80 backdrop-blur-md;
   }
 
   /* Glow effect for important elements */
