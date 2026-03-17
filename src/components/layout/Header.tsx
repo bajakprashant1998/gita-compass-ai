@@ -12,6 +12,8 @@ import {
   CalendarDays,
   Download,
   Search,
+  Moon,
+  Sun,
   ChevronDown,
   LogOut,
   Settings,
