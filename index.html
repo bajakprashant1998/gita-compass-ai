@@ -5,7 +5,6 @@
   <!-- Preconnect to critical origins -->
   <link rel="preconnect" href="https://glxupcdgtzqkaxcgezeu.supabase.co" crossorigin />
   <link rel="dns-prefetch" href="https://glxupcdgtzqkaxcgezeu.supabase.co" />
-  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
   
   <!-- Google Tag Manager - deferred to not block rendering -->
   <script>
@@ -41,8 +40,18 @@
   </script>
   <!-- End Google Analytics GA4 -->
 
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4885234064479167" crossorigin="anonymous"></script>
+  <!-- Google AdSense - deferred for better CWV -->
+  <script>
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        var s = document.createElement('script');
+        s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4885234064479167';
+        s.async = true;
+        s.crossOrigin = 'anonymous';
+        document.head.appendChild(s);
+      }, 3500);
+    });
+  </script>
   <!-- End Google AdSense -->
   
   <meta charset="UTF-8" />
@@ -65,6 +74,9 @@
   <meta property="og:description"
     content="Read Bhagavad Gita online free. All 18 chapters, 700+ verses with Sanskrit, English & Hindi meaning, modern stories, and AI-powered spiritual counselor." />
   <meta property="og:image" content="https://www.bhagavadgitagyan.com/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Bhagavad Gita Gyan - Ancient Wisdom for Modern Problems" />
   <meta property="og:site_name" content="Bhagavad Gita Gyan" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:locale:alternate" content="hi_IN" />
@@ -76,6 +88,7 @@
   <meta name="twitter:description"
     content="Read all 700+ verses of Bhagavad Gita with meaning. Talk to Krishna AI for personalized spiritual guidance. 100% free." />
   <meta name="twitter:image" content="https://www.bhagavadgitagyan.com/og-image.png" />
+  <meta name="twitter:image:alt" content="Bhagavad Gita Gyan - Ancient Wisdom for Modern Problems" />
 
   <!-- Additional SEO -->
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -86,7 +99,7 @@
   <meta name="google" content="notranslate" />
   <meta http-equiv="x-dns-prefetch-control" content="on" />
   
-  <!-- Hreflang for future multilingual -->
+  <!-- Hreflang for multilingual -->
   <link rel="alternate" hreflang="en" href="https://www.bhagavadgitagyan.com/" />
   <link rel="alternate" hreflang="hi" href="https://www.bhagavadgitagyan.com/hi" />
   <link rel="alternate" hreflang="x-default" href="https://www.bhagavadgitagyan.com/" />
@@ -95,7 +108,8 @@
   <link rel="preload" href="/logo.png" as="image" fetchpriority="high" />
 
   <!-- Theme Color -->
-  <meta name="theme-color" content="#8B4513" />
+  <meta name="theme-color" content="#8B4513" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#1a120b" media="(prefers-color-scheme: dark)" />
   <meta name="msapplication-TileColor" content="#8B4513" />
 
   <!-- Favicon & PWA -->
@@ -105,17 +119,48 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   
-  <!-- Google Fonts for Indian Languages -->
+  <!-- Google Fonts for Indian Languages - deferred -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
   <noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- Speculation Rules API for instant navigation (Chrome 121+) -->
+  <script type="speculationrules">
+  {
+    "prerender": [
+      {
+        "where": {
+          "and": [
+            { "href_matches": "/*" },
+            { "not": { "href_matches": "/admin/*" } },
+            { "not": { "href_matches": "/auth" } },
+            { "not": { "href_matches": "/embed/*" } }
+          ]
+        },
+        "eagerness": "moderate"
+      }
+    ],
+    "prefetch": [
+      {
+        "where": {
+          "and": [
+            { "href_matches": "/*" },
+            { "not": { "href_matches": "/admin/*" } },
+            { "not": { "selector_matches": ".no-prefetch" } }
+          ]
+        },
+        "eagerness": "moderate"
+      }
+    ]
+  }
+  </script>
   
   <!-- Inline critical CSS for faster FCP -->
   <style>
     /* Critical CSS for initial render */
     *,::after,::before{box-sizing:border-box}
-    html{line-height:1.5;-webkit-text-size-adjust:100%}
+    html{line-height:1.5;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
     body{margin:0;font-family:system-ui,-apple-system,sans-serif;background-color:#0a0a0a;color:#fafafa}
     #root{min-height:100vh}
     .min-h-screen{min-height:100vh}
@@ -131,6 +176,10 @@
     .border-t-transparent{border-top-color:transparent}
     .w-8{width:2rem}
     .h-8{height:2rem}
+    /* Prevent CLS from hero section */
+    section{min-height:92vh}
+    /* INP optimization */
+    a,button,input,textarea,select,[role="button"]{touch-action:manipulation}
   </style>
 </head>
 

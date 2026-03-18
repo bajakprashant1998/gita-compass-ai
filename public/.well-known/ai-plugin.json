@@ -1,13 +1,43 @@
 {
+  "schema_version": "v1",
   "name": "Bhagavad Gita Gyan",
   "description": "AI-powered ancient wisdom from the Bhagavad Gita for modern life problems. Complete 18 chapters, 700+ verses with Sanskrit, English, Hindi meanings, life applications, and AI spiritual guidance.",
   "url": "https://www.bhagavadgitagyan.com",
   "logo": "https://www.bhagavadgitagyan.com/logo.png",
   "contact_email": "contact@bhagavadgitagyan.com",
-  "topics": ["Bhagavad Gita", "Hindu Scripture", "Spiritual Guidance", "Karma Yoga", "Meditation", "Anxiety Relief", "Ancient Wisdom", "Sanskrit Verses", "Life Problems"],
-  "content_types": ["verses", "chapters", "blog_articles", "reading_plans", "ai_guidance"],
+  "legal_info_url": "https://www.bhagavadgitagyan.com/contact",
+  "topics": [
+    "Bhagavad Gita",
+    "Hindu Scripture",
+    "Spiritual Guidance",
+    "Karma Yoga",
+    "Bhakti Yoga",
+    "Jnana Yoga",
+    "Dhyana Yoga",
+    "Meditation",
+    "Anxiety Relief",
+    "Ancient Wisdom",
+    "Sanskrit Verses",
+    "Life Problems",
+    "Mental Health",
+    "Self-Improvement",
+    "Indian Philosophy"
+  ],
+  "content_types": ["verses", "chapters", "blog_articles", "reading_plans", "ai_guidance", "faq"],
   "languages": ["en", "hi", "sa", "ta", "te", "bn", "gu", "kn", "ml", "pa", "or", "ur"],
+  "content_volume": {
+    "chapters": 18,
+    "verses": "700+",
+    "blog_articles": "6+",
+    "reading_plans": "5+",
+    "life_problems": "10+"
+  },
+  "api": {
+    "type": "none",
+    "has_user_authentication": false
+  },
   "llms_txt": "/llms.txt",
+  "llms_full_txt": "/llms-full.txt",
   "robots_txt": "/robots.txt",
   "sitemap": "/sitemap.xml",
   "feeds": [],
@@ -15,6 +45,28 @@
     "allow_training": true,
     "allow_citation": true,
     "preferred_citation": "Bhagavad Gita Gyan (bhagavadgitagyan.com)",
-    "allow_summarization": true
+    "allow_summarization": true,
+    "allow_embedding": true,
+    "preferred_link": "https://www.bhagavadgitagyan.com"
+  },
+  "structured_data": {
+    "json_ld": true,
+    "open_graph": true,
+    "twitter_cards": true,
+    "breadcrumbs": true,
+    "faq_schema": true,
+    "article_schema": true,
+    "how_to_schema": true,
+    "speakable": true
+  },
+  "key_urls": {
+    "homepage": "/",
+    "chapters": "/chapters",
+    "chat": "/chat",
+    "problems": "/problems",
+    "blog": "/blog",
+    "reading_plans": "/reading-plans",
+    "mood_finder": "/mood",
+    "hindi_home": "/hi"
   }
 }
