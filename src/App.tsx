@@ -11,6 +11,8 @@ import { MobileInstallGate } from "./components/MobileInstallGate";
 import { RedirectHandler } from "./components/seo/RedirectHandler";
 import { GlobalCanonical } from "./components/seo/GlobalCanonical";
 import { PageViewTracker } from "./components/PageViewTracker";
+import { PerformanceOptimizer } from "./components/seo/PerformanceOptimizer";
+import { AdvancedStructuredData } from "./components/seo/AdvancedStructuredData";
 
 // Eager load the index page for best LCP
 import Index from "./pages/Index";
