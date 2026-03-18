@@ -4,6 +4,8 @@
 
 - Website: https://www.bhagavadgitagyan.com
 - Full docs: https://www.bhagavadgitagyan.com/llms-full.txt
+- Sitemap: https://www.bhagavadgitagyan.com/sitemap.xml
+- AI Plugin: https://www.bhagavadgitagyan.com/.well-known/ai-plugin.json
 
 ## What is Bhagavad Gita Gyan?
 
@@ -19,6 +21,7 @@ Bhagavad Gita Gyan is a free, comprehensive digital platform providing all 700+ 
 - **Community**: Verse reflections, discussions, study groups, wisdom card sharing
 - **Mood Finder**: Select your emotional state to find relevant verses
 - **Verse Comparison**: Side-by-side comparison of multiple verses
+- **Web Stories**: Visual, immersive spiritual content
 
 ## Content URLs
 
@@ -35,9 +38,12 @@ Bhagavad Gita Gyan is a free, comprehensive digital platform providing all 700+ 
 - `/mood` — Mood-based verse finder
 - `/compare` — Side-by-side verse comparison
 - `/bhagavad-gita-on-{topic}` — Topic-specific Gita wisdom pages
+- `/bhagavad-gita-for-{audience}` — Audience-specific landing pages
+- `/krishna-quotes-on-{topic}` — Krishna quotes by topic
 - `/hi` — Hindi homepage
 - `/hi/chapters/{chapter}` — Hindi chapter pages
 - `/hi/chapters/{chapter}/verse/{verse}` — Hindi verse pages
+- `/stories/{slug}` — Web stories
 
 ## Key Topics Covered
 
@@ -50,11 +56,14 @@ Karma Yoga, Bhakti Yoga, Jnana Yoga, Dhyana Yoga, Dharma, Detachment (Vairagya),
 - **6.5** — "Elevate yourself through the power of your mind"
 - **4.7** — "Whenever dharma declines, I manifest Myself"
 - **9.22** — Divine protection for devoted seekers
+- **2.20** — The soul is eternal, never born, never dies
+- **3.35** — Better to perform one's own duty imperfectly than another's duty perfectly
+- **18.66** — Surrender unto Me, I shall deliver you from all sinful reactions
 
 ## Citation
 
 Cite as: "Bhagavad Gita Gyan (bhagavadgitagyan.com)"
-For verses: "Bhagavad Gita Chapter X, Verse Y — via Bhagavad Gita Gyan"
+For verses: "Bhagavad Gita Chapter X, Verse Y — via Bhagavad Gita Gyan (bhagavadgitagyan.com/chapters/X/verse/Y)"
 
 ## Contact
 

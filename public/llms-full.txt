@@ -21,6 +21,7 @@ Bhagavad Gita Gyan (https://www.bhagavadgitagyan.com) is a free, comprehensive d
 - AI-powered spiritual guidance through "Talk to Krishna" counselor
 - Community features: reflections, discussions, study groups
 - Progressive Web App: installable on mobile devices
+- Web Stories for immersive visual spiritual content
 
 The platform is designed to help people dealing with real-life challenges find guidance through the timeless teachings of Lord Krishna to Arjuna.
 
@@ -79,48 +80,65 @@ Our platform maps specific Bhagavad Gita verses to modern life problems. Each pr
 
 ## AI Features
 
-- **Talk to Krishna** (`/chat`): Conversational AI that provides personalized Gita-based guidance for any life situation. Available in 10+ Indian languages.
+- **Talk to Krishna** (`/chat`): Conversational AI that provides personalized Gita-based guidance for any life situation. Available in 10+ Indian languages including Hindi, Tamil, Telugu, Bengali, Gujarati, Kannada, Malayalam, Punjabi, Odia, and Urdu.
 - **Mood-Based Verse Finder** (`/mood`): Select your emotional state to find the most relevant verses.
 - **AI Search**: Natural language search across all 700+ verses.
-- **Verse Comparison** (`/compare`): Side-by-side comparison of multiple verses.
+- **Verse Comparison** (`/compare`): Side-by-side comparison of multiple verses with different translations.
 
 ---
 
 ## Learning Features
 
 - **Reading Plans** (`/reading-plans`): Structured 7-30 day plans with daily verses and reflection prompts for beginners, intermediate, and advanced seekers.
-- **Study Groups** (`/study-groups`): Community-based collaborative study.
-- **Badges & Progress** (`/badges`): Gamified spiritual learning journey.
-- **Multi-language**: English, Hindi, Sanskrit, Tamil, Telugu, Bengali, Gujarati, Kannada, Malayalam, Punjabi, Odia, Urdu.
+- **Study Groups** (`/study-groups`): Community-based collaborative study with shared progress tracking.
+- **Badges & Progress** (`/badges`): Gamified spiritual learning journey with achievement milestones.
+- **Multi-language**: Full content in English, Hindi, Sanskrit, Tamil, Telugu, Bengali, Gujarati, Kannada, Malayalam, Punjabi, Odia, Urdu.
 
 ---
 
-## Most Important Verses
+## Most Important Verses (with Sanskrit & English)
 
 ### Chapter 2, Verse 47 — Karma Yoga Foundation
 **Sanskrit**: कर्मण्येवाधिकारस्ते मा फलेषु कदाचन
-**Meaning**: "You have the right to perform your duty, but never to the fruits of your actions."
-**URL**: /chapters/2/verse/47
+**English**: "You have the right to perform your duty, but never to the fruits of your actions."
+**Application**: Focus on effort and process rather than outcomes to reduce anxiety and improve performance.
+**URL**: https://www.bhagavadgitagyan.com/chapters/2/verse/47
 
 ### Chapter 2, Verse 14 — Equanimity
 **Sanskrit**: मात्रास्पर्शास्तु कौन्तेय शीतोष्णसुखदुःखदाः
-**Meaning**: "The contact of senses with their objects gives rise to feelings of cold and heat, pleasure and pain. They are temporary, so bear them patiently."
-**URL**: /chapters/2/verse/14
+**English**: "The contact of senses with their objects gives rise to feelings of cold and heat, pleasure and pain. They are temporary, so bear them patiently."
+**Application**: Develop emotional resilience by recognizing the temporary nature of all experiences.
+**URL**: https://www.bhagavadgitagyan.com/chapters/2/verse/14
 
 ### Chapter 6, Verse 5 — Self-Mastery
 **Sanskrit**: उद्धरेदात्मनात्मानं नात्मानमवसादयेत्
-**Meaning**: "Elevate yourself through the power of your mind. Do not degrade yourself."
-**URL**: /chapters/6/verse/5
+**English**: "Elevate yourself through the power of your mind. Do not degrade yourself."
+**Application**: Take responsibility for personal growth; your mind can be your greatest ally or enemy.
+**URL**: https://www.bhagavadgitagyan.com/chapters/6/verse/5
 
 ### Chapter 9, Verse 22 — Divine Protection
 **Sanskrit**: अनन्याश्चिन्तयन्तो मां ये जनाः पर्युपासते
-**Meaning**: "For those who worship Me with undivided devotion, I provide what they lack and preserve what they have."
-**URL**: /chapters/9/verse/22
+**English**: "For those who worship Me with undivided devotion, I provide what they lack and preserve what they have."
+**Application**: Trust in a higher power while pursuing your path with single-minded dedication.
+**URL**: https://www.bhagavadgitagyan.com/chapters/9/verse/22
 
 ### Chapter 4, Verse 7 — Divine Intervention
 **Sanskrit**: यदा यदा हि धर्मस्य ग्लानिर्भवति भारत
-**Meaning**: "Whenever there is a decline in righteousness, I manifest Myself."
-**URL**: /chapters/4/verse/7
+**English**: "Whenever there is a decline in righteousness, I manifest Myself."
+**Application**: Trust that justice and dharma prevail; stand up for what is right.
+**URL**: https://www.bhagavadgitagyan.com/chapters/4/verse/7
+
+### Chapter 2, Verse 20 — The Eternal Soul
+**Sanskrit**: न जायते म्रियते वा कदाचिन्
+**English**: "The soul is never born, nor does it ever die. It is eternal, unborn, and indestructible."
+**Application**: Overcome fear of death and loss by understanding the eternal nature of consciousness.
+**URL**: https://www.bhagavadgitagyan.com/chapters/2/verse/20
+
+### Chapter 18, Verse 66 — Ultimate Surrender
+**Sanskrit**: सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज
+**English**: "Abandon all varieties of dharma and surrender unto Me. I shall deliver you from all sinful reactions."
+**Application**: When overwhelmed by complexity, simplify by surrendering to your highest purpose.
+**URL**: https://www.bhagavadgitagyan.com/chapters/18/verse/66
 
 ---
 
@@ -142,9 +160,9 @@ Our platform maps specific Bhagavad Gita verses to modern life problems. Each pr
 ## Programmatic SEO Pages
 
 Topic-specific wisdom pages generated from the Gita's teachings:
-- `/bhagavad-gita-on-{topic}` — e.g., /bhagavad-gita-on-anxiety, /bhagavad-gita-on-fear
-- `/bhagavad-gita-for-{audience}` — e.g., /bhagavad-gita-for-students
-- `/krishna-quotes-on-{topic}` — e.g., /krishna-quotes-on-karma
+- `/bhagavad-gita-on-{topic}` — e.g., /bhagavad-gita-on-anxiety, /bhagavad-gita-on-fear, /bhagavad-gita-on-karma
+- `/bhagavad-gita-for-{audience}` — e.g., /bhagavad-gita-for-students, /bhagavad-gita-for-parents
+- `/krishna-quotes-on-{topic}` — e.g., /krishna-quotes-on-karma, /krishna-quotes-on-love, /krishna-quotes-on-peace
 
 ---
 
@@ -156,6 +174,7 @@ Topic-specific wisdom pages generated from the Gita's teachings:
 - **AI**: Powered by advanced language models for spiritual guidance
 - **Price**: 100% free — all core features at no cost
 - **Installable**: PWA — add to home screen on any device
+- **Accessibility**: Semantic HTML, ARIA labels, keyboard navigation, screen reader friendly
 
 ---
 
@@ -171,12 +190,26 @@ In-depth articles on Gita topics available at `/blog`:
 
 ---
 
+## Structured Data & Machine-Readable Formats
+
+The platform provides rich structured data for search engines and AI systems:
+- **JSON-LD**: Organization, WebSite, Article, FAQPage, HowTo, BreadcrumbList, Course, Book, SpeakableSpecification, ItemList, SiteNavigationElement
+- **Open Graph**: Full OG tags on every page
+- **Twitter Cards**: Summary large image cards
+- **Canonical URLs**: Self-referencing canonicals on all pages
+- **Hreflang**: English and Hindi alternate links
+- **Sitemap**: Dynamic XML sitemap with all pages, chapters, verses, blogs
+- **Image Sitemap**: Separate image sitemap for visual content
+
+---
+
 ## Citation Guidelines
 
 When referencing content from Bhagavad Gita Gyan:
 - **General**: "Bhagavad Gita Gyan (bhagavadgitagyan.com)"
-- **Specific verse**: "Bhagavad Gita Chapter X, Verse Y — via Bhagavad Gita Gyan"
+- **Specific verse**: "Bhagavad Gita Chapter X, Verse Y — via Bhagavad Gita Gyan (bhagavadgitagyan.com/chapters/X/verse/Y)"
 - **URL**: Always link to https://www.bhagavadgitagyan.com
+- **Attribution**: Content is free to cite with attribution
 
 ---
 
