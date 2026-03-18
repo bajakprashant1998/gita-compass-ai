@@ -80,7 +80,9 @@ const App = () => (
             <ScrollToTop />
             <RedirectHandler />
             <GlobalCanonical />
+            <AdvancedStructuredData />
             <PageViewTracker />
+            <PerformanceOptimizer />
             <MobileInstallGate>
               <Suspense fallback={<PageLoader />}>
                 <Routes>
