@@ -25,16 +25,37 @@ export function PerformanceOptimizer() {
       }
     };
 
-    // Dynamically import web-vitals only when available
-    import('web-vitals').then(({ onCLS, onINP, onLCP, onFCP, onTTFB }) => {
-      onCLS(reportWebVital);
-      onINP(reportWebVital);
-      onLCP(reportWebVital);
-      onFCP(reportWebVital);
-      onTTFB(reportWebVital);
-    }).catch(() => {
-      // web-vitals not installed, skip
-    });
+    // Report basic CWV using PerformanceObserver (no library needed)
+    try {
+      // LCP
+      const lcpObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        const last = entries[entries.length - 1];
+        reportWebVital({ name: 'LCP', value: last.startTime, id: 'lcp-' + Date.now() });
+      });
+      lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+
+      // CLS
+      let clsValue = 0;
+      const clsObserver = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (!(entry as any).hadRecentInput) {
+            clsValue += (entry as any).value;
+          }
+        }
+      });
+      clsObserver.observe({ type: 'layout-shift', buffered: true });
+
+      // Report CLS on page hide
+      const reportCLS = () => {
+        reportWebVital({ name: 'CLS', value: clsValue, id: 'cls-' + Date.now() });
+      };
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') reportCLS();
+      });
+    } catch {
+      // PerformanceObserver not supported
+    }
   }, []);
 
   // Add dynamic resource hints based on current page
