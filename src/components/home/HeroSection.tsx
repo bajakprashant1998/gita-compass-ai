@@ -17,13 +17,15 @@ function useTypewriter(phrases: string[], typingSpeed = 60, pauseTime = 2000) {
 
   useEffect(() => {
     const currentPhrase = phrases[phraseIndex];
+    let pauseTimer: ReturnType<typeof setTimeout> | null = null;
+
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         if (charIndex < currentPhrase.length) {
           setPlaceholder(currentPhrase.slice(0, charIndex + 1));
           setCharIndex(prev => prev + 1);
         } else {
-          setTimeout(() => setIsDeleting(true), pauseTime);
+          pauseTimer = setTimeout(() => setIsDeleting(true), pauseTime);
         }
       } else {
         if (charIndex > 0) {
@@ -35,7 +37,11 @@ function useTypewriter(phrases: string[], typingSpeed = 60, pauseTime = 2000) {
         }
       }
     }, isDeleting ? 30 : typingSpeed);
-    return () => clearTimeout(timeout);
+
+    return () => {
+      clearTimeout(timeout);
+      if (pauseTimer) clearTimeout(pauseTimer);
+    };
   }, [charIndex, isDeleting, phraseIndex, phrases, typingSpeed, pauseTime]);
 
   return placeholder;
