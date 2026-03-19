@@ -14,7 +14,7 @@ const actions = [
   {
     icon: Sparkles,
     label: 'Random Wisdom',
-    href: '/#daily-wisdom',
+    href: '/chapters',
     color: 'bg-amber-500 hover:bg-amber-600',
   },
   {

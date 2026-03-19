@@ -236,7 +236,7 @@ export function HeroSection() {
                     <Button 
                       type="submit" 
                       size="lg"
-                      className="w-full gap-2 h-13 text-lg font-bold bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 border-0 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                      className="w-full gap-2 h-[3.25rem] text-lg font-bold bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 border-0 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
                       disabled={!problem.trim()}
                     >
                       Get Wisdom
