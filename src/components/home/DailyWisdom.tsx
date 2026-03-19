@@ -105,22 +105,6 @@ export function DailyWisdom() {
                   text={shlok.life_application || shlok.english_meaning}
                   url={`https://www.bhagavadgitagyan.com/chapters/${shlok.chapter?.chapter_number}/verse/${shlok.verse_number}`}
                 />
-                {typeof navigator !== 'undefined' && 'share' in navigator && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
-                    onClick={() => {
-                      navigator.share({
-                        title: `Bhagavad Gita - Chapter ${shlok.chapter?.chapter_number}, Verse ${shlok.verse_number}`,
-                        text: `"${shlok.english_meaning}"\n\n💡 ${shlok.life_application || ''}\n\n— Bhagavad Gita`,
-                        url: `https://www.bhagavadgitagyan.com/chapters/${shlok.chapter?.chapter_number}/verse/${shlok.verse_number}`,
-                      }).catch(() => {});
-                    }}
-                  >
-                    <Share2 className="h-4 w-4" /> Share as Story
-                  </Button>
-                )}
               </div>
             </div>
           </div>
