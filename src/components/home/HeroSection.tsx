@@ -190,7 +190,7 @@ export function HeroSection() {
                 </Button>
               </Link>
               <Link to="/chapters">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 h-13 text-base font-bold border-2">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 h-[3.25rem] text-base font-bold border-2">
                   <BookOpen className="h-5 w-5" />
                   Browse Chapters
                 </Button>
