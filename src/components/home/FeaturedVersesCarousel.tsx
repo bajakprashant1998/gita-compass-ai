@@ -79,7 +79,7 @@ export function FeaturedVersesCarousel() {
 
                     {/* Sanskrit snippet */}
                     <p className="text-sm text-muted-foreground sanskrit mb-4 line-clamp-2 leading-relaxed">
-                      {verse.sanskrit_text.slice(0, 100)}...
+                      {verse.sanskrit_text}
                     </p>
 
                     {/* English meaning */}

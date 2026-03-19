@@ -17,13 +17,15 @@ function useTypewriter(phrases: string[], typingSpeed = 60, pauseTime = 2000) {
 
   useEffect(() => {
     const currentPhrase = phrases[phraseIndex];
+    let pauseTimer: ReturnType<typeof setTimeout> | null = null;
+
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         if (charIndex < currentPhrase.length) {
           setPlaceholder(currentPhrase.slice(0, charIndex + 1));
           setCharIndex(prev => prev + 1);
         } else {
-          setTimeout(() => setIsDeleting(true), pauseTime);
+          pauseTimer = setTimeout(() => setIsDeleting(true), pauseTime);
         }
       } else {
         if (charIndex > 0) {
@@ -35,7 +37,11 @@ function useTypewriter(phrases: string[], typingSpeed = 60, pauseTime = 2000) {
         }
       }
     }, isDeleting ? 30 : typingSpeed);
-    return () => clearTimeout(timeout);
+
+    return () => {
+      clearTimeout(timeout);
+      if (pauseTimer) clearTimeout(pauseTimer);
+    };
   }, [charIndex, isDeleting, phraseIndex, phrases, typingSpeed, pauseTime]);
 
   return placeholder;
@@ -184,13 +190,13 @@ export function HeroSection() {
             {/* CTA buttons for mobile */}
             <div className="animate-fade-in animation-delay-500 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-6 lg:hidden">
               <Link to="/chat">
-                <Button size="lg" className="w-full sm:w-auto gap-2 h-13 text-base font-bold bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 border-0 shadow-lg">
+                <Button size="lg" className="w-full sm:w-auto gap-2 h-[3.25rem] text-base font-bold bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 border-0 shadow-lg">
                   <MessageCircle className="h-5 w-5" />
                   Talk to Krishna
                 </Button>
               </Link>
               <Link to="/chapters">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 h-13 text-base font-bold border-2">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 h-[3.25rem] text-base font-bold border-2">
                   <BookOpen className="h-5 w-5" />
                   Browse Chapters
                 </Button>
@@ -236,7 +242,7 @@ export function HeroSection() {
                     <Button 
                       type="submit" 
                       size="lg"
-                      className="w-full gap-2 h-13 text-lg font-bold bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 border-0 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                      className="w-full gap-2 h-[3.25rem] text-lg font-bold bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 border-0 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
                       disabled={!problem.trim()}
                     >
                       Get Wisdom

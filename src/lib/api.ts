@@ -227,17 +227,29 @@ export async function searchShloks(query: string): Promise<Shlok[]> {
 }
 
 export async function getStats() {
-  // Use Supabase client for count queries (these don't block on auth)
-  const [chaptersResult, shloksResult, problemsResult] = await Promise.all([
-    supabase.from('chapters').select('id', { count: 'exact', head: true }),
-    supabase.from('shloks').select('id', { count: 'exact', head: true }),
-    supabase.from('problems').select('id', { count: 'exact', head: true }),
+  const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const apiKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const headers = {
+    'apikey': apiKey,
+    'Authorization': `Bearer ${apiKey}`,
+    'Prefer': 'count=exact',
+  };
+
+  const [chaptersRes, shloksRes, problemsRes] = await Promise.all([
+    fetch(`${baseUrl}/rest/v1/chapters?select=id&limit=0`, { headers }),
+    fetch(`${baseUrl}/rest/v1/shloks?select=id&limit=0`, { headers }),
+    fetch(`${baseUrl}/rest/v1/problems?select=id&limit=0`, { headers }),
   ]);
-  
+
+  const parseCount = (res: Response) => {
+    const range = res.headers.get('content-range');
+    return range ? parseInt(range.split('/')[1] || '0') : 0;
+  };
+
   return {
-    chapters: chaptersResult.count || 18,
-    shloks: shloksResult.count || 700,
-    problems: problemsResult.count || 8,
+    chapters: parseCount(chaptersRes) || 18,
+    shloks: parseCount(shloksRes) || 700,
+    problems: parseCount(problemsRes) || 8,
   };
 }
 
