@@ -184,7 +184,7 @@ export function HeroSection() {
             {/* CTA buttons for mobile */}
             <div className="animate-fade-in animation-delay-500 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-6 lg:hidden">
               <Link to="/chat">
-                <Button size="lg" className="w-full sm:w-auto gap-2 h-13 text-base font-bold bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 border-0 shadow-lg">
+                <Button size="lg" className="w-full sm:w-auto gap-2 h-[3.25rem] text-base font-bold bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 border-0 shadow-lg">
                   <MessageCircle className="h-5 w-5" />
                   Talk to Krishna
                 </Button>
