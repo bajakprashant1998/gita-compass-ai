@@ -308,7 +308,7 @@ export default function DonatePage() {
                     </Button>
                   </Link>
                   <Link to="/chapters">
-                    <Button size="lg" variant="outline" className="gap-2 h-13 font-bold border-2">
+                    <Button size="lg" variant="outline" className="gap-2 h-[3.25rem] font-bold border-2">
                       <BookOpen className="h-5 w-5" />
                       Explore Chapters
                     </Button>

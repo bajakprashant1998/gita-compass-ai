@@ -223,7 +223,7 @@ export default function ContactPage() {
                       <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full h-13 text-base font-bold bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 border-0 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 rounded-xl"
+                        className="w-full h-[3.25rem] text-base font-bold bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 border-0 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 rounded-xl"
                       >
                         {isSubmitting ? (
                           <>
