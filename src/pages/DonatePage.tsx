@@ -302,7 +302,7 @@ export default function DonatePage() {
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
                   <Link to="/chat">
-                    <Button size="lg" className="gap-2 h-13 font-bold bg-gradient-to-r from-rose-500 to-orange-500 hover:opacity-90 border-0 shadow-lg">
+                    <Button size="lg" className="gap-2 h-[3.25rem] font-bold bg-gradient-to-r from-rose-500 to-orange-500 hover:opacity-90 border-0 shadow-lg">
                       <MessageCircle className="h-5 w-5" />
                       Talk to Krishna
                     </Button>
