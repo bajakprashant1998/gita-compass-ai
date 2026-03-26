@@ -1,0 +1,31 @@
+services:
+  bhagavadgitagyan:
+    build: .
+    container_name: bhagavadgitagyan
+    restart: always
+
+    networks:
+      - web
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+
+      # HTTPS router (TEST DOMAIN FIRST)
+      - "traefik.http.routers.bhagavad.rule=Host(`test.bhagavadgitagyan.com`)"
+      - "traefik.http.routers.bhagavad.entrypoints=websecure"
+      - "traefik.http.routers.bhagavad.tls.certresolver=letsencrypt"
+
+      # HTTP → HTTPS redirect
+      - "traefik.http.routers.bhagavad-http.rule=Host(`test.bhagavadgitagyan.com`)"
+      - "traefik.http.routers.bhagavad-http.entrypoints=web"
+      - "traefik.http.routers.bhagavad-http.middlewares=redirect-to-https"
+
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+
+      # Service
+      - "traefik.http.services.bhagavad.loadbalancer.server.port=80"
+
+networks:
+  web:
+    external: true
