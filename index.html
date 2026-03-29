@@ -5,13 +5,13 @@
   <!-- Preconnect to critical origins -->
   <link rel="preconnect" href="https://glxupcdgtzqkaxcgezeu.supabase.co" crossorigin />
   <link rel="dns-prefetch" href="https://glxupcdgtzqkaxcgezeu.supabase.co" />
-  
+
   <!-- Google Tag Manager - deferred to not block rendering -->
   <script>
-    window.addEventListener('load', function() {
-      setTimeout(function() {
+    window.addEventListener('load', function () {
+      setTimeout(function () {
         (function (w, d, s, l, i) {
-          w[l] = w[l] || []; w[l].push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+          w[l] = w[l] || []; w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
           var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
           j.async = true; j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
           f.parentNode.insertBefore(j, f);
@@ -23,13 +23,13 @@
 
   <!-- Google Analytics GA4 - deferred -->
   <script>
-    window.addEventListener('load', function() {
-      setTimeout(function() {
+    window.addEventListener('load', function () {
+      setTimeout(function () {
         var s = document.createElement('script');
         s.src = 'https://www.googletagmanager.com/gtag/js?id=G-DLJL71LG51';
         s.async = true;
         document.head.appendChild(s);
-        s.onload = function() {
+        s.onload = function () {
           window.dataLayer = window.dataLayer || [];
           function gtag() { dataLayer.push(arguments); }
           gtag('js', new Date());
@@ -42,8 +42,8 @@
 
   <!-- Google AdSense - deferred for better CWV -->
   <script>
-    window.addEventListener('load', function() {
-      setTimeout(function() {
+    window.addEventListener('load', function () {
+      setTimeout(function () {
         var s = document.createElement('script');
         s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4885234064479167';
         s.async = true;
@@ -53,14 +53,15 @@
     });
   </script>
   <!-- End Google AdSense -->
-  
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-title" content="Gita Gyan" />
 
   <!-- Primary Meta Tags -->
   <title>Bhagavad Gita Gyan - Ancient Wisdom for Modern Problems | All 18 Chapters, 700+ Verses Free</title>
-  <meta name="title" content="Bhagavad Gita Gyan - Ancient Wisdom for Modern Problems | All 18 Chapters, 700+ Verses Free" />
+  <meta name="title"
+    content="Bhagavad Gita Gyan - Ancient Wisdom for Modern Problems | All 18 Chapters, 700+ Verses Free" />
   <meta name="description"
     content="Read Bhagavad Gita online free — all 18 chapters, 700+ verses with Sanskrit, English & Hindi meaning. AI-powered guidance for anxiety, stress, fear & life problems. Talk to Krishna AI counselor." />
   <meta name="author" content="Bhagavad Gita Gyan" />
@@ -98,12 +99,12 @@
   <meta name="referrer" content="origin-when-cross-origin" />
   <meta name="google" content="notranslate" />
   <meta http-equiv="x-dns-prefetch-control" content="on" />
-  
+
   <!-- Hreflang for multilingual -->
   <link rel="alternate" hreflang="en" href="https://www.bhagavadgitagyan.com/" />
   <link rel="alternate" hreflang="hi" href="https://www.bhagavadgitagyan.com/hi" />
   <link rel="alternate" hreflang="x-default" href="https://www.bhagavadgitagyan.com/" />
-  
+
   <!-- Preload critical above-fold resources -->
   <link rel="preload" href="/logo.png" as="image" fetchpriority="high" />
 
@@ -118,12 +119,16 @@
   <link rel="apple-touch-icon" href="/logo.png" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  
+
   <!-- Google Fonts for Indian Languages - deferred -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet" /></noscript>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"
+    media="print" onload="this.media='all'" />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&display=swap"
+      rel="stylesheet" />
+  </noscript>
 
   <!-- Speculation Rules API for instant navigation (Chrome 121+) -->
   <script type="speculationrules">
@@ -155,33 +160,104 @@
     ]
   }
   </script>
-  
+
   <!-- Inline critical CSS for faster FCP -->
   <style>
     /* Critical CSS for initial render */
-    *,::after,::before{box-sizing:border-box}
-    html{line-height:1.5;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-    body{margin:0;font-family:system-ui,-apple-system,sans-serif;background-color:#0a0a0a;color:#fafafa}
-    #root{min-height:100vh}
-    .min-h-screen{min-height:100vh}
-    .flex{display:flex}
-    .items-center{align-items:center}
-    .justify-center{justify-content:center}
-    .bg-background{background-color:#0a0a0a}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .animate-spin{animation:spin 1s linear infinite}
-    .rounded-full{border-radius:9999px}
-    .border-2{border-width:2px}
-    .border-primary{border-color:#c2410c}
-    .border-t-transparent{border-top-color:transparent}
-    .w-8{width:2rem}
-    .h-8{height:2rem}
+    *,
+    ::after,
+    ::before {
+      box-sizing: border-box
+    }
+
+    html {
+      line-height: 1.5;
+      -webkit-text-size-adjust: 100%;
+      scroll-behavior: smooth
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #0a0a0a;
+      color: #fafafa
+    }
+
+    #root {
+      min-height: 100vh
+    }
+
+    .min-h-screen {
+      min-height: 100vh
+    }
+
+    .flex {
+      display: flex
+    }
+
+    .items-center {
+      align-items: center
+    }
+
+    .justify-center {
+      justify-content: center
+    }
+
+    .bg-background {
+      background-color: #0a0a0a
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .animate-spin {
+      animation: spin 1s linear infinite
+    }
+
+    .rounded-full {
+      border-radius: 9999px
+    }
+
+    .border-2 {
+      border-width: 2px
+    }
+
+    .border-primary {
+      border-color: #c2410c
+    }
+
+    .border-t-transparent {
+      border-top-color: transparent
+    }
+
+    .w-8 {
+      width: 2rem
+    }
+
+    .h-8 {
+      height: 2rem
+    }
+
     /* Prevent CLS from hero section */
-    main section:first-of-type {min-height:92vh}
+    /* main section:first-of-type {
+      min-height: 92vh
+    } */
+
     /* INP optimization */
-    a,button,input,textarea,select,[role="button"]{touch-action:manipulation}
+    a,
+    button,
+    input,
+    textarea,
+    select,
+    [role="button"] {
+      touch-action: manipulation
+    }
   </style>
 </head>
+
 <body>
   <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-ML97X8GS" height="0" width="0"
@@ -193,8 +269,9 @@
   <noscript>
     <div style="max-width:1200px;margin:0 auto;padding:40px 20px;font-family:system-ui,sans-serif;color:#333;">
       <h1>Bhagavad Gita Gyan — Ancient Wisdom for Modern Problems</h1>
-      <p>Read the complete Bhagavad Gita online for free. All 18 chapters and 700+ verses with Sanskrit text, English and Hindi meanings, modern life applications, and AI-powered spiritual guidance.</p>
-      
+      <p>Read the complete Bhagavad Gita online for free. All 18 chapters and 700+ verses with Sanskrit text, English
+        and Hindi meanings, modern life applications, and AI-powered spiritual guidance.</p>
+
       <h2>Explore the Bhagavad Gita</h2>
       <nav>
         <ul>
@@ -219,7 +296,7 @@
           <li><a href="/chapters/18">Chapter 18: Moksha Sanyasa Yoga (78 verses)</a></li>
         </ul>
       </nav>
-      
+
       <h2>Popular Verses</h2>
       <ul>
         <li><a href="/chapters/2/verse/47">Chapter 2, Verse 47 - Karmanye Vadhikaraste (Karma Yoga)</a></li>
@@ -228,7 +305,7 @@
         <li><a href="/chapters/4/verse/7">Chapter 4, Verse 7 - Whenever Dharma Declines</a></li>
         <li><a href="/chapters/9/verse/22">Chapter 9, Verse 22 - Divine Protection</a></li>
       </ul>
-      
+
       <h2>Features</h2>
       <ul>
         <li><a href="/problems">Find Gita Solutions for Life Problems</a></li>
@@ -237,30 +314,33 @@
         <li><a href="/blog">Bhagavad Gita Wisdom Blog</a></li>
         <li><a href="/mood">Mood-Based Verse Finder</a></li>
       </ul>
-      
+
       <h2>Frequently Asked Questions</h2>
       <h3>How many chapters are in the Bhagavad Gita?</h3>
-      <p>The Bhagavad Gita has 18 chapters and 700+ verses covering Karma Yoga, Bhakti Yoga, Jnana Yoga, and Dhyana Yoga.</p>
-      
+      <p>The Bhagavad Gita has 18 chapters and 700+ verses covering Karma Yoga, Bhakti Yoga, Jnana Yoga, and Dhyana
+        Yoga.</p>
+
       <h3>Can I read Bhagavad Gita online for free?</h3>
-      <p>Yes! Bhagavad Gita Gyan provides all 18 chapters and 700+ verses completely free with Sanskrit text, English meaning, Hindi translation, modern stories, and life applications.</p>
-      
+      <p>Yes! Bhagavad Gita Gyan provides all 18 chapters and 700+ verses completely free with Sanskrit text, English
+        meaning, Hindi translation, modern stories, and life applications.</p>
+
       <h3>What is the most famous verse of Bhagavad Gita?</h3>
-      <p>Chapter 2, Verse 47 "Karmanye Vadhikaraste Ma Phaleshu Kadachana" — You have the right to action but never to the fruits of action. This is the essence of Karma Yoga.</p>
+      <p>Chapter 2, Verse 47 "Karmanye Vadhikaraste Ma Phaleshu Kadachana" — You have the right to action but never to
+        the fruits of action. This is the essence of Karma Yoga.</p>
     </div>
   </noscript>
   <script>
     // Unregister any stale service workers that may be serving offline pages
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        registrations.forEach(function(registration) {
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        registrations.forEach(function (registration) {
           registration.unregister();
         });
       });
       // Clear all caches
       if ('caches' in window) {
-        caches.keys().then(function(names) {
-          names.forEach(function(name) { caches.delete(name); });
+        caches.keys().then(function (names) {
+          names.forEach(function (name) { caches.delete(name); });
         });
       }
     }
